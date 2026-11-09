@@ -1,17 +1,24 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.ui.components.AppButton
 import com.example.simpleflashcards.ui.components.AppDialog
 import com.example.simpleflashcards.ui.components.AppToolbar
+import com.example.simpleflashcards.ui.components.CsvImportExportButtons
 
 @Composable
 fun ManageScreen(
@@ -20,7 +27,8 @@ fun ManageScreen(
     onAdd: () -> Unit,
     onEdit: (Flashcard) -> Unit,
     onDelete: (Flashcard) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onImportCards: (List<CsvFlashcard>) -> Unit
 ) {
 
     var cardToDelete by remember {
@@ -29,7 +37,14 @@ fun ManageScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar(deckName)
+            AppToolbar(deckName) {
+                CsvImportExportButtons(
+                    deckName = deckName,
+                    cards = cards,
+                    onImport = onImportCards,
+                    menuMode = true
+                )
+            }
         }
     ) { padding ->
 
@@ -62,7 +77,6 @@ fun ManageScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-
                     items(
                         items = cards,
                         key = { it.id }
@@ -71,33 +85,42 @@ fun ManageScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-
-                            Column(
-                                modifier = Modifier.padding(16.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = 16.dp,
+                                        end = 4.dp,
+                                        top = 8.dp,
+                                        bottom = 8.dp
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
 
                                 Text(
                                     text = card.question,
+                                    modifier = Modifier.weight(1f),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                Row {
+                                IconButton(
+                                    onClick = { onEdit(card) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit flashcard"
+                                    )
+                                }
 
-                                    TextButton(
-                                        onClick = {
-                                            onEdit(card)
-                                        }
-                                    ) {
-                                        Text("Edit")
+                                IconButton(
+                                    onClick = {
+                                        cardToDelete = card
                                     }
-
-                                    TextButton(
-                                        onClick = {
-                                            cardToDelete = card
-                                        }
-                                    ) {
-                                        Text("Delete")
-                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete flashcard"
+                                    )
                                 }
                             }
                         }
@@ -112,13 +135,11 @@ fun ManageScreen(
     }
 
     cardToDelete?.let { card ->
-
         AppDialog(
             title = "Delete flashcard?",
             message = "Are you sure you want to delete this flashcard?",
             confirmText = "Delete",
             onConfirm = {
-
                 onDelete(card)
                 cardToDelete = null
             },

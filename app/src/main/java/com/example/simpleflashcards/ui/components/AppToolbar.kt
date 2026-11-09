@@ -1,14 +1,17 @@
+
 package com.example.simpleflashcards.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.RowScope
 import com.example.simpleflashcards.ui.theme.ComponentStyles
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppToolbar(title: String) {
-
+fun AppToolbar(
+    title: String,
+    actions: @Composable RowScope.() -> Unit = {}
+) {
     TopAppBar(
         title = {
             Text(
@@ -16,6 +19,7 @@ fun AppToolbar(title: String) {
                 color = ComponentStyles.Toolbar.TextColor
             )
         },
+        actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = ComponentStyles.Toolbar.Background
         )

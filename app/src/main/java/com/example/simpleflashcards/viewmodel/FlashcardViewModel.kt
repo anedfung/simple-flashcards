@@ -3,6 +3,7 @@ package com.example.simpleflashcards.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
+import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.data.FlashcardRepository
@@ -88,6 +89,23 @@ class FlashcardViewModel(
                     deckId = deckId
                 )
             )
+        }
+    }
+
+    fun addImportedCards(
+        deckId: Int,
+        importedCards: List<CsvFlashcard>
+    ) {
+        viewModelScope.launch {
+            importedCards.forEach { imported ->
+                repository.addCard(
+                    Flashcard(
+                        question = imported.question,
+                        answer = imported.answer,
+                        deckId = deckId
+                    )
+                )
+            }
         }
     }
 

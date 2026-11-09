@@ -3,6 +3,7 @@ package com.example.simpleflashcards.navigation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 
+import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 
@@ -151,6 +152,15 @@ fun AppNavigation(
                     onBack = {
 
                         currentScreen = AppScreen.HOME
+                    },
+
+                    onImportCards = { importedCards ->
+                        selectedDeck?.let { deck ->
+                            viewModel.addImportedCards(
+                                deck.id,
+                                importedCards
+                            )
+                        }
                     }
                 )
             }

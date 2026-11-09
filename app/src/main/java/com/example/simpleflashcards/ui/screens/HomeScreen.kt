@@ -39,7 +39,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar("My Flashcards")
+            AppToolbar("My Decks")
         }
     ) { padding ->
 
