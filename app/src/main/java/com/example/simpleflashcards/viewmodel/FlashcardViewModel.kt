@@ -136,4 +136,8 @@ class FlashcardViewModel(
     fun toggleShuffle() {
         _shuffleEnabled.value = !_shuffleEnabled.value
     }
+
+    fun setShuffleEnabled(enabled: Boolean) {
+        _shuffleEnabled.value = enabled
+    }
 }

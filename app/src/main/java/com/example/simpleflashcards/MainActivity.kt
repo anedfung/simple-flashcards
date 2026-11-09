@@ -15,6 +15,7 @@ import com.example.simpleflashcards.data.FlashcardDatabase
 import com.example.simpleflashcards.data.FlashcardRepository
 import com.example.simpleflashcards.data.ThemePreferences
 import com.example.simpleflashcards.data.DeckAppearancePreferences
+import com.example.simpleflashcards.data.PracticeSessionPreferences
 
 import com.example.simpleflashcards.navigation.AppNavigation
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
 
         val backupManager = FlashcardBackupManager(database)
 
+        val practiceSessionPreferences =
+            PracticeSessionPreferences(applicationContext)
+
         setContent {
 
             val themeMode by themePreferences.themeMode.collectAsState(
@@ -62,16 +66,20 @@ class MainActivity : ComponentActivity() {
             SimpleFlashcardsTheme(
                 themeMode = themeMode
             ) {
+
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
+
                     onThemeModeChange = { newMode ->
                         scope.launch {
                             themePreferences.setThemeMode(newMode)
                         }
                     },
+
                     appearancePreferences = appearancePreferences,
-                    backupManager = backupManager
+                    backupManager = backupManager,
+                    practiceSessionPreferences = practiceSessionPreferences
                 )
             }
         }

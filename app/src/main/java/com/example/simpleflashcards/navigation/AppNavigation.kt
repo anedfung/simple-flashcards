@@ -1,18 +1,22 @@
 package com.example.simpleflashcards.navigation
 
+import android.net.Uri
+
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-
-import androidx.compose.ui.platform.LocalContext
-import android.net.Uri
-import com.example.simpleflashcards.data.FlashcardBackupManager
 
 import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.DeckAppearancePreferences
 import com.example.simpleflashcards.data.Flashcard
+import com.example.simpleflashcards.data.FlashcardBackupManager
+import com.example.simpleflashcards.data.PracticeSession
+import com.example.simpleflashcards.data.PracticeSessionPreferences
+import com.example.simpleflashcards.data.PracticeSessionSnapshot
 
 import com.example.simpleflashcards.ui.screens.*
 import com.example.simpleflashcards.ui.theme.AppThemeMode
@@ -27,7 +31,6 @@ private enum class AppScreen {
     EDIT,
     SETTINGS,
     DECK_APPEARANCE,
-
     BACKUP_RESTORE
 }
 
@@ -37,14 +40,25 @@ fun AppNavigation(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
     appearancePreferences: DeckAppearancePreferences,
-    backupManager: FlashcardBackupManager
+    backupManager: FlashcardBackupManager,
+    practiceSessionPreferences: PracticeSessionPreferences
 ) {
+
     val decks by viewModel.decks.collectAsState()
     val cards by viewModel.cards.collectAsState()
 
     val shuffleEnabled by viewModel.shuffleEnabled.collectAsState()
 
+    val savedSessionSnapshot by
+    practiceSessionPreferences.session.collectAsState(
+        initial = PracticeSessionSnapshot(
+            loaded = false,
+            session = null
+        )
+    )
+
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var currentScreen by remember {
         mutableStateOf(AppScreen.HOME)
@@ -56,6 +70,50 @@ fun AppNavigation(
 
     var editingCard by remember {
         mutableStateOf<Flashcard?>(null)
+    }
+
+    var restoredSession by remember {
+        mutableStateOf<PracticeSession?>(null)
+    }
+
+    var restorationHandled by remember {
+        mutableStateOf(false)
+    }
+
+    var backupStatus by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    // Restore the last practice session once the saved preferences
+    // and the deck list have both loaded.
+    LaunchedEffect(savedSessionSnapshot, decks) {
+
+        if (
+            savedSessionSnapshot.loaded &&
+            decks.isNotEmpty() &&
+            !restorationHandled
+        ) {
+
+            restorationHandled = true
+
+            val savedSession = savedSessionSnapshot.session
+
+            val matchingDeck = decks.firstOrNull {
+                it.id == savedSession?.deckId
+            }
+
+            if (savedSession != null && matchingDeck != null) {
+
+                selectedDeck = matchingDeck
+                restoredSession = savedSession
+
+                viewModel.setShuffleEnabled(
+                    savedSession.shuffleEnabled
+                )
+
+                currentScreen = AppScreen.PRACTICE
+            }
+        }
     }
 
     val selectedCards = cards.filter {
@@ -72,21 +130,17 @@ fun AppNavigation(
         initial = DeckAppearance()
     )
 
-    val context = LocalContext.current
-
-    var backupStatus by remember {
-        mutableStateOf<String?>(null)
-    }
-
     when (currentScreen) {
 
         AppScreen.HOME -> {
+
             HomeScreen(
                 decks = decks,
                 cards = cards,
 
                 onPractice = { deck ->
                     selectedDeck = deck
+                    restoredSession = null
                     currentScreen = AppScreen.PRACTICE
                 },
 
@@ -114,18 +168,33 @@ fun AppNavigation(
         }
 
         AppScreen.PRACTICE -> {
+
             selectedDeck?.let { deck ->
+
                 PracticeScreen(
+                    deckId = deck.id,
                     deckName = deck.name,
                     cards = selectedCards,
                     appearance = selectedAppearance,
+
+                    initialSession = restoredSession?.takeIf {
+                        it.deckId == deck.id
+                    },
+
                     shuffleEnabled = shuffleEnabled,
 
                     onToggleShuffle = {
                         viewModel.toggleShuffle()
                     },
 
+                    onSessionChange = { session ->
+                        scope.launch {
+                            practiceSessionPreferences.saveSession(session)
+                        }
+                    },
+
                     onBack = {
+                        restoredSession = null
                         currentScreen = AppScreen.HOME
                     }
                 )
@@ -133,7 +202,9 @@ fun AppNavigation(
         }
 
         AppScreen.MANAGE -> {
+
             selectedDeck?.let { deck ->
+
                 ManageScreen(
                     deckName = deck.name,
                     cards = selectedCards,
@@ -171,20 +242,26 @@ fun AppNavigation(
         }
 
         AppScreen.EDIT -> {
+
             selectedDeck?.let { deck ->
+
                 EditCardScreen(
                     deckName = deck.name,
                     deckId = deck.id,
                     card = editingCard,
 
                     onSave = { question, answer ->
+
                         if (editingCard == null) {
+
                             viewModel.addCard(
                                 question = question,
                                 answer = answer,
                                 deckId = deck.id
                             )
+
                         } else {
+
                             viewModel.updateCard(
                                 editingCard!!.copy(
                                     question = question,
@@ -204,12 +281,15 @@ fun AppNavigation(
         }
 
         AppScreen.SETTINGS -> {
+
             SettingsScreen(
                 themeMode = themeMode,
                 onThemeModeChange = onThemeModeChange,
+
                 onBack = {
                     currentScreen = AppScreen.HOME
                 },
+
                 onBackupRestore = {
                     backupStatus = null
                     currentScreen = AppScreen.BACKUP_RESTORE
@@ -218,7 +298,9 @@ fun AppNavigation(
         }
 
         AppScreen.DECK_APPEARANCE -> {
+
             selectedDeck?.let { deck ->
+
                 DeckAppearanceScreen(
                     deckName = deck.name,
                     appearance = selectedAppearance,
@@ -258,10 +340,11 @@ fun AppNavigation(
         }
 
         AppScreen.BACKUP_RESTORE -> {
+
             BackupRestoreScreen(
                 statusMessage = backupStatus,
 
-                onExport = { uri ->
+                onExport = { uri: Uri ->
                     scope.launch {
                         backupStatus = try {
                             backupManager.exportBackup(
@@ -270,6 +353,7 @@ fun AppNavigation(
                             )
 
                             "Backup exported successfully."
+
                         } catch (e: Exception) {
                             "Export failed: ${e.message ?: "Unknown error"}"
                         }
@@ -285,6 +369,7 @@ fun AppNavigation(
                             )
 
                             "Restored ${result.first} decks and ${result.second} flashcards."
+
                         } catch (e: Exception) {
                             "Restore failed: ${e.message ?: "Unknown error"}"
                         }

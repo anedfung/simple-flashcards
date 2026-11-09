@@ -8,33 +8,104 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 import com.example.simpleflashcards.data.Flashcard
+import com.example.simpleflashcards.data.PracticeSession
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.components.FlashcardView
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 
 @Composable
 fun PracticeScreen(
+    deckId: Int,
     deckName: String,
     cards: List<Flashcard>,
     appearance: DeckAppearance,
+    initialSession: PracticeSession?,
     shuffleEnabled: Boolean,
     onToggleShuffle: () -> Unit,
+    onSessionChange: (PracticeSession) -> Unit,
     onBack: () -> Unit
 ) {
-    val practiceCards = remember(cards, shuffleEnabled) {
-        if (shuffleEnabled) {
-            cards.shuffled()
-        } else {
-            cards
+
+    var orderedCards by remember(deckId) {
+        mutableStateOf(emptyList<Flashcard>())
+    }
+
+    var currentCardId by remember(deckId) {
+        mutableStateOf(initialSession?.currentCardId)
+    }
+
+    // Initialize or reconcile the card order.
+    LaunchedEffect(cards) {
+
+        if (cards.isNotEmpty()) {
+
+            val availableIds = cards.map { it.id }.toSet()
+
+            if (orderedCards.isEmpty()) {
+
+                val savedOrder = initialSession
+                    ?.takeIf { it.deckId == deckId }
+                    ?.cardIds
+                    ?.mapNotNull { id ->
+                        cards.firstOrNull { it.id == id }
+                    }
+                    .orEmpty()
+
+                val remainingCards = cards.filter {
+                        card -> savedOrder.none { it.id == card.id }
+                }
+
+                orderedCards = if (savedOrder.isNotEmpty()) {
+                    savedOrder + remainingCards
+                } else if (shuffleEnabled) {
+                    cards.shuffled()
+                } else {
+                    cards
+                }
+
+            } else {
+
+                orderedCards = orderedCards.filter {
+                    it.id in availableIds
+                } + cards.filter { card ->
+                    orderedCards.none { it.id == card.id }
+                }
+            }
+
+            if (orderedCards.none { it.id == currentCardId }) {
+                currentCardId = orderedCards.firstOrNull()?.id
+            }
         }
     }
 
-    var currentIndex by remember {
-        mutableIntStateOf(0)
+    val currentIndex = orderedCards.indexOfFirst {
+        it.id == currentCardId
+    }.let { index ->
+        if (index < 0) 0 else index
     }
 
-    LaunchedEffect(practiceCards) {
-        currentIndex = 0
+    // Save the session whenever its position, order, or mode changes.
+    LaunchedEffect(
+        deckId,
+        orderedCards,
+        currentCardId,
+        shuffleEnabled
+    ) {
+        if (orderedCards.isNotEmpty()) {
+
+            val validCurrentId = currentCardId
+                ?.takeIf { id -> orderedCards.any { it.id == id } }
+                ?: orderedCards.first().id
+
+            onSessionChange(
+                PracticeSession(
+                    deckId = deckId,
+                    shuffleEnabled = shuffleEnabled,
+                    cardIds = orderedCards.map { it.id },
+                    currentCardId = validCurrentId
+                )
+            )
+        }
     }
 
     Scaffold(
@@ -52,7 +123,7 @@ fun PracticeScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
-            if (practiceCards.isEmpty()) {
+            if (orderedCards.isEmpty()) {
 
                 Text("This deck has no flashcards.")
 
@@ -64,15 +135,10 @@ fun PracticeScreen(
 
             } else {
 
-                val safeIndex = currentIndex.coerceIn(
-                    0,
-                    practiceCards.lastIndex
-                )
-
-                val currentCard = practiceCards[safeIndex]
+                val currentCard = orderedCards[currentIndex]
 
                 Text(
-                    text = "${safeIndex + 1} / ${practiceCards.size}",
+                    text = "${currentIndex + 1} / ${orderedCards.size}",
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -93,12 +159,15 @@ fun PracticeScreen(
 
                     OutlinedButton(
                         onClick = {
-                            currentIndex =
-                                if (safeIndex == 0) {
-                                    practiceCards.lastIndex
+                            val previousIndex =
+                                if (currentIndex == 0) {
+                                    orderedCards.lastIndex
                                 } else {
-                                    safeIndex - 1
+                                    currentIndex - 1
                                 }
+
+                            currentCardId =
+                                orderedCards[previousIndex].id
                         }
                     ) {
                         Text("Previous")
@@ -106,8 +175,11 @@ fun PracticeScreen(
 
                     OutlinedButton(
                         onClick = {
-                            currentIndex =
-                                (safeIndex + 1) % practiceCards.size
+                            val nextIndex =
+                                (currentIndex + 1) % orderedCards.size
+
+                            currentCardId =
+                                orderedCards[nextIndex].id
                         }
                     ) {
                         Text("Next")
@@ -127,6 +199,17 @@ fun PracticeScreen(
                     Switch(
                         checked = shuffleEnabled,
                         onCheckedChange = {
+
+                            val nextShuffleState = !shuffleEnabled
+
+                            orderedCards = if (nextShuffleState) {
+                                cards.shuffled()
+                            } else {
+                                cards
+                            }
+
+                            currentCardId = orderedCards.firstOrNull()?.id
+
                             onToggleShuffle()
                         }
                     )
