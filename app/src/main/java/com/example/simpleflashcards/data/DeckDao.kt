@@ -12,6 +12,33 @@ interface DeckDao {
     @Query("SELECT * FROM decks ORDER BY createdAt ASC")
     suspend fun getAllNow(): List<Deck>
 
+    @Query(
+        """
+        SELECT * FROM decks
+        WHERE parentDeckId IS NULL
+        ORDER BY createdAt ASC
+        """
+    )
+    fun getRootDecks(): Flow<List<Deck>>
+
+    @Query(
+        """
+        SELECT * FROM decks
+        WHERE parentDeckId = :parentId
+        ORDER BY createdAt ASC
+        """
+    )
+    fun getChildren(parentId: Int): Flow<List<Deck>>
+
+    @Query(
+        """
+        SELECT * FROM decks
+        WHERE parentDeckId = :parentId
+        ORDER BY createdAt ASC
+        """
+    )
+    suspend fun getChildrenNow(parentId: Int): List<Deck>
+
     @Insert
     suspend fun insert(deck: Deck): Long
 
