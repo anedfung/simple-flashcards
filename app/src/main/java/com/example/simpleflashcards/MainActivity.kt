@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 
+import com.example.simpleflashcards.data.FlashcardBackupManager
 import com.example.simpleflashcards.data.FlashcardDatabase
 import com.example.simpleflashcards.data.FlashcardRepository
 import com.example.simpleflashcards.data.ThemePreferences
@@ -48,6 +49,8 @@ class MainActivity : ComponentActivity() {
         val appearancePreferences =
             DeckAppearancePreferences(applicationContext)
 
+        val backupManager = FlashcardBackupManager(database)
+
         setContent {
 
             val themeMode by themePreferences.themeMode.collectAsState(
@@ -62,14 +65,13 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
-
                     onThemeModeChange = { newMode ->
                         scope.launch {
                             themePreferences.setThemeMode(newMode)
                         }
                     },
-
-                    appearancePreferences = appearancePreferences
+                    appearancePreferences = appearancePreferences,
+                    backupManager = backupManager
                 )
             }
         }

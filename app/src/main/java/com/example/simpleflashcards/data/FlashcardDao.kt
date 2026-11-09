@@ -9,6 +9,9 @@ interface FlashcardDao {
     @Query("SELECT * FROM flashcards ORDER BY id ASC")
     fun getAll(): Flow<List<Flashcard>>
 
+    @Query("SELECT * FROM flashcards ORDER BY id ASC")
+    suspend fun getAllNow(): List<Flashcard>
+
     @Query(
         "SELECT * FROM flashcards " +
                 "WHERE deckId = :deckId ORDER BY id ASC"
@@ -18,10 +21,15 @@ interface FlashcardDao {
     @Insert
     suspend fun insert(card: Flashcard)
 
+    @Insert
+    suspend fun insertAll(cards: List<Flashcard>)
+
     @Update
     suspend fun update(card: Flashcard)
 
     @Delete
     suspend fun delete(card: Flashcard)
 
+    @Query("DELETE FROM flashcards")
+    suspend fun deleteAll()
 }

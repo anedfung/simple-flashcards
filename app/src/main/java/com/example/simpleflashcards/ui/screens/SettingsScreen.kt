@@ -14,7 +14,8 @@ import com.example.simpleflashcards.ui.theme.AppThemeMode
 fun SettingsScreen(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onBackupRestore: () -> Unit
 ) {
 
     Scaffold(
@@ -102,6 +103,24 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+            Text(
+                text = "Data",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onBackupRestore,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Backup & Restore")
             }
         }
     }

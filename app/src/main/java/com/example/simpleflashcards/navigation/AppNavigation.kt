@@ -5,6 +5,10 @@ import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+import com.example.simpleflashcards.data.FlashcardBackupManager
+
 import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.DeckAppearancePreferences
@@ -22,7 +26,9 @@ private enum class AppScreen {
     MANAGE,
     EDIT,
     SETTINGS,
-    DECK_APPEARANCE
+    DECK_APPEARANCE,
+
+    BACKUP_RESTORE
 }
 
 @Composable
@@ -30,7 +36,8 @@ fun AppNavigation(
     viewModel: FlashcardViewModel,
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
-    appearancePreferences: DeckAppearancePreferences
+    appearancePreferences: DeckAppearancePreferences,
+    backupManager: FlashcardBackupManager
 ) {
     val decks by viewModel.decks.collectAsState()
     val cards by viewModel.cards.collectAsState()
@@ -64,6 +71,12 @@ fun AppNavigation(
     val selectedAppearance by appearanceFlow.collectAsState(
         initial = DeckAppearance()
     )
+
+    val context = LocalContext.current
+
+    var backupStatus by remember {
+        mutableStateOf<String?>(null)
+    }
 
     when (currentScreen) {
 
@@ -196,6 +209,10 @@ fun AppNavigation(
                 onThemeModeChange = onThemeModeChange,
                 onBack = {
                     currentScreen = AppScreen.HOME
+                },
+                onBackupRestore = {
+                    backupStatus = null
+                    currentScreen = AppScreen.BACKUP_RESTORE
                 }
             )
         }
@@ -238,6 +255,46 @@ fun AppNavigation(
                     }
                 )
             }
+        }
+
+        AppScreen.BACKUP_RESTORE -> {
+            BackupRestoreScreen(
+                statusMessage = backupStatus,
+
+                onExport = { uri ->
+                    scope.launch {
+                        backupStatus = try {
+                            backupManager.exportBackup(
+                                context.contentResolver,
+                                uri
+                            )
+
+                            "Backup exported successfully."
+                        } catch (e: Exception) {
+                            "Export failed: ${e.message ?: "Unknown error"}"
+                        }
+                    }
+                },
+
+                onImport = { uri ->
+                    scope.launch {
+                        backupStatus = try {
+                            val result = backupManager.importBackup(
+                                context.contentResolver,
+                                uri
+                            )
+
+                            "Restored ${result.first} decks and ${result.second} flashcards."
+                        } catch (e: Exception) {
+                            "Restore failed: ${e.message ?: "Unknown error"}"
+                        }
+                    }
+                },
+
+                onBack = {
+                    currentScreen = AppScreen.SETTINGS
+                }
+            )
         }
     }
 }

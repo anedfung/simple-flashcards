@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
@@ -20,6 +21,20 @@ abstract class FlashcardDatabase : RoomDatabase() {
     abstract fun flashcardDao(): FlashcardDao
 
     abstract fun deckDao(): DeckDao
+
+    suspend fun replaceAllData(
+        decks: List<Deck>,
+        cards: List<Flashcard>
+    ) {
+        withTransaction {
+
+            flashcardDao().deleteAll()
+            deckDao().deleteAll()
+
+            deckDao().insertAll(decks)
+            flashcardDao().insertAll(cards)
+        }
+    }
 
     companion object {
 
