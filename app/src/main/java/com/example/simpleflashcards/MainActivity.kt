@@ -27,7 +27,8 @@ class MainActivity : ComponentActivity() {
 
         // Initialize repository
         val repository = FlashcardRepository(
-            database.flashcardDao()
+            database.flashcardDao(),
+            database.deckDao()
         )
 
         // Initialize ViewModel
