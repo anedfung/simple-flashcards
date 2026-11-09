@@ -84,6 +84,68 @@ abstract class FlashcardDatabase : RoomDatabase() {
         newDeckId
     }
 
+    suspend fun createSubdeck(
+        parentDeckId: Int,
+        name: String = "New subdeck"
+    ): Int {
+        return withTransaction {
+            val parent = deckDao().getAllNow()
+                .firstOrNull { it.id == parentDeckId }
+                ?: error("Parent deck not found")
+
+            val hasCards = flashcardDao().getAllNow()
+                .any { it.deckId == parentDeckId }
+
+            val hasChildren = deckDao()
+                .getChildrenNow(parentDeckId)
+                .isNotEmpty()
+
+            check(!hasCards && !hasChildren) {
+                "This deck cannot contain both flashcards and subdecks."
+            }
+
+            deckDao().insert(
+                Deck(
+                    name = name,
+                    parentDeckId = parent.id
+                )
+            ).toInt()
+        }
+    }
+
+    suspend fun addCardToDeck(card: Flashcard) {
+        withTransaction {
+            val hasChildren = deckDao()
+                .getChildrenNow(card.deckId)
+                .isNotEmpty()
+
+            check(!hasChildren) {
+                "Cannot add flashcards to a deck containing subdecks."
+            }
+
+            flashcardDao().insert(card)
+        }
+    }
+
+    suspend fun addImportedCardsToDeck(
+        deckId: Int,
+        cards: List<Flashcard>
+    ) {
+        if (cards.isEmpty()) return
+
+        withTransaction {
+            val hasChildren = deckDao()
+                .getChildrenNow(deckId)
+                .isNotEmpty()
+
+            check(!hasChildren) {
+                "Cannot import flashcards into a deck containing subdecks."
+            }
+
+            flashcardDao().insertAll(cards)
+        }
+    }
+
     companion object {
 
         @Volatile

@@ -1,9 +1,12 @@
+
 package com.example.simpleflashcards.data
 
 class FlashcardRepository(
-    private val flashcardDao: FlashcardDao,
-    private val deckDao: DeckDao
+    private val database: FlashcardDatabase
 ) {
+
+    private val flashcardDao = database.flashcardDao()
+    private val deckDao = database.deckDao()
 
     // Deck operations
 
@@ -11,6 +14,23 @@ class FlashcardRepository(
 
     suspend fun addDeck(deck: Deck): Long {
         return deckDao.insert(deck)
+    }
+
+    suspend fun createSubdeck(
+        parentDeckId: Int,
+        moveCards: Boolean
+    ): Int {
+        return if (moveCards) {
+            database.createSubdeckAndMoveCards(
+                parentDeckId = parentDeckId,
+                name = "New subdeck"
+            ).toInt()
+        } else {
+            database.createSubdeck(
+                parentDeckId = parentDeckId,
+                name = "New subdeck"
+            )
+        }
     }
 
     suspend fun updateDeck(deck: Deck) {
@@ -29,7 +49,22 @@ class FlashcardRepository(
         flashcardDao.getByDeck(deckId)
 
     suspend fun addCard(card: Flashcard) {
-        flashcardDao.insert(card)
+        database.addCardToDeck(card)
+    }
+
+    suspend fun addImportedCards(
+        deckId: Int,
+        importedCards: List<CsvFlashcard>
+    ) {
+        val cards = importedCards.map { imported ->
+            Flashcard(
+                question = imported.question,
+                answer = imported.answer,
+                deckId = deckId
+            )
+        }
+
+        database.addImportedCardsToDeck(deckId, cards)
     }
 
     suspend fun updateCard(card: Flashcard) {

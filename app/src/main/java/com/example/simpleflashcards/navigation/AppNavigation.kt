@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.navigation
 
 import android.net.Uri
@@ -87,8 +88,16 @@ fun AppNavigation(
         mutableStateOf<String?>(null)
     }
 
-    // Restore the last practice session once the saved preferences
-    // and the deck list have both loaded.
+    // Keep the selected deck synchronized with database updates.
+    LaunchedEffect(decks) {
+        selectedDeck?.let { selected ->
+            selectedDeck = decks.firstOrNull {
+                it.id == selected.id
+            } ?: selected
+        }
+    }
+
+    // Restore the last practice session.
     LaunchedEffect(savedSessionSnapshot, decks) {
 
         if (
@@ -121,6 +130,10 @@ fun AppNavigation(
 
     val selectedCards = cards.filter {
         it.deckId == selectedDeck?.id
+    }
+
+    val selectedSubdecks = decks.filter {
+        it.parentDeckId == selectedDeck?.id
     }
 
     val appearanceFlow = remember(selectedDeck?.id) {
@@ -198,7 +211,15 @@ fun AppNavigation(
 
                     onBack = {
                         restoredSession = null
-                        currentScreen = AppScreen.HOME
+
+                        if (deck.parentDeckId != null) {
+                            selectedDeck = decks.firstOrNull {
+                                it.id == deck.parentDeckId
+                            }
+                            currentScreen = AppScreen.MANAGE
+                        } else {
+                            currentScreen = AppScreen.HOME
+                        }
                     }
                 )
             }
@@ -211,6 +232,7 @@ fun AppNavigation(
                 ManageScreen(
                     deckName = deck.name,
                     cards = selectedCards,
+                    subdecks = selectedSubdecks,
 
                     onAdd = {
                         editingCard = null
@@ -227,7 +249,40 @@ fun AppNavigation(
                     },
 
                     onBack = {
-                        currentScreen = AppScreen.HOME
+                        if (deck.parentDeckId != null) {
+                            selectedDeck = decks.firstOrNull {
+                                it.id == deck.parentDeckId
+                            }
+                        } else {
+                            selectedDeck = null
+                            currentScreen = AppScreen.HOME
+                        }
+                    },
+
+                    onOpenSubdeck = { subdeck ->
+                        selectedDeck = subdeck
+                    },
+
+                    onCreateSubdeck = { moveCards ->
+                        viewModel.createSubdeck(
+                            parentDeckId = deck.id,
+                            moveCards = moveCards
+                        ) { newDeckId ->
+
+                            selectedDeck = Deck(
+                                id = newDeckId,
+                                name = "New subdeck",
+                                parentDeckId = deck.id
+                            )
+                        }
+                    },
+
+                    onRenameSubdeck = { subdeck, newName ->
+                        viewModel.renameDeck(subdeck, newName)
+                    },
+
+                    onDeleteSubdeck = { subdeck ->
+                        viewModel.deleteDeck(subdeck)
                     },
 
                     onImportCards = { importedCards ->
