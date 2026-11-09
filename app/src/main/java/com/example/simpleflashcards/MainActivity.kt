@@ -1,47 +1,52 @@
 package com.example.simpleflashcards
 
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.simpleflashcards.ui.theme.SimpleFlashCardsTheme
+import androidx.lifecycle.ViewModelProvider
+
+import com.example.simpleflashcards.data.FlashcardDatabase
+import com.example.simpleflashcards.data.FlashcardRepository
+
+import com.example.simpleflashcards.navigation.AppNavigation
+
+import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
+
+import com.example.simpleflashcards.viewmodel.FlashcardViewModel
+import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Initialize database
+        val database = FlashcardDatabase.getDatabase(this)
+
+        // Initialize repository
+        val repository = FlashcardRepository(
+            database.flashcardDao()
+        )
+
+        // Initialize ViewModel
+        val factory = FlashcardViewModelFactory(repository)
+
+        val viewModel = ViewModelProvider(
+            this,
+            factory
+        )[FlashcardViewModel::class.java]
+
+        // Launch application
         setContent {
-            SimpleFlashCardsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+
+            SimpleFlashcardsTheme {
+
+                AppNavigation(
+                    viewModel = viewModel
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SimpleFlashCardsTheme {
-        Greeting("Android")
     }
 }
