@@ -10,18 +10,18 @@ import androidx.compose.ui.unit.dp
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.components.FlashcardView
+import com.example.simpleflashcards.ui.theme.DeckAppearance
 
 @Composable
 fun PracticeScreen(
     deckName: String,
     cards: List<Flashcard>,
+    appearance: DeckAppearance,
     shuffleEnabled: Boolean,
     onToggleShuffle: () -> Unit,
     onBack: () -> Unit
 ) {
-
     val practiceCards = remember(cards, shuffleEnabled) {
-
         if (shuffleEnabled) {
             cards.shuffled()
         } else {
@@ -48,7 +48,6 @@ fun PracticeScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(20.dp),
-
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -81,7 +80,8 @@ fun PracticeScreen(
 
                 FlashcardView(
                     question = currentCard.question,
-                    answer = currentCard.answer
+                    answer = currentCard.answer,
+                    appearance = appearance
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
@@ -107,8 +107,7 @@ fun PracticeScreen(
                     OutlinedButton(
                         onClick = {
                             currentIndex =
-                                (safeIndex + 1) %
-                                        practiceCards.size
+                                (safeIndex + 1) % practiceCards.size
                         }
                     ) {
                         Text("Next")

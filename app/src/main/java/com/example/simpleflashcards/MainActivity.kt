@@ -13,10 +13,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.example.simpleflashcards.data.FlashcardDatabase
 import com.example.simpleflashcards.data.FlashcardRepository
 import com.example.simpleflashcards.data.ThemePreferences
+import com.example.simpleflashcards.data.DeckAppearancePreferences
 
 import com.example.simpleflashcards.navigation.AppNavigation
-
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
+import com.example.simpleflashcards.ui.theme.AppThemeMode
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
@@ -26,7 +27,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
         val database = FlashcardDatabase.getDatabase(this)
@@ -45,10 +45,13 @@ class MainActivity : ComponentActivity() {
 
         val themePreferences = ThemePreferences(applicationContext)
 
+        val appearancePreferences =
+            DeckAppearancePreferences(applicationContext)
+
         setContent {
 
             val themeMode by themePreferences.themeMode.collectAsState(
-                initial = com.example.simpleflashcards.ui.theme.AppThemeMode.SYSTEM
+                initial = AppThemeMode.SYSTEM
             )
 
             val scope = rememberCoroutineScope()
@@ -56,16 +59,17 @@ class MainActivity : ComponentActivity() {
             SimpleFlashcardsTheme(
                 themeMode = themeMode
             ) {
-
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
-                    onThemeModeChange = { newMode ->
 
+                    onThemeModeChange = { newMode ->
                         scope.launch {
                             themePreferences.setThemeMode(newMode)
                         }
-                    }
+                    },
+
+                    appearancePreferences = appearancePreferences
                 )
             }
         }

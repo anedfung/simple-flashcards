@@ -1,4 +1,3 @@
-
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -7,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,9 +28,9 @@ fun ManageScreen(
     onEdit: (Flashcard) -> Unit,
     onDelete: (Flashcard) -> Unit,
     onBack: () -> Unit,
-    onImportCards: (List<CsvFlashcard>) -> Unit
+    onImportCards: (List<CsvFlashcard>) -> Unit,
+    onCustomize: () -> Unit
 ) {
-
     var cardToDelete by remember {
         mutableStateOf<Flashcard?>(null)
     }
@@ -38,6 +38,14 @@ fun ManageScreen(
     Scaffold(
         topBar = {
             AppToolbar(deckName) {
+
+                IconButton(onClick = onCustomize) {
+                    Icon(
+                        imageVector = Icons.Default.Palette,
+                        contentDescription = "Customize deck appearance"
+                    )
+                }
+
                 CsvImportExportButtons(
                     deckName = deckName,
                     cards = cards,
@@ -68,11 +76,8 @@ fun ManageScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             if (cards.isEmpty()) {
-
                 Text("This deck is empty.")
-
             } else {
-
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
