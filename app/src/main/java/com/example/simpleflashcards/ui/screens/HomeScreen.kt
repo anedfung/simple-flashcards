@@ -3,6 +3,8 @@ package com.example.simpleflashcards.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,7 +24,8 @@ fun HomeScreen(
     onManage: (Deck) -> Unit,
     onAddDeck: (String) -> Unit,
     onRenameDeck: (Deck, String) -> Unit,
-    onDeleteDeck: (Deck) -> Unit
+    onDeleteDeck: (Deck) -> Unit,
+    onSettings: () -> Unit
 ) {
 
     var showAddDialog by remember {
@@ -39,7 +42,18 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar("My Decks")
+            AppToolbar("My Decks") {
+
+                IconButton(
+                    onClick = onSettings
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings"
+                    )
+                }
+            }
         }
     ) { padding ->
 

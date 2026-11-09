@@ -6,8 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+
 import com.example.simpleflashcards.data.FlashcardDatabase
 import com.example.simpleflashcards.data.FlashcardRepository
+import com.example.simpleflashcards.data.ThemePreferences
 
 import com.example.simpleflashcards.navigation.AppNavigation
 
@@ -16,22 +21,21 @@ import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
 
+import kotlinx.coroutines.launch
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
 
-        // Initialize database
         val database = FlashcardDatabase.getDatabase(this)
 
-        // Initialize repository
         val repository = FlashcardRepository(
             database.flashcardDao(),
             database.deckDao()
         )
 
-        // Initialize ViewModel
         val factory = FlashcardViewModelFactory(repository)
 
         val viewModel = ViewModelProvider(
@@ -39,13 +43,29 @@ class MainActivity : ComponentActivity() {
             factory
         )[FlashcardViewModel::class.java]
 
-        // Launch application
+        val themePreferences = ThemePreferences(applicationContext)
+
         setContent {
 
-            SimpleFlashcardsTheme {
+            val themeMode by themePreferences.themeMode.collectAsState(
+                initial = com.example.simpleflashcards.ui.theme.AppThemeMode.SYSTEM
+            )
+
+            val scope = rememberCoroutineScope()
+
+            SimpleFlashcardsTheme(
+                themeMode = themeMode
+            ) {
 
                 AppNavigation(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    themeMode = themeMode,
+                    onThemeModeChange = { newMode ->
+
+                        scope.launch {
+                            themePreferences.setThemeMode(newMode)
+                        }
+                    }
                 )
             }
         }

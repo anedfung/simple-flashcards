@@ -8,6 +8,7 @@ import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 
 import com.example.simpleflashcards.ui.screens.*
+import com.example.simpleflashcards.ui.theme.AppThemeMode
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 
@@ -16,86 +17,78 @@ private enum class AppScreen {
     HOME,
     PRACTICE,
     MANAGE,
-    EDIT
-
+    EDIT,
+    SETTINGS
 }
 
 @Composable
 fun AppNavigation(
-    viewModel: FlashcardViewModel
+    viewModel: FlashcardViewModel,
+    themeMode: AppThemeMode,
+    onThemeModeChange: (AppThemeMode) -> Unit
 ) {
 
-    // Application data
     val decks by viewModel.decks.collectAsState()
-
     val cards by viewModel.cards.collectAsState()
 
     val shuffleEnabled by
     viewModel.shuffleEnabled.collectAsState()
 
-    // Navigation state
     var currentScreen by remember {
         mutableStateOf(AppScreen.HOME)
     }
 
-    // Selected deck
     var selectedDeck by remember {
         mutableStateOf<Deck?>(null)
     }
 
-    // Selected card for editing
     var editingCard by remember {
         mutableStateOf<Flashcard?>(null)
     }
 
-    // Cards belonging to the selected deck
     val selectedCards = cards.filter {
         it.deckId == selectedDeck?.id
     }
 
     when (currentScreen) {
 
-        // HOME
         AppScreen.HOME -> {
 
             HomeScreen(
 
                 decks = decks,
-
                 cards = cards,
 
                 onPractice = { deck ->
 
                     selectedDeck = deck
-
                     currentScreen = AppScreen.PRACTICE
                 },
 
                 onManage = { deck ->
 
                     selectedDeck = deck
-
                     currentScreen = AppScreen.MANAGE
                 },
 
                 onAddDeck = { name ->
-
                     viewModel.addDeck(name)
                 },
 
                 onRenameDeck = { deck, newName ->
-
                     viewModel.renameDeck(deck, newName)
                 },
 
                 onDeleteDeck = { deck ->
-
                     viewModel.deleteDeck(deck)
+                },
+
+                onSettings = {
+                    currentScreen = AppScreen.SETTINGS
                 }
             )
         }
 
-        // PRACTICE
         AppScreen.PRACTICE -> {
 
             selectedDeck?.let { deck ->
@@ -103,7 +96,6 @@ fun AppNavigation(
                 PracticeScreen(
 
                     deckName = deck.name,
-
                     cards = selectedCards,
 
                     shuffleEnabled = shuffleEnabled,
@@ -119,7 +111,6 @@ fun AppNavigation(
             }
         }
 
-        // MANAGE
         AppScreen.MANAGE -> {
 
             selectedDeck?.let { deck ->
@@ -127,37 +118,34 @@ fun AppNavigation(
                 ManageScreen(
 
                     deckName = deck.name,
-
                     cards = selectedCards,
 
                     onAdd = {
 
                         editingCard = null
-
                         currentScreen = AppScreen.EDIT
                     },
 
                     onEdit = { card ->
 
                         editingCard = card
-
                         currentScreen = AppScreen.EDIT
                     },
 
                     onDelete = { card ->
-
                         viewModel.deleteCard(card)
                     },
 
                     onBack = {
-
                         currentScreen = AppScreen.HOME
                     },
 
                     onImportCards = { importedCards ->
-                        selectedDeck?.let { deck ->
+
+                        selectedDeck?.let { selected ->
+
                             viewModel.addImportedCards(
-                                deck.id,
+                                selected.id,
                                 importedCards
                             )
                         }
@@ -166,7 +154,6 @@ fun AppNavigation(
             }
         }
 
-        // EDIT
         AppScreen.EDIT -> {
 
             selectedDeck?.let { deck ->
@@ -174,9 +161,7 @@ fun AppNavigation(
                 EditCardScreen(
 
                     deckName = deck.name,
-
                     deckId = deck.id,
-
                     card = editingCard,
 
                     onSave = { question, answer ->
@@ -203,11 +188,24 @@ fun AppNavigation(
                     },
 
                     onCancel = {
-
                         currentScreen = AppScreen.MANAGE
                     }
                 )
             }
+        }
+
+        AppScreen.SETTINGS -> {
+
+            SettingsScreen(
+
+                themeMode = themeMode,
+
+                onThemeModeChange = onThemeModeChange,
+
+                onBack = {
+                    currentScreen = AppScreen.HOME
+                }
+            )
         }
     }
 }
