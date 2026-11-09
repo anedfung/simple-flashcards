@@ -27,27 +27,14 @@ fun HomeScreen(
     onDeleteDeck: (Deck) -> Unit,
     onSettings: () -> Unit
 ) {
-
-    var showAddDialog by remember {
-        mutableStateOf(false)
-    }
-
-    var deckToRename by remember {
-        mutableStateOf<Deck?>(null)
-    }
-
-    var deckToDelete by remember {
-        mutableStateOf<Deck?>(null)
-    }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var deckToRename by remember { mutableStateOf<Deck?>(null) }
+    var deckToDelete by remember { mutableStateOf<Deck?>(null) }
 
     Scaffold(
         topBar = {
             AppToolbar("My Decks") {
-
-                IconButton(
-                    onClick = onSettings
-                ) {
-
+                IconButton(onClick = onSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Settings"
@@ -56,19 +43,15 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
-
             AppButton(
                 text = "Create new deck",
-                onClick = {
-                    showAddDialog = true
-                },
+                onClick = { showAddDialog = true },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -82,75 +65,59 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 items(
                     items = decks,
                     key = { it.id }
                 ) { deck ->
-
-                    val cardCount = cards.count {
-                        it.deckId == deck.id
-                    }
+                    val cardCount = cards.count { it.deckId == deck.id }
 
                     Card(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
-
                         Column(
                             modifier = Modifier.padding(16.dp)
                         ) {
-
                             Text(
                                 text = deck.name,
                                 style = MaterialTheme.typography.titleLarge
                             )
 
-                            Spacer(
-                                modifier = Modifier.height(4.dp)
-                            )
+                            Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
                                 text = "$cardCount flashcards",
                                 style = MaterialTheme.typography.bodyMedium
                             )
 
-                            Spacer(
-                                modifier = Modifier.height(12.dp)
-                            )
+                            Spacer(modifier = Modifier.height(12.dp))
 
                             Row(
-                                horizontalArrangement =
-                                    Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-
                                 Button(
-                                    onClick = {
-                                        onPractice(deck)
-                                    }
+                                    onClick = { onPractice(deck) }
                                 ) {
                                     Text("Practice")
                                 }
 
                                 OutlinedButton(
-                                    onClick = {
-                                        onManage(deck)
-                                    }
+                                    onClick = { onManage(deck) }
                                 ) {
                                     Text("Manage")
                                 }
                             }
 
                             Row(
-                                horizontalArrangement =
-                                    Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-
                                 TextButton(
-                                    onClick = {
-                                        deckToRename = deck
-                                    }
+                                    onClick = { deckToRename = deck }
                                 ) {
                                     Text("Rename")
                                 }
@@ -173,9 +140,7 @@ fun HomeScreen(
         }
     }
 
-    // Add deck dialog
     if (showAddDialog) {
-
         DeckNameDialog(
             title = "Create deck",
             initialName = "",
@@ -184,16 +149,13 @@ fun HomeScreen(
                 showAddDialog = false
             },
             onConfirm = { name ->
-
                 onAddDeck(name)
                 showAddDialog = false
             }
         )
     }
 
-    // Rename dialog
     deckToRename?.let { deck ->
-
         DeckNameDialog(
             title = "Rename deck",
             initialName = deck.name,
@@ -202,22 +164,18 @@ fun HomeScreen(
                 deckToRename = null
             },
             onConfirm = { name ->
-
                 onRenameDeck(deck, name)
                 deckToRename = null
             }
         )
     }
 
-    // Delete confirmation
     deckToDelete?.let { deck ->
-
         AppDialog(
             title = "Delete deck?",
             message = "Deleting \"${deck.name}\" will also delete all its flashcards.",
             confirmText = "Delete",
             onConfirm = {
-
                 onDeleteDeck(deck)
                 deckToDelete = null
             },
@@ -236,35 +194,26 @@ private fun DeckNameDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-
     var name by remember(initialName) {
         mutableStateOf(initialName)
     }
 
     AlertDialog(
-
         onDismissRequest = onDismiss,
-
         title = {
             Text(title)
         },
-
         text = {
-
             OutlinedTextField(
                 value = name,
-                onValueChange = {
-                    name = it
-                },
+                onValueChange = { name = it },
                 label = {
                     Text("Deck name")
                 },
                 singleLine = true
             )
         },
-
         confirmButton = {
-
             TextButton(
                 onClick = {
                     onConfirm(name)
@@ -274,9 +223,7 @@ private fun DeckNameDialog(
                 Text(confirmText)
             }
         },
-
         dismissButton = {
-
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }

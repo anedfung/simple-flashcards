@@ -5,68 +5,64 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-
-private val LightColorScheme = lightColorScheme(
-
-    primary = AppColors.Primary,
-    secondary = AppColors.Secondary,
-
-    background = AppColors.Background,
-    surface = AppColors.Surface,
-
-    onPrimary = androidx.compose.ui.graphics.Color.White,
-    onSecondary = androidx.compose.ui.graphics.Color.White,
-
-    onBackground = AppColors.TextPrimary,
-    onSurface = AppColors.TextPrimary,
-
-    error = AppColors.Danger
-)
-
-private val DarkColorScheme = darkColorScheme(
-
-    primary = androidx.compose.ui.graphics.Color(0xFF90A4AE),
-    secondary = androidx.compose.ui.graphics.Color(0xFFB0BEC5),
-
-    background = androidx.compose.ui.graphics.Color(0xFF121212),
-    surface = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
-
-    onPrimary = androidx.compose.ui.graphics.Color(0xFF182126),
-    onSecondary = androidx.compose.ui.graphics.Color(0xFF182126),
-
-    onBackground = androidx.compose.ui.graphics.Color(0xFFECEFF1),
-    onSurface = androidx.compose.ui.graphics.Color(0xFFECEFF1),
-
-    error = androidx.compose.ui.graphics.Color(0xFFEF9A9A)
-)
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 
 @Composable
 fun SimpleFlashcardsTheme(
     themeMode: AppThemeMode = AppThemeMode.SYSTEM,
+    colorTheme: AppColorTheme = AppColorTheme.OCEAN,
     content: @Composable () -> Unit
 ) {
-
     val systemDark = isSystemInDarkTheme()
 
     val darkTheme = when (themeMode) {
-
         AppThemeMode.SYSTEM -> systemDark
-
         AppThemeMode.LIGHT -> false
-
         AppThemeMode.DARK -> true
     }
 
+    val colors = if (darkTheme) {
+        val cardSurface = colorTheme.darkPrimary
+            .copy(alpha = 0.16f)
+            .compositeOver(colorTheme.darkSurface)
+
+        darkColorScheme(
+            primary = colorTheme.darkPrimary,
+            secondary = colorTheme.darkSecondary,
+            background = colorTheme.darkBackground,
+            surface = colorTheme.darkSurface,
+            surfaceVariant = cardSurface,
+            onPrimary = Color(0xFF172126),
+            onSecondary = Color(0xFF172126),
+            onBackground = colorTheme.darkText,
+            onSurface = colorTheme.darkText,
+            onSurfaceVariant = colorTheme.darkText,
+            error = Color(0xFFFF8A80)
+        )
+    } else {
+        val cardSurface = colorTheme.lightPrimary
+            .copy(alpha = 0.09f)
+            .compositeOver(colorTheme.lightSurface)
+
+        lightColorScheme(
+            primary = colorTheme.lightPrimary,
+            secondary = colorTheme.lightSecondary,
+            background = colorTheme.lightBackground,
+            surface = colorTheme.lightSurface,
+            surfaceVariant = cardSurface,
+            onPrimary = Color.White,
+            onSecondary = Color.White,
+            onBackground = colorTheme.lightText,
+            onSurface = colorTheme.lightText,
+            onSurfaceVariant = colorTheme.lightText,
+            error = Color(0xFFD32F2F)
+        )
+    }
+
     MaterialTheme(
-
-        colorScheme = if (darkTheme) {
-            DarkColorScheme
-        } else {
-            LightColorScheme
-        },
-
+        colorScheme = colors,
         typography = AppTypography.styles,
-
         content = content
     )
 }

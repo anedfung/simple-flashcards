@@ -38,7 +38,6 @@ fun ManageScreen(
     Scaffold(
         topBar = {
             AppToolbar(deckName) {
-
                 IconButton(onClick = onCustomize) {
                     Icon(
                         imageVector = Icons.Default.Palette,
@@ -55,14 +54,12 @@ fun ManageScreen(
             }
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
-
             AppButton(
                 text = "Add flashcard",
                 onClick = onAdd,
@@ -86,9 +83,11 @@ fun ManageScreen(
                         items = cards,
                         key = { it.id }
                     ) { card ->
-
                         Card(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
                         ) {
                             Row(
                                 modifier = Modifier
@@ -101,7 +100,6 @@ fun ManageScreen(
                                     ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-
                                 Text(
                                     text = card.question,
                                     modifier = Modifier.weight(1f),
@@ -118,9 +116,7 @@ fun ManageScreen(
                                 }
 
                                 IconButton(
-                                    onClick = {
-                                        cardToDelete = card
-                                    }
+                                    onClick = { cardToDelete = card }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,

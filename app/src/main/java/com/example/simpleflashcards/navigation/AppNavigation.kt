@@ -21,6 +21,7 @@ import com.example.simpleflashcards.data.PracticeSessionSnapshot
 import com.example.simpleflashcards.ui.screens.*
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.DeckAppearance
+import com.example.simpleflashcards.ui.theme.AppColorTheme
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 
@@ -38,7 +39,9 @@ private enum class AppScreen {
 fun AppNavigation(
     viewModel: FlashcardViewModel,
     themeMode: AppThemeMode,
+    colorTheme: AppColorTheme,
     onThemeModeChange: (AppThemeMode) -> Unit,
+    onColorThemeChange: (AppColorTheme) -> Unit,
     appearancePreferences: DeckAppearancePreferences,
     backupManager: FlashcardBackupManager,
     practiceSessionPreferences: PracticeSessionPreferences
@@ -284,7 +287,10 @@ fun AppNavigation(
 
             SettingsScreen(
                 themeMode = themeMode,
+                colorTheme = colorTheme,
+
                 onThemeModeChange = onThemeModeChange,
+                onColorThemeChange = onColorThemeChange,
 
                 onBack = {
                     currentScreen = AppScreen.HOME

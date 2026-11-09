@@ -20,6 +20,7 @@ import com.example.simpleflashcards.data.PracticeSessionPreferences
 import com.example.simpleflashcards.navigation.AppNavigation
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
 import com.example.simpleflashcards.ui.theme.AppThemeMode
+import com.example.simpleflashcards.ui.theme.AppColorTheme
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
@@ -61,19 +62,30 @@ class MainActivity : ComponentActivity() {
                 initial = AppThemeMode.SYSTEM
             )
 
+            val colorTheme by themePreferences.colorTheme.collectAsState(
+                initial = AppColorTheme.OCEAN
+            )
+
             val scope = rememberCoroutineScope()
 
             SimpleFlashcardsTheme(
-                themeMode = themeMode
+                themeMode = themeMode,
+                colorTheme = colorTheme
             ) {
-
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
+                    colorTheme = colorTheme,
 
                     onThemeModeChange = { newMode ->
                         scope.launch {
                             themePreferences.setThemeMode(newMode)
+                        }
+                    },
+
+                    onColorThemeChange = { newTheme ->
+                        scope.launch {
+                            themePreferences.setColorTheme(newTheme)
                         }
                     },
 

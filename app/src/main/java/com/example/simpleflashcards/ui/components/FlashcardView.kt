@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.ComponentStyles
 
@@ -29,10 +30,10 @@ fun FlashcardView(
     }
 
     val backgroundColor =
-        selectedColor.background ?: ComponentStyles.Flashcard.Background
+        selectedColor.background ?: MaterialTheme.colorScheme.surfaceVariant
 
     val textColor =
-        selectedColor.foreground ?: ComponentStyles.Flashcard.TextColor
+        selectedColor.foreground ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = Modifier
