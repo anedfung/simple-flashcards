@@ -32,4 +32,12 @@ interface FlashcardDao {
 
     @Query("DELETE FROM flashcards")
     suspend fun deleteAll()
+
+    @Query(
+        "UPDATE flashcards SET deckId = :newDeckId WHERE deckId = :oldDeckId"
+    )
+    suspend fun moveCardsToDeck(
+        oldDeckId: Int,
+        newDeckId: Int
+    )
 }

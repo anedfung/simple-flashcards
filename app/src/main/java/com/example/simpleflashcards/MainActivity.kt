@@ -34,10 +34,7 @@ class MainActivity : ComponentActivity() {
 
         val database = FlashcardDatabase.getDatabase(this)
 
-        val repository = FlashcardRepository(
-            database.flashcardDao(),
-            database.deckDao()
-        )
+        val repository = FlashcardRepository(database)
 
         val factory = FlashcardViewModelFactory(repository)
 

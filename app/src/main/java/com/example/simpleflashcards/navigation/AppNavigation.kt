@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.navigation
 
 import android.net.Uri
@@ -87,8 +88,24 @@ fun AppNavigation(
         mutableStateOf<String?>(null)
     }
 
-    // Restore the last practice session once the saved preferences
-    // and the deck list have both loaded.
+    var newlyCreatedSubdeckId by remember {
+        mutableStateOf<Int?>(null)
+    }
+
+    val newlyCreatedSubdeck = decks.firstOrNull {
+        it.id == newlyCreatedSubdeckId
+    }
+
+    // Keep the selected deck synchronized with database updates.
+    LaunchedEffect(decks) {
+        selectedDeck?.let { selected ->
+            selectedDeck = decks.firstOrNull {
+                it.id == selected.id
+            } ?: selected
+        }
+    }
+
+    // Restore the last practice session.
     LaunchedEffect(savedSessionSnapshot, decks) {
 
         if (
@@ -119,8 +136,16 @@ fun AppNavigation(
         }
     }
 
+    val selectedDeckIds = selectedDeck?.let { deck ->
+        getDescendantDeckIds(deck.id, decks)
+    } ?: emptySet()
+
     val selectedCards = cards.filter {
-        it.deckId == selectedDeck?.id
+        it.deckId in selectedDeckIds
+    }
+
+    val selectedSubdecks = decks.filter {
+        it.parentDeckId == selectedDeck?.id
     }
 
     val appearanceFlow = remember(selectedDeck?.id) {
@@ -198,7 +223,15 @@ fun AppNavigation(
 
                     onBack = {
                         restoredSession = null
-                        currentScreen = AppScreen.HOME
+
+                        if (deck.parentDeckId != null) {
+                            selectedDeck = decks.firstOrNull {
+                                it.id == deck.parentDeckId
+                            }
+                            currentScreen = AppScreen.MANAGE
+                        } else {
+                            currentScreen = AppScreen.HOME
+                        }
                     }
                 )
             }
@@ -210,7 +243,15 @@ fun AppNavigation(
 
                 ManageScreen(
                     deckName = deck.name,
+                    deckId = deck.id,
                     cards = selectedCards,
+                    subdecks = selectedSubdecks,
+                    allDecks = decks,
+                    newSubdeckToRename = newlyCreatedSubdeck,
+
+                    onRenamePromptHandled = {
+                        newlyCreatedSubdeckId = null
+                    },
 
                     onAdd = {
                         editingCard = null
@@ -227,7 +268,45 @@ fun AppNavigation(
                     },
 
                     onBack = {
-                        currentScreen = AppScreen.HOME
+                        if (deck.parentDeckId != null) {
+                            selectedDeck = decks.firstOrNull {
+                                it.id == deck.parentDeckId
+                            }
+                        } else {
+                            selectedDeck = null
+                            currentScreen = AppScreen.HOME
+                        }
+                    },
+
+                    onOpenSubdeck = { subdeck ->
+                        selectedDeck = subdeck
+                    },
+
+                    onPracticeSubdeck = { subdeck ->
+                        selectedDeck = subdeck
+                        restoredSession = null
+                        currentScreen = AppScreen.PRACTICE
+                    },
+
+                    onCreateSubdeck = { moveCards ->
+                        viewModel.createSubdeck(
+                            parentDeckId = deck.id,
+                            moveCards = moveCards
+                        ) { newDeckId ->
+
+                            // Keep the current parent selected.
+                            // The new ID triggers the rename dialog once
+                            // the updated deck list arrives from the database.
+                            newlyCreatedSubdeckId = newDeckId
+                        }
+                    },
+
+                    onRenameSubdeck = { subdeck, newName ->
+                        viewModel.renameDeck(subdeck, newName)
+                    },
+
+                    onDeleteSubdeck = { subdeck ->
+                        viewModel.deleteDeck(subdeck)
                     },
 
                     onImportCards = { importedCards ->
@@ -388,4 +467,32 @@ fun AppNavigation(
             )
         }
     }
+}
+
+private fun getDescendantDeckIds(
+    rootDeckId: Int,
+    decks: List<Deck>
+): Set<Int> {
+
+    val result = mutableSetOf<Int>()
+    val pending = ArrayDeque<Int>()
+
+    pending.add(rootDeckId)
+
+    while (pending.isNotEmpty()) {
+
+        val currentId = pending.removeFirst()
+
+        if (!result.add(currentId)) {
+            continue
+        }
+
+        decks
+            .filter { it.parentDeckId == currentId }
+            .forEach { child ->
+                pending.add(child.id)
+            }
+    }
+
+    return result
 }

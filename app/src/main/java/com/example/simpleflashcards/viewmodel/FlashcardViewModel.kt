@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -15,14 +16,12 @@ class FlashcardViewModel(
     private val repository: FlashcardRepository
 ) : ViewModel() {
 
-    // Observe decks
     val decks = repository.decks.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
 
-    // Observe all flashcards
     val cards = repository.cards.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -36,23 +35,34 @@ class FlashcardViewModel(
     // Deck operations
 
     fun addDeck(name: String) {
-
         if (name.isBlank()) return
 
         viewModelScope.launch {
-
             repository.addDeck(
                 Deck(name = name.trim())
             )
         }
     }
 
-    fun renameDeck(deck: Deck, newName: String) {
+    fun createSubdeck(
+        parentDeckId: Int,
+        moveCards: Boolean,
+        onCreated: (Int) -> Unit
+    ) {
+        viewModelScope.launch {
+            val newDeckId = repository.createSubdeck(
+                parentDeckId = parentDeckId,
+                moveCards = moveCards
+            )
 
+            onCreated(newDeckId)
+        }
+    }
+
+    fun renameDeck(deck: Deck, newName: String) {
         if (newName.isBlank()) return
 
         viewModelScope.launch {
-
             repository.updateDeck(
                 deck.copy(name = newName.trim())
             )
@@ -60,11 +70,15 @@ class FlashcardViewModel(
     }
 
     fun deleteDeck(deck: Deck) {
-
         viewModelScope.launch {
+            val rootDeckCount = decks.value.count {
+                it.parentDeckId == null
+            }
 
-            // Always retain at least one deck
-            if (decks.value.size <= 1) return@launch
+            // Always retain at least one root deck.
+            if (deck.parentDeckId == null && rootDeckCount <= 1) {
+                return@launch
+            }
 
             repository.deleteDeck(deck)
         }
@@ -77,11 +91,9 @@ class FlashcardViewModel(
         answer: String,
         deckId: Int
     ) {
-
         if (question.isBlank() || answer.isBlank()) return
 
         viewModelScope.launch {
-
             repository.addCard(
                 Flashcard(
                     question = question.trim(),
@@ -97,24 +109,17 @@ class FlashcardViewModel(
         importedCards: List<CsvFlashcard>
     ) {
         viewModelScope.launch {
-            importedCards.forEach { imported ->
-                repository.addCard(
-                    Flashcard(
-                        question = imported.question,
-                        answer = imported.answer,
-                        deckId = deckId
-                    )
-                )
-            }
+            repository.addImportedCards(
+                deckId,
+                importedCards
+            )
         }
     }
 
     fun updateCard(card: Flashcard) {
-
         if (card.question.isBlank() || card.answer.isBlank()) return
 
         viewModelScope.launch {
-
             repository.updateCard(
                 card.copy(
                     question = card.question.trim(),
@@ -125,7 +130,6 @@ class FlashcardViewModel(
     }
 
     fun deleteCard(card: Flashcard) {
-
         viewModelScope.launch {
             repository.deleteCard(card)
         }

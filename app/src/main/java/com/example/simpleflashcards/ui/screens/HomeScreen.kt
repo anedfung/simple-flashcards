@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -31,6 +32,10 @@ fun HomeScreen(
     var deckToRename by remember { mutableStateOf<Deck?>(null) }
     var deckToDelete by remember { mutableStateOf<Deck?>(null) }
 
+    val rootDecks = decks.filter {
+        it.parentDeckId == null
+    }
+
     Scaffold(
         topBar = {
             AppToolbar("My Decks") {
@@ -43,12 +48,14 @@ fun HomeScreen(
             }
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
+
             AppButton(
                 text = "Create new deck",
                 onClick = { showAddDialog = true },
@@ -58,7 +65,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "${decks.size} decks",
+                text = "${rootDecks.size} decks",
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -69,10 +76,17 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(
-                    items = decks,
+                    items = rootDecks,
                     key = { it.id }
                 ) { deck ->
-                    val cardCount = cards.count { it.deckId == deck.id }
+
+                    val cardCount = cards.count {
+                        it.deckId == deck.id
+                    }
+
+                    val subdeckCount = decks.count {
+                        it.parentDeckId == deck.id
+                    }
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -83,6 +97,7 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier.padding(16.dp)
                         ) {
+
                             Text(
                                 text = deck.name,
                                 style = MaterialTheme.typography.titleLarge
@@ -91,7 +106,11 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
-                                text = "$cardCount flashcards",
+                                text = buildString {
+                                    append("$cardCount flashcards")
+                                    append(" · ")
+                                    append("$subdeckCount subdecks")
+                                },
                                 style = MaterialTheme.typography.bodyMedium
                             )
 
@@ -109,7 +128,7 @@ fun HomeScreen(
                                 OutlinedButton(
                                     onClick = { onManage(deck) }
                                 ) {
-                                    Text("Manage")
+                                    Text("Open")
                                 }
                             }
 
@@ -124,11 +143,11 @@ fun HomeScreen(
 
                                 TextButton(
                                     onClick = {
-                                        if (decks.size > 1) {
+                                        if (rootDecks.size > 1) {
                                             deckToDelete = deck
                                         }
                                     },
-                                    enabled = decks.size > 1
+                                    enabled = rootDecks.size > 1
                                 ) {
                                     Text("Delete")
                                 }
@@ -145,11 +164,9 @@ fun HomeScreen(
             title = "Create deck",
             initialName = "",
             confirmText = "Create",
-            onDismiss = {
-                showAddDialog = false
-            },
-            onConfirm = { name ->
-                onAddDeck(name)
+            onDismiss = { showAddDialog = false },
+            onConfirm = {
+                onAddDeck(it)
                 showAddDialog = false
             }
         )
@@ -160,11 +177,9 @@ fun HomeScreen(
             title = "Rename deck",
             initialName = deck.name,
             confirmText = "Save",
-            onDismiss = {
-                deckToRename = null
-            },
-            onConfirm = { name ->
-                onRenameDeck(deck, name)
+            onDismiss = { deckToRename = null },
+            onConfirm = {
+                onRenameDeck(deck, it)
                 deckToRename = null
             }
         )
@@ -173,15 +188,13 @@ fun HomeScreen(
     deckToDelete?.let { deck ->
         AppDialog(
             title = "Delete deck?",
-            message = "Deleting \"${deck.name}\" will also delete all its flashcards.",
+            message = "Deleting \"${deck.name}\" will also delete all its subdecks and flashcards.",
             confirmText = "Delete",
             onConfirm = {
                 onDeleteDeck(deck)
                 deckToDelete = null
             },
-            onDismiss = {
-                deckToDelete = null
-            }
+            onDismiss = { deckToDelete = null }
         )
     }
 }
@@ -200,24 +213,18 @@ private fun DeckNameDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(title)
-        },
+        title = { Text(title) },
         text = {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = {
-                    Text("Deck name")
-                },
+                label = { Text("Deck name") },
                 singleLine = true
             )
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    onConfirm(name)
-                },
+                onClick = { onConfirm(name) },
                 enabled = name.isNotBlank()
             ) {
                 Text(confirmText)

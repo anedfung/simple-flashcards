@@ -16,9 +16,10 @@ class FlashcardBackupManager(
         val decks = database.deckDao().getAllNow()
         val cards = database.flashcardDao().getAllNow()
 
-        val root = JSONObject()
-        root.put("format", "simple_flashcards_backup")
-        root.put("version", 1)
+        val root = JSONObject().apply {
+            put("format", "simple_flashcards_backup")
+            put("version", 2)
+        }
 
         val deckArray = JSONArray()
 
@@ -28,6 +29,11 @@ class FlashcardBackupManager(
                     put("id", deck.id)
                     put("name", deck.name)
                     put("createdAt", deck.createdAt)
+
+                    put(
+                        "parentDeckId",
+                        deck.parentDeckId ?: JSONObject.NULL
+                    )
                 }
             )
         }
@@ -74,7 +80,9 @@ class FlashcardBackupManager(
             "This is not a Simple Flashcards backup."
         }
 
-        require(root.optInt("version") == 1) {
+        val version = root.optInt("version")
+
+        require(version == 1 || version == 2) {
             "This backup version is not supported."
         }
 
@@ -87,11 +95,21 @@ class FlashcardBackupManager(
         for (i in 0 until deckArray.length()) {
             val item = deckArray.getJSONObject(i)
 
+            val parentDeckId = if (
+                version >= 2 &&
+                !item.isNull("parentDeckId")
+            ) {
+                item.getInt("parentDeckId")
+            } else {
+                null
+            }
+
             decks.add(
                 Deck(
                     id = item.getInt("id"),
                     name = item.getString("name"),
-                    createdAt = item.getLong("createdAt")
+                    createdAt = item.getLong("createdAt"),
+                    parentDeckId = parentDeckId
                 )
             )
         }
@@ -148,11 +166,48 @@ class FlashcardBackupManager(
         }
 
         val deckIds = decks.map { it.id }.toSet()
+        val decksById = decks.associateBy { it.id }
+
+        require(decks.all { deck ->
+            deck.parentDeckId == null ||
+                    (
+                            deck.parentDeckId in deckIds &&
+                                    deck.parentDeckId != deck.id
+                            )
+        }) {
+            "The backup contains an invalid parent deck reference."
+        }
 
         require(cards.all {
             it.deckId in deckIds
         }) {
             "Some flashcards refer to decks that do not exist."
+        }
+
+        // Check for circular parent relationships.
+        decks.forEach { deck ->
+            val visited = mutableSetOf<Int>()
+            var current: Deck? = deck
+
+            while (current != null) {
+                require(visited.add(current.id)) {
+                    "The backup contains a circular deck hierarchy."
+                }
+
+                current = current.parentDeckId?.let {
+                    decksById[it]
+                }
+            }
+        }
+
+        // A deck cannot contain direct cards and child decks simultaneously.
+        val decksWithCards = cards.map { it.deckId }.toSet()
+        val decksWithChildren = decks.mapNotNull {
+            it.parentDeckId
+        }.toSet()
+
+        require(decksWithCards.intersect(decksWithChildren).isEmpty()) {
+            "A deck cannot contain both flashcards and subdecks."
         }
     }
 }
