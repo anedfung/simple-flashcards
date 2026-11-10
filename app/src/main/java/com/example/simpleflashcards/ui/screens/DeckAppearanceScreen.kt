@@ -24,11 +24,10 @@ fun DeckAppearanceScreen(
 ) {
     Scaffold(
         topBar = {
-            AppToolbar("Customize deck") {
-                TextButton(onClick = onBack) {
-                    Text("Done")
-                }
-            }
+            AppToolbar(
+                title = "Customize deck",
+                onBack = onBack
+            )
         }
     ) { padding ->
 
