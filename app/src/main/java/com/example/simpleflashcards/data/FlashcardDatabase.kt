@@ -100,13 +100,28 @@ abstract class FlashcardDatabase : RoomDatabase() {
                 .getChildrenNow(parentDeckId)
                 .isNotEmpty()
 
-            check(!hasCards && !hasChildren) {
-                "This deck cannot contain both flashcards and subdecks."
+//            check(!hasCards && !hasChildren) {
+//                "This deck cannot contain both flashcards and subdecks."
+//            }
+
+            // Get existing sibling deck names.
+            val existingNames = deckDao()
+                .getChildrenNow(parentDeckId)
+                .map { it.name }
+                .toSet()
+
+            // Find the first available name.
+            var finalName = name
+            var counter = 1
+
+            while (finalName in existingNames) {
+                finalName = "$name $counter"
+                counter++
             }
 
             deckDao().insert(
                 Deck(
-                    name = name,
+                    name = finalName,
                     parentDeckId = parent.id
                 )
             ).toInt()

@@ -88,6 +88,14 @@ fun AppNavigation(
         mutableStateOf<String?>(null)
     }
 
+    var newlyCreatedSubdeckId by remember {
+        mutableStateOf<Int?>(null)
+    }
+
+    val newlyCreatedSubdeck = decks.firstOrNull {
+        it.id == newlyCreatedSubdeckId
+    }
+
     // Keep the selected deck synchronized with database updates.
     LaunchedEffect(decks) {
         selectedDeck?.let { selected ->
@@ -128,8 +136,12 @@ fun AppNavigation(
         }
     }
 
+    val selectedDeckIds = selectedDeck?.let { deck ->
+        getDescendantDeckIds(deck.id, decks)
+    } ?: emptySet()
+
     val selectedCards = cards.filter {
-        it.deckId == selectedDeck?.id
+        it.deckId in selectedDeckIds
     }
 
     val selectedSubdecks = decks.filter {
@@ -231,8 +243,15 @@ fun AppNavigation(
 
                 ManageScreen(
                     deckName = deck.name,
+                    deckId = deck.id,
                     cards = selectedCards,
                     subdecks = selectedSubdecks,
+                    allDecks = decks,
+                    newSubdeckToRename = newlyCreatedSubdeck,
+
+                    onRenamePromptHandled = {
+                        newlyCreatedSubdeckId = null
+                    },
 
                     onAdd = {
                         editingCard = null
@@ -263,17 +282,22 @@ fun AppNavigation(
                         selectedDeck = subdeck
                     },
 
+                    onPracticeSubdeck = { subdeck ->
+                        selectedDeck = subdeck
+                        restoredSession = null
+                        currentScreen = AppScreen.PRACTICE
+                    },
+
                     onCreateSubdeck = { moveCards ->
                         viewModel.createSubdeck(
                             parentDeckId = deck.id,
                             moveCards = moveCards
                         ) { newDeckId ->
 
-                            selectedDeck = Deck(
-                                id = newDeckId,
-                                name = "New subdeck",
-                                parentDeckId = deck.id
-                            )
+                            // Keep the current parent selected.
+                            // The new ID triggers the rename dialog once
+                            // the updated deck list arrives from the database.
+                            newlyCreatedSubdeckId = newDeckId
                         }
                     },
 
@@ -443,4 +467,32 @@ fun AppNavigation(
             )
         }
     }
+}
+
+private fun getDescendantDeckIds(
+    rootDeckId: Int,
+    decks: List<Deck>
+): Set<Int> {
+
+    val result = mutableSetOf<Int>()
+    val pending = ArrayDeque<Int>()
+
+    pending.add(rootDeckId)
+
+    while (pending.isNotEmpty()) {
+
+        val currentId = pending.removeFirst()
+
+        if (!result.add(currentId)) {
+            continue
+        }
+
+        decks
+            .filter { it.parentDeckId == currentId }
+            .forEach { child ->
+                pending.add(child.id)
+            }
+    }
+
+    return result
 }

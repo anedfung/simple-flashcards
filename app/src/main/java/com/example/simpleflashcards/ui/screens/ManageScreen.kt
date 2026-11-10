@@ -25,13 +25,18 @@ import com.example.simpleflashcards.ui.components.CsvImportExportButtons
 @Composable
 fun ManageScreen(
     deckName: String,
+    deckId: Int,
     cards: List<Flashcard>,
     subdecks: List<Deck>,
+    allDecks: List<Deck>,
+    newSubdeckToRename: Deck?,
+    onRenamePromptHandled: () -> Unit,
     onAdd: () -> Unit,
     onEdit: (Flashcard) -> Unit,
     onDelete: (Flashcard) -> Unit,
     onBack: () -> Unit,
     onOpenSubdeck: (Deck) -> Unit,
+    onPracticeSubdeck: (Deck) -> Unit,
     onCreateSubdeck: (Boolean) -> Unit,
     onRenameSubdeck: (Deck, String) -> Unit,
     onDeleteSubdeck: (Deck) -> Unit,
@@ -46,7 +51,7 @@ fun ManageScreen(
         mutableStateOf(false)
     }
 
-    var subdeckToRename by remember {
+    var deckToRename by remember {
         mutableStateOf<Deck?>(null)
     }
 
@@ -54,12 +59,24 @@ fun ManageScreen(
         mutableStateOf<Deck?>(null)
     }
 
+    // Only cards directly belonging to this deck.
+    // Descendant cards remain available for recursive practice.
+    val directCards = cards.filter {
+        it.deckId == deckId
+    }
+
     val isParent = subdecks.isNotEmpty()
+
+    // Automatically open the rename dialog after creating a subdeck.
+    LaunchedEffect(newSubdeckToRename?.id) {
+        newSubdeckToRename?.let {
+            deckToRename = it
+        }
+    }
 
     Scaffold(
         topBar = {
             AppToolbar(deckName) {
-
                 IconButton(onClick = onCustomize) {
                     Icon(
                         imageVector = Icons.Default.Palette,
@@ -70,7 +87,7 @@ fun ManageScreen(
                 if (!isParent) {
                     CsvImportExportButtons(
                         deckName = deckName,
-                        cards = cards,
+                        cards = directCards,
                         onImport = onImportCards,
                         menuMode = true
                     )
@@ -89,7 +106,7 @@ fun ManageScreen(
             AppButton(
                 text = "Create subdeck",
                 onClick = {
-                    if (cards.isNotEmpty()) {
+                    if (directCards.isNotEmpty()) {
                         showCreateSubdeckWarning = true
                     } else {
                         onCreateSubdeck(false)
@@ -99,7 +116,6 @@ fun ManageScreen(
             )
 
             if (subdecks.isEmpty()) {
-
                 Spacer(modifier = Modifier.height(12.dp))
 
                 AppButton(
@@ -109,7 +125,7 @@ fun ManageScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             if (subdecks.isNotEmpty()) {
 
@@ -122,72 +138,105 @@ fun ManageScreen(
 
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(
                         items = subdecks,
                         key = { it.id }
                     ) { subdeck ->
 
+                        val cardCount = cards.count {
+                            it.deckId == subdeck.id
+                        }
+
+                        val subdeckCount = allDecks.count {
+                            it.parentDeckId == subdeck.id
+                        }
+
+                        // Same card structure and styling as HomeScreen.
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor =
+                                    MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier.padding(16.dp)
                             ) {
 
-                                TextButton(
-                                    onClick = {
-                                        onOpenSubdeck(subdeck)
-                                    },
-                                    modifier = Modifier.weight(1f)
+                                Text(
+                                    text = subdeck.name,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.height(4.dp)
+                                )
+
+                                Text(
+                                    text = "$cardCount flashcards · $subdeckCount subdecks",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.height(12.dp)
+                                )
+
+                                Row(
+                                    horizontalArrangement =
+                                        Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Text(
-                                        text = subdeck.name,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
+                                    Button(
+                                        onClick = {
+                                            onPracticeSubdeck(subdeck)
+                                        }
+                                    ) {
+                                        Text("Practice")
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = {
+                                            onOpenSubdeck(subdeck)
+                                        }
+                                    ) {
+                                        Text("Open")
+                                    }
                                 }
 
-                                IconButton(
-                                    onClick = {
-                                        subdeckToRename = subdeck
-                                    }
+                                Row(
+                                    horizontalArrangement =
+                                        Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = "Rename subdeck"
-                                    )
-                                }
+                                    TextButton(
+                                        onClick = {
+                                            deckToRename = subdeck
+                                        }
+                                    ) {
+                                        Text("Rename")
+                                    }
 
-                                IconButton(
-                                    onClick = {
-                                        subdeckToDelete = subdeck
+                                    TextButton(
+                                        onClick = {
+                                            subdeckToDelete = subdeck
+                                        }
+                                    ) {
+                                        Text("Delete")
                                     }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete subdeck"
-                                    )
                                 }
                             }
                         }
                     }
                 }
 
-            } else if (cards.isEmpty()) {
+            } else if (directCards.isEmpty()) {
 
                 Text("This deck is empty.")
 
             } else {
 
                 Text(
-                    text = "${cards.size} flashcards",
+                    text = "${directCards.size} flashcards",
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -198,14 +247,15 @@ fun ManageScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(
-                        items = cards,
+                        items = directCards,
                         key = { it.id }
                     ) { card ->
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor =
+                                    MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Row(
@@ -219,7 +269,6 @@ fun ManageScreen(
                                     ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-
                                 Text(
                                     text = card.question,
                                     modifier = Modifier.weight(1f),
@@ -227,7 +276,9 @@ fun ManageScreen(
                                 )
 
                                 IconButton(
-                                    onClick = { onEdit(card) }
+                                    onClick = {
+                                        onEdit(card)
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
@@ -257,8 +308,7 @@ fun ManageScreen(
         }
     }
 
-    // Conversion warning
-
+    // Warning when the current deck has direct flashcards.
     if (showCreateSubdeckWarning) {
         AlertDialog(
             onDismissRequest = {
@@ -269,7 +319,7 @@ fun ManageScreen(
             },
             text = {
                 Text(
-                    "This deck currently contains ${cards.size} flashcards. " +
+                    "This deck currently contains ${directCards.size} flashcards. " +
                             "To create subdecks, these cards must be moved into a new " +
                             "subdeck named \"New subdeck\". You can rename it afterward."
                 )
@@ -311,15 +361,17 @@ fun ManageScreen(
         )
     }
 
-    subdeckToRename?.let { deck ->
+    deckToRename?.let { deck ->
         DeckRenameDialog(
             deck = deck,
             onDismiss = {
-                subdeckToRename = null
+                deckToRename = null
+                onRenamePromptHandled()
             },
             onConfirm = { newName ->
                 onRenameSubdeck(deck, newName)
-                subdeckToRename = null
+                deckToRename = null
+                onRenamePromptHandled()
             }
         )
     }
@@ -358,14 +410,20 @@ private fun DeckRenameDialog(
         text = {
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
-                label = { Text("Deck name") },
+                onValueChange = {
+                    name = it
+                },
+                label = {
+                    Text("Deck name")
+                },
                 singleLine = true
             )
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(name) },
+                onClick = {
+                    onConfirm(name)
+                },
                 enabled = name.isNotBlank()
             ) {
                 Text("Save")
