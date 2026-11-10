@@ -110,7 +110,10 @@ fun PracticeScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar(deckName)
+            AppToolbar(
+                title = deckName,
+                onBack = onBack
+            )
         }
     ) { padding ->
 
@@ -213,10 +216,6 @@ fun PracticeScreen(
                             onToggleShuffle()
                         }
                     )
-                }
-
-                TextButton(onClick = onBack) {
-                    Text("Back to decks")
                 }
             }
         }

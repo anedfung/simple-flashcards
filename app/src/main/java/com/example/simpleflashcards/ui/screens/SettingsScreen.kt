@@ -28,11 +28,10 @@ fun SettingsScreen(
 ) {
     Scaffold(
         topBar = {
-            AppToolbar("Appearance") {
-                TextButton(onClick = onBack) {
-                    Text("Done")
-                }
-            }
+            AppToolbar(
+                title = "Appearance",
+                onBack = onBack
+            )
         }
     ) { padding ->
         Column(

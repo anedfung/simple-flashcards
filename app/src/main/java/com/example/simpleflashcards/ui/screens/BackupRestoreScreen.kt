@@ -37,11 +37,10 @@ fun BackupRestoreScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar("Backup & Restore") {
-                TextButton(onClick = onBack) {
-                    Text("Done")
-                }
-            }
+            AppToolbar(
+                title = "Backup & Restore",
+                onBack = onBack
+            )
         }
     ) { padding ->
 

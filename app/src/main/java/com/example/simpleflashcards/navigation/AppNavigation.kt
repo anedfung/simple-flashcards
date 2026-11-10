@@ -3,6 +3,10 @@ package com.example.simpleflashcards.navigation
 
 import android.net.Uri
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +39,11 @@ private enum class AppScreen {
     DECK_APPEARANCE,
     BACKUP_RESTORE
 }
+
+private data class NavigationEntry(
+    val screen: AppScreen,
+    val deck: Deck?
+)
 
 @Composable
 fun AppNavigation(
@@ -72,6 +81,10 @@ fun AppNavigation(
         mutableStateOf<Deck?>(null)
     }
 
+    var navigationBackStack by remember {
+        mutableStateOf<List<NavigationEntry>>(emptyList())
+    }
+
     var editingCard by remember {
         mutableStateOf<Flashcard?>(null)
     }
@@ -94,6 +107,83 @@ fun AppNavigation(
 
     val newlyCreatedSubdeck = decks.firstOrNull {
         it.id == newlyCreatedSubdeckId
+    }
+
+    var lastBackPressedTime by remember {
+        mutableLongStateOf(0L)
+    }
+
+    fun navigateTo(
+        screen: AppScreen,
+        deck: Deck? = selectedDeck
+    ) {
+        navigationBackStack = navigationBackStack + NavigationEntry(
+            screen = currentScreen,
+            deck = selectedDeck
+        )
+
+        selectedDeck = deck
+        currentScreen = screen
+    }
+
+    fun handleBack() {
+
+        // Clear the restored practice session when leaving practice.
+        if (currentScreen == AppScreen.PRACTICE) {
+            restoredSession = null
+        }
+
+        // Restore the actual previous screen and deck.
+        if (navigationBackStack.isNotEmpty()) {
+
+            val previous = navigationBackStack.last()
+
+            navigationBackStack = navigationBackStack.dropLast(1)
+
+            selectedDeck = previous.deck
+            currentScreen = previous.screen
+
+            return
+        }
+
+        // Fallback for screens opened without navigation history.
+        when (currentScreen) {
+
+            AppScreen.HOME -> Unit
+
+            AppScreen.PRACTICE -> {
+                currentScreen = AppScreen.HOME
+            }
+
+            AppScreen.MANAGE -> {
+                val deck = selectedDeck
+
+                if (deck?.parentDeckId != null) {
+                    selectedDeck = decks.firstOrNull {
+                        it.id == deck.parentDeckId
+                    }
+                } else {
+                    selectedDeck = null
+                    currentScreen = AppScreen.HOME
+                }
+            }
+
+            AppScreen.EDIT -> {
+                currentScreen = AppScreen.MANAGE
+            }
+
+            AppScreen.SETTINGS -> {
+                currentScreen = AppScreen.HOME
+            }
+
+            AppScreen.DECK_APPEARANCE -> {
+                currentScreen = AppScreen.MANAGE
+            }
+
+            AppScreen.BACKUP_RESTORE -> {
+                currentScreen = AppScreen.SETTINGS
+            }
+        }
     }
 
     // Keep the selected deck synchronized with database updates.
@@ -131,6 +221,8 @@ fun AppNavigation(
                     savedSession.shuffleEnabled
                 )
 
+                navigationBackStack = emptyList()
+
                 currentScreen = AppScreen.PRACTICE
             }
         }
@@ -158,6 +250,32 @@ fun AppNavigation(
         initial = DeckAppearance()
     )
 
+    BackHandler(
+        enabled = currentScreen != AppScreen.HOME
+    ) {
+        handleBack()
+    }
+
+    BackHandler(enabled = currentScreen == AppScreen.HOME) {
+
+        val currentTime = System.currentTimeMillis()
+
+        if (currentTime - lastBackPressedTime < 2000L) {
+
+            (context as? Activity)?.finish()
+
+        } else {
+
+            lastBackPressedTime = currentTime
+
+            Toast.makeText(
+                context,
+                "Press Back again to exit",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     when (currentScreen) {
 
         AppScreen.HOME -> {
@@ -167,14 +285,12 @@ fun AppNavigation(
                 cards = cards,
 
                 onPractice = { deck ->
-                    selectedDeck = deck
                     restoredSession = null
-                    currentScreen = AppScreen.PRACTICE
+                    navigateTo(AppScreen.PRACTICE, deck)
                 },
 
                 onManage = { deck ->
-                    selectedDeck = deck
-                    currentScreen = AppScreen.MANAGE
+                    navigateTo(AppScreen.MANAGE, deck)
                 },
 
                 onAddDeck = { name ->
@@ -190,7 +306,7 @@ fun AppNavigation(
                 },
 
                 onSettings = {
-                    currentScreen = AppScreen.SETTINGS
+                    navigateTo(AppScreen.SETTINGS, null)
                 }
             )
         }
@@ -222,17 +338,8 @@ fun AppNavigation(
                     },
 
                     onBack = {
-                        restoredSession = null
-
-                        if (deck.parentDeckId != null) {
-                            selectedDeck = decks.firstOrNull {
-                                it.id == deck.parentDeckId
-                            }
-                            currentScreen = AppScreen.MANAGE
-                        } else {
-                            currentScreen = AppScreen.HOME
-                        }
-                    }
+                        handleBack()
+                    },
                 )
             }
         }
@@ -255,12 +362,12 @@ fun AppNavigation(
 
                     onAdd = {
                         editingCard = null
-                        currentScreen = AppScreen.EDIT
+                        navigateTo(AppScreen.EDIT)
                     },
 
                     onEdit = { card ->
                         editingCard = card
-                        currentScreen = AppScreen.EDIT
+                        navigateTo(AppScreen.EDIT)
                     },
 
                     onDelete = { card ->
@@ -268,24 +375,16 @@ fun AppNavigation(
                     },
 
                     onBack = {
-                        if (deck.parentDeckId != null) {
-                            selectedDeck = decks.firstOrNull {
-                                it.id == deck.parentDeckId
-                            }
-                        } else {
-                            selectedDeck = null
-                            currentScreen = AppScreen.HOME
-                        }
+                        handleBack()
                     },
 
                     onOpenSubdeck = { subdeck ->
-                        selectedDeck = subdeck
+                        navigateTo(AppScreen.MANAGE, subdeck)
                     },
 
                     onPracticeSubdeck = { subdeck ->
-                        selectedDeck = subdeck
                         restoredSession = null
-                        currentScreen = AppScreen.PRACTICE
+                        navigateTo(AppScreen.PRACTICE, subdeck)
                     },
 
                     onCreateSubdeck = { moveCards ->
@@ -317,7 +416,7 @@ fun AppNavigation(
                     },
 
                     onCustomize = {
-                        currentScreen = AppScreen.DECK_APPEARANCE
+                        navigateTo(AppScreen.DECK_APPEARANCE)
                     }
                 )
             }
@@ -352,11 +451,11 @@ fun AppNavigation(
                             )
                         }
 
-                        currentScreen = AppScreen.MANAGE
+                        handleBack()
                     },
 
                     onCancel = {
-                        currentScreen = AppScreen.MANAGE
+                        handleBack()
                     }
                 )
             }
@@ -372,12 +471,12 @@ fun AppNavigation(
                 onColorThemeChange = onColorThemeChange,
 
                 onBack = {
-                    currentScreen = AppScreen.HOME
+                    handleBack()
                 },
 
                 onBackupRestore = {
                     backupStatus = null
-                    currentScreen = AppScreen.BACKUP_RESTORE
+                    navigateTo(AppScreen.BACKUP_RESTORE)
                 }
             )
         }
@@ -418,7 +517,7 @@ fun AppNavigation(
                     },
 
                     onBack = {
-                        currentScreen = AppScreen.MANAGE
+                        handleBack()
                     }
                 )
             }
@@ -462,7 +561,7 @@ fun AppNavigation(
                 },
 
                 onBack = {
-                    currentScreen = AppScreen.SETTINGS
+                    handleBack()
                 }
             )
         }

@@ -76,7 +76,10 @@ fun ManageScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar(deckName) {
+            AppToolbar(
+                title = deckName,
+                onBack = onBack
+            ) {
                 IconButton(onClick = onCustomize) {
                     Icon(
                         imageVector = Icons.Default.Palette,
@@ -300,10 +303,6 @@ fun ManageScreen(
                         }
                     }
                 }
-            }
-
-            TextButton(onClick = onBack) {
-                Text("Back")
             }
         }
     }
