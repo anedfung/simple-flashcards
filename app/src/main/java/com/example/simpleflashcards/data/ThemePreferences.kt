@@ -34,6 +34,9 @@ class ThemePreferences(context: Context) {
     private val customFlashcardFontSizeEnabledKey =
         booleanPreferencesKey("custom_flashcard_font_size_enabled")
 
+    private val appLanguageKey =
+        stringPreferencesKey("app_language")
+
     val themeMode: Flow<AppThemeMode> =
         appContext.appSettingsDataStore.data.map { preferences ->
             AppThemeMode.fromPreference(preferences[themeKey])
@@ -57,6 +60,11 @@ class ThemePreferences(context: Context) {
     val customFlashcardFontSizeEnabled: Flow<Boolean> =
         appContext.appSettingsDataStore.data.map { preferences ->
             preferences[customFlashcardFontSizeEnabledKey] ?: false
+        }
+
+    val appLanguage: Flow<String> =
+        appContext.appSettingsDataStore.data.map { preferences ->
+            preferences[appLanguageKey] ?: "en"
         }
 
     suspend fun setThemeMode(mode: AppThemeMode) {
@@ -86,6 +94,12 @@ class ThemePreferences(context: Context) {
     suspend fun setCustomFlashcardFontSizeEnabled(enabled: Boolean) {
         appContext.appSettingsDataStore.edit { preferences ->
             preferences[customFlashcardFontSizeEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setAppLanguage(language: String) {
+        appContext.appSettingsDataStore.edit { preferences ->
+            preferences[appLanguageKey] = language
         }
     }
 }

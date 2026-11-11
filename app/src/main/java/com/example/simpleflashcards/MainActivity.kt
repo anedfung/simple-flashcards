@@ -10,6 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.compose.runtime.LaunchedEffect
+
 import com.example.simpleflashcards.data.FlashcardBackupManager
 import com.example.simpleflashcards.data.FlashcardDatabase
 import com.example.simpleflashcards.data.FlashcardRepository
@@ -79,6 +83,27 @@ class MainActivity : ComponentActivity() {
 
             val scope = rememberCoroutineScope()
 
+            val appLanguage by themePreferences.appLanguage.collectAsState(
+                initial = "en"
+            )
+
+            LaunchedEffect(appLanguage) {
+                if (android.os.Build.VERSION.SDK_INT >=
+                    android.os.Build.VERSION_CODES.TIRAMISU
+                ) {
+                    val localeManager =
+                        getSystemService(android.app.LocaleManager::class.java)
+
+                    localeManager.applicationLocales =
+                        android.os.LocaleList.forLanguageTags(appLanguage)
+                }
+
+                android.util.Log.d(
+                    "AppLanguage",
+                    "Selected language: $appLanguage"
+                )
+            }
+
             SimpleFlashcardsTheme(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
@@ -88,6 +113,16 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel,
                     themeMode = themeMode,
                     colorTheme = colorTheme,
+
+                    appLanguage = appLanguage,
+
+                    onAppLanguageChange = { newLanguage ->
+                        scope.launch {
+                            themePreferences.setAppLanguage(newLanguage)
+
+                            finishAffinity()
+                        }
+                    },
 
                     onThemeModeChange = { newMode ->
                         scope.launch {

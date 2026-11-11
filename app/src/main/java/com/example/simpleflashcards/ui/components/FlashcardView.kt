@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.ComponentStyles
 
@@ -77,9 +79,9 @@ fun FlashcardView(
 
             Text(
                 text = if (revealed) {
-                    "Tap to see question"
+                    stringResource(R.string.tap_see_question)
                 } else {
-                    "Tap to reveal answer"
+                    stringResource(R.string.tap_reveal_answer)
                 },
                 color = textColor.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall.copy(
@@ -98,7 +100,7 @@ fun FlashcardView(
         ) {
             Icon(
                 imageVector = Icons.Default.ContentCopy,
-                contentDescription = "Copy current side",
+                contentDescription = stringResource(R.string.copy_current_side),
                 tint = textColor
             )
         }

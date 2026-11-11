@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import android.net.Uri
@@ -8,6 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.components.AppToolbar
 
 @Composable
@@ -38,7 +42,7 @@ fun BackupRestoreScreen(
     Scaffold(
         topBar = {
             AppToolbar(
-                title = "Backup & Restore",
+                title = stringResource(R.string.backup_restore),
                 onBack = onBack
             )
         }
@@ -53,12 +57,12 @@ fun BackupRestoreScreen(
         ) {
 
             Text(
-                text = "Backup",
+                text = stringResource(R.string.backup_title),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
-                text = "Save all your decks and flashcards into one backup file.",
+                text = stringResource(R.string.backup_description),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -68,18 +72,18 @@ fun BackupRestoreScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Export backup")
+                Text(stringResource(R.string.export_backup))
             }
 
             HorizontalDivider()
 
             Text(
-                text = "Restore",
+                text = stringResource(R.string.restore_title),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
-                text = "Restore your decks and flashcards from a previously exported backup.",
+                text = stringResource(R.string.restore_description),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -91,11 +95,11 @@ fun BackupRestoreScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Choose backup file")
+                Text(stringResource(R.string.choose_backup_file))
             }
 
             Text(
-                text = "Warning: restoring a backup replaces all existing decks and flashcards.",
+                text = stringResource(R.string.restore_warning),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -116,18 +120,12 @@ fun BackupRestoreScreen(
             onDismissRequest = {
                 pendingImport = null
             },
-
             title = {
-                Text("Restore backup?")
+                Text(stringResource(R.string.restore_backup_title))
             },
-
             text = {
-                Text(
-                    "This will replace all your current decks and flashcards. " +
-                            "This action cannot be undone. Continue?"
-                )
+                Text(stringResource(R.string.restore_backup_message))
             },
-
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -135,17 +133,16 @@ fun BackupRestoreScreen(
                         pendingImport = null
                     }
                 ) {
-                    Text("Restore")
+                    Text(stringResource(R.string.restore))
                 }
             },
-
             dismissButton = {
                 TextButton(
                     onClick = {
                         pendingImport = null
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

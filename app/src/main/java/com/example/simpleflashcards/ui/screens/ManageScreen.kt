@@ -13,7 +13,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
@@ -59,15 +62,12 @@ fun ManageScreen(
         mutableStateOf<Deck?>(null)
     }
 
-    // Only cards directly belonging to this deck.
-    // Descendant cards remain available for recursive practice.
     val directCards = cards.filter {
         it.deckId == deckId
     }
 
     val isParent = subdecks.isNotEmpty()
 
-    // Automatically open the rename dialog after creating a subdeck.
     LaunchedEffect(newSubdeckToRename?.id) {
         newSubdeckToRename?.let {
             deckToRename = it
@@ -83,7 +83,9 @@ fun ManageScreen(
                 IconButton(onClick = onCustomize) {
                     Icon(
                         imageVector = Icons.Default.Palette,
-                        contentDescription = "Customize deck appearance"
+                        contentDescription = stringResource(
+                            R.string.customize_deck
+                        )
                     )
                 }
 
@@ -107,7 +109,7 @@ fun ManageScreen(
         ) {
 
             AppButton(
-                text = "Create subdeck",
+                text = stringResource(R.string.create_subdeck),
                 onClick = {
                     if (directCards.isNotEmpty()) {
                         showCreateSubdeckWarning = true
@@ -122,7 +124,7 @@ fun ManageScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 AppButton(
-                    text = "Add flashcard",
+                    text = stringResource(R.string.add_flashcard),
                     onClick = onAdd,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -133,7 +135,11 @@ fun ManageScreen(
             if (subdecks.isNotEmpty()) {
 
                 Text(
-                    text = "${subdecks.size} subdecks",
+                    text = pluralStringResource(
+                        R.plurals.subdeck_count,
+                        subdecks.size,
+                        subdecks.size
+                    ),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -156,7 +162,6 @@ fun ManageScreen(
                             it.parentDeckId == subdeck.id
                         }
 
-                        // Same card structure and styling as HomeScreen.
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -173,18 +178,26 @@ fun ManageScreen(
                                     style = MaterialTheme.typography.titleLarge
                                 )
 
-                                Spacer(
-                                    modifier = Modifier.height(4.dp)
-                                )
+                                Spacer(modifier = Modifier.height(4.dp))
 
                                 Text(
-                                    text = "$cardCount flashcards · $subdeckCount subdecks",
+                                    text = stringResource(
+                                        R.string.deck_card_summary,
+                                        pluralStringResource(
+                                            R.plurals.flashcard_count,
+                                            cardCount,
+                                            cardCount
+                                        ),
+                                        pluralStringResource(
+                                            R.plurals.subdeck_count,
+                                            subdeckCount,
+                                            subdeckCount
+                                        )
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
 
-                                Spacer(
-                                    modifier = Modifier.height(12.dp)
-                                )
+                                Spacer(modifier = Modifier.height(12.dp))
 
                                 Row(
                                     horizontalArrangement =
@@ -195,7 +208,7 @@ fun ManageScreen(
                                             onPracticeSubdeck(subdeck)
                                         }
                                     ) {
-                                        Text("Practice")
+                                        Text(stringResource(R.string.practice))
                                     }
 
                                     OutlinedButton(
@@ -203,7 +216,7 @@ fun ManageScreen(
                                             onOpenSubdeck(subdeck)
                                         }
                                     ) {
-                                        Text("Open")
+                                        Text(stringResource(R.string.open))
                                     }
                                 }
 
@@ -216,7 +229,7 @@ fun ManageScreen(
                                             deckToRename = subdeck
                                         }
                                     ) {
-                                        Text("Rename")
+                                        Text(stringResource(R.string.rename))
                                     }
 
                                     TextButton(
@@ -224,7 +237,7 @@ fun ManageScreen(
                                             subdeckToDelete = subdeck
                                         }
                                     ) {
-                                        Text("Delete")
+                                        Text(stringResource(R.string.delete))
                                     }
                                 }
                             }
@@ -234,12 +247,16 @@ fun ManageScreen(
 
             } else if (directCards.isEmpty()) {
 
-                Text("This deck is empty.")
+                Text(stringResource(R.string.deck_empty))
 
             } else {
 
                 Text(
-                    text = "${directCards.size} flashcards",
+                    text = pluralStringResource(
+                        R.plurals.flashcard_count,
+                        directCards.size,
+                        directCards.size
+                    ),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -285,7 +302,9 @@ fun ManageScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
-                                        contentDescription = "Edit flashcard"
+                                        contentDescription = stringResource(
+                                            R.string.edit_flashcard
+                                        )
                                     )
                                 }
 
@@ -296,7 +315,9 @@ fun ManageScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete flashcard"
+                                        contentDescription = stringResource(
+                                            R.string.delete_flashcard
+                                        )
                                     )
                                 }
                             }
@@ -307,20 +328,21 @@ fun ManageScreen(
         }
     }
 
-    // Warning when the current deck has direct flashcards.
     if (showCreateSubdeckWarning) {
         AlertDialog(
             onDismissRequest = {
                 showCreateSubdeckWarning = false
             },
             title = {
-                Text("Move flashcards?")
+                Text(stringResource(R.string.move_flashcards_title))
             },
             text = {
                 Text(
-                    "This deck currently contains ${directCards.size} flashcards. " +
-                            "To create subdecks, these cards must be moved into a new " +
-                            "subdeck named \"New subdeck\". You can rename it afterward."
+                    stringResource(
+                        R.string.move_flashcards_message,
+                        directCards.size,
+                        stringResource(R.string.new_subdeck_default_name)
+                    )
                 )
             },
             confirmButton = {
@@ -330,7 +352,7 @@ fun ManageScreen(
                         onCreateSubdeck(true)
                     }
                 ) {
-                    Text("Move cards and create subdeck")
+                    Text(stringResource(R.string.move_cards_create_subdeck))
                 }
             },
             dismissButton = {
@@ -339,7 +361,7 @@ fun ManageScreen(
                         showCreateSubdeckWarning = false
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -347,9 +369,9 @@ fun ManageScreen(
 
     cardToDelete?.let { card ->
         AppDialog(
-            title = "Delete flashcard?",
-            message = "Are you sure you want to delete this flashcard?",
-            confirmText = "Delete",
+            title = stringResource(R.string.delete_flashcard_title),
+            message = stringResource(R.string.delete_flashcard_message),
+            confirmText = stringResource(R.string.delete),
             onConfirm = {
                 onDelete(card)
                 cardToDelete = null
@@ -377,9 +399,12 @@ fun ManageScreen(
 
     subdeckToDelete?.let { deck ->
         AppDialog(
-            title = "Delete subdeck?",
-            message = "Deleting \"${deck.name}\" will also delete its nested subdecks and flashcards.",
-            confirmText = "Delete",
+            title = stringResource(R.string.delete_subdeck_title),
+            message = stringResource(
+                R.string.delete_subdeck_message,
+                deck.name
+            ),
+            confirmText = stringResource(R.string.delete),
             onConfirm = {
                 onDeleteSubdeck(deck)
                 subdeckToDelete = null
@@ -404,7 +429,7 @@ private fun DeckRenameDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Rename subdeck")
+            Text(stringResource(R.string.rename_deck_title))
         },
         text = {
             OutlinedTextField(
@@ -413,7 +438,7 @@ private fun DeckRenameDialog(
                     name = it
                 },
                 label = {
-                    Text("Deck name")
+                    Text(stringResource(R.string.deck_name))
                 },
                 singleLine = true
             )
@@ -425,12 +450,12 @@ private fun DeckRenameDialog(
                 },
                 enabled = name.isNotBlank()
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

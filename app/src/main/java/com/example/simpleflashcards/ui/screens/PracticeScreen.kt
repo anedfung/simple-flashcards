@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -6,7 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.data.PracticeSession
 import com.example.simpleflashcards.ui.components.AppToolbar
@@ -52,8 +55,8 @@ fun PracticeScreen(
                     }
                     .orEmpty()
 
-                val remainingCards = cards.filter {
-                        card -> savedOrder.none { it.id == card.id }
+                val remainingCards = cards.filter { card ->
+                    savedOrder.none { it.id == card.id }
                 }
 
                 orderedCards = if (savedOrder.isNotEmpty()) {
@@ -129,12 +132,12 @@ fun PracticeScreen(
 
             if (orderedCards.isEmpty()) {
 
-                Text("This deck has no flashcards.")
+                Text(stringResource(R.string.no_flashcards))
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 TextButton(onClick = onBack) {
-                    Text("Back to decks")
+                    Text(stringResource(R.string.back_to_decks))
                 }
 
             } else {
@@ -175,7 +178,7 @@ fun PracticeScreen(
                                 orderedCards[previousIndex].id
                         }
                     ) {
-                        Text("Previous")
+                        Text(stringResource(R.string.previous))
                     }
 
                     OutlinedButton(
@@ -187,7 +190,7 @@ fun PracticeScreen(
                                 orderedCards[nextIndex].id
                         }
                     ) {
-                        Text("Next")
+                        Text(stringResource(R.string.next))
                     }
                 }
 
@@ -197,7 +200,7 @@ fun PracticeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Text("Shuffle")
+                    Text(stringResource(R.string.shuffle))
 
                     Spacer(modifier = Modifier.width(8.dp))
 

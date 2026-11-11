@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SimpleFlashCards</string>
+
+    <!-- Idioma -->
+    <string name="app_language">Idioma de la aplicación</string>
+    <string name="app_language_description">Elige el idioma utilizado en toda la aplicación.</string>
+    <string name="language_english">Inglés</string>
+    <string name="language_spanish">Español</string>
+    <string name="restart_required">Se requiere reiniciar</string>
+    <string name="language_restart_message">Para cambiar el idioma de la aplicación, es necesario cerrarla. El nuevo idioma se aplicará la próxima vez que la abras.</string>
+    <string name="close_app">Cerrar aplicación</string>
+
+    <!-- General -->
+    <string name="my_decks">Mis ficheros</string>
+    <string name="create_new_deck">Crear nuevo fichero</string>
+    <string name="create_deck">Crear fichero</string>
+    <string name="create">Crear</string>
+    <string name="open">Abrir</string>
+    <string name="rename">Cambiar nombre</string>
+    <string name="delete">Eliminar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="back">Atrás</string>
+    <string name="back_to_decks">Volver a los ficheros</string>
+    <string name="settings">Configuración</string>
+    <string name="go_back">Volver</string>
+    <string name="more_options">Más opciones</string>
+    <string name="press_back_again_to_exit">Presiona Atrás nuevamente para salir</string>
+
+    <!-- Gestión de ficheros -->
+    <string name="deck_name">Nombre del fichero</string>
+    <string name="create_subdeck">Crear subfichero</string>
+    <string name="add_flashcard">Añadir ficha</string>
+    <string name="deck_empty">Este fichero está vacío.</string>
+    <string name="create_deck_title">Crear fichero</string>
+    <string name="rename_deck_title">Cambiar nombre del fichero</string>
+    <string name="delete_deck_title">¿Eliminar fichero?</string>
+    <string name="delete_deck_message">Al eliminar "%1$s", también se eliminarán todos sus subficheros y fichas.</string>
+    <string name="delete_subdeck_title">¿Eliminar subfichero?</string>
+    <string name="delete_subdeck_message">Al eliminar "%1$s", también se eliminarán sus subficheros y fichas anidados.</string>
+    <string name="new_subdeck_default_name">New subdeck</string>
+
+    <!-- Gestión de fichas -->
+    <string name="new_card_title">Nueva ficha - %1$s</string>
+    <string name="edit_card_title">Editar ficha - %1$s</string>
+    <string name="question">Pregunta</string>
+    <string name="answer">Respuesta</string>
+    <string name="save_flashcard">Guardar ficha</string>
+    <string name="edit_flashcard">Editar ficha</string>
+    <string name="delete_flashcard">Eliminar ficha</string>
+    <string name="delete_flashcard_title">¿Eliminar ficha?</string>
+    <string name="delete_flashcard_message">¿Seguro que quieres eliminar esta ficha?</string>
+
+    <!-- Movimiento de fichas a un subfichero -->
+    <string name="move_flashcards_title">¿Mover fichas?</string>
+    <string name="move_flashcards_message">Este fichero contiene actualmente %1$d fichas. Para crear subficheros, estas fichas deben trasladarse a un nuevo subfichero llamado "%2$s". Después podrás cambiarle el nombre.</string>
+    <string name="move_cards_create_subdeck">Mover fichas y crear subfichero</string>
+
+    <!-- Práctica -->
+    <string name="practice">Practicar</string>
+    <string name="no_flashcards">Este fichero no contiene fichas.</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="shuffle">Orden aleatorio</string>
+    <string name="tap_reveal_answer">Toca para revelar la respuesta</string>
+    <string name="tap_see_question">Toca para ver la pregunta</string>
+    <string name="copy_current_side">Copiar contenido actual</string>
+
+    <!-- Apariencia -->
+    <string name="appearance">Apariencia</string>
+    <string name="display_mode">Modo de visualización</string>
+    <string name="display_mode_description">Elige entre el modo claro, oscuro o el ajuste del sistema.</string>
+    <string name="system_default">Predeterminado del sistema</string>
+    <string name="light">Claro</string>
+    <string name="dark">Oscuro</string>
+    <string name="color_theme">Tema de color</string>
+    <string name="color_theme_description">Elige los colores utilizados en toda la aplicación.</string>
+    <string name="app_font_size">Tamaño de texto de la aplicación</string>
+    <string name="app_font_size_description">Ajusta el tamaño del texto en toda la aplicación.</string>
+    <string name="font_size">Tamaño de fuente</string>
+    <string name="custom_flashcard_font_size">Tamaño de fuente personalizado para las fichas</string>
+    <string name="custom_flashcard_font_description">Asigna a las fichas un tamaño de fuente independiente del resto de la aplicación.</string>
+    <string name="enable_custom_size">Activar tamaño personalizado</string>
+    <string name="flashcards_own_font_size">Las fichas utilizan su propio tamaño de fuente.</string>
+    <string name="flashcards_follow_app_font_size">Las fichas utilizan el tamaño de fuente de la aplicación.</string>
+    <string name="flashcard_font_size">Tamaño de fuente de las fichas</string>
+    <string name="data">Datos</string>
+
+    <!-- Temas de color -->
+    <string name="theme_ocean">Océano</string>
+    <string name="theme_ocean_description">Azules tranquilos y tonos turquesa</string>
+    <string name="theme_forest">Bosque</string>
+    <string name="theme_forest_description">Tonos verdes naturales</string>
+    <string name="theme_lavender">Lavanda</string>
+    <string name="theme_lavender_description">Tonos morados suaves</string>
+    <string name="theme_sunrise">Amanecer</string>
+    <string name="theme_sunrise_description">Tonos cálidos de durazno y ámbar</string>
+    <string name="theme_rose">Rosa</string>
+    <string name="theme_rose_description">Tonos suaves de rosa y borgoña</string>
+    <string name="theme_slate">Pizarra</string>
+    <string name="theme_slate_description">Tonos minimalistas de azul grisáceo</string>
+
+    <!-- Apariencia de los ficheros -->
+    <string name="customize_deck">Personalizar fichero</string>
+    <string name="question_card_color">Color de la tarjeta de pregunta</string>
+    <string name="answer_card_color">Color de la tarjeta de respuesta</string>
+    <string name="card_font">Fuente de las fichas</string>
+    <string name="changes_saved_automatically">Los cambios se guardan automáticamente.</string>
+    <string name="color_default">Predeterminado</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_green">Verde</string>
+    <string name="color_peach">Durazno</string>
+    <string name="color_lavender">Lavanda</string>
+    <string name="color_yellow">Amarillo</string>
+    <string name="font_sans_serif">Sans serif</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_monospace">Monoespaciada</string>
+
+    <!-- CSV -->
+    <string name="import_csv">Importar CSV</string>
+    <string name="export_csv">Exportar CSV</string>
+    <string name="csv_export_success">El archivo CSV se exportó correctamente.</string>
+    <string name="csv_import_success">Se importaron %1$d fichas.</string>
+    <string name="csv_export_failed">Error al exportar: %1$s</string>
+    <string name="csv_import_failed">Error al importar: %1$s</string>
+    <string name="csv_open_failed">No se pudo abrir el archivo seleccionado.</string>
+    <string name="csv_read_failed">No se pudo leer el archivo seleccionado.</string>
+    <string name="flashcards_filename">fichas</string>
+
+    <!-- Copia de seguridad y restauración -->
+    <string name="backup_restore">Copia de seguridad y restauración</string>
+    <string name="backup_title">Copia de seguridad</string>
+    <string name="backup_description">Guarda todos tus ficheros y fichas en un único archivo de copia de seguridad.</string>
+    <string name="export_backup">Exportar copia de seguridad</string>
+    <string name="restore_title">Restaurar</string>
+    <string name="restore_description">Restaura tus ficheros y fichas desde una copia de seguridad exportada anteriormente.</string>
+    <string name="choose_backup_file">Seleccionar archivo de copia de seguridad</string>
+    <string name="restore_warning">Advertencia: al restaurar una copia de seguridad, se reemplazarán todos los ficheros y fichas existentes.</string>
+    <string name="restore_backup_title">¿Restaurar copia de seguridad?</string>
+    <string name="restore_backup_message">Esto reemplazará todos tus ficheros y fichas actuales. Esta acción no se puede deshacer. ¿Deseas continuar?</string>
+    <string name="restore">Restaurar</string>
+    <string name="backup_export_success">La copia de seguridad se exportó correctamente.</string>
+    <string name="backup_export_failed">Error al exportar: %1$s</string>
+    <string name="backup_import_success">Se restauraron %1$d ficheros y %2$d fichas.</string>
+    <string name="backup_import_failed">Error al restaurar: %1$s</string>
+    <string name="unknown_error">Error desconocido</string>
+
+    <!-- Cadenas adicionales -->
+    <string name="customize_deck_appearance">Personalizar apariencia del fichero</string>
+    <string name="deck_card_summary">%1$s · %2$s</string>
+    <string name="font_default">Predeterminada</string>
+
+    <!-- Plurales -->
+    <plurals name="deck_count">
+        <item quantity="one">%d fichero</item>
+        <item quantity="other">%d ficheros</item>
+    </plurals>
+
+    <plurals name="flashcard_count">
+        <item quantity="one">%d ficha</item>
+        <item quantity="other">%d fichas</item>
+    </plurals>
+
+    <plurals name="subdeck_count">
+        <item quantity="one">%d subfichero</item>
+        <item quantity="other">%d subficheros</item>
+    </plurals>
+</resources>
