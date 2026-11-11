@@ -19,6 +19,7 @@ fun PracticeScreen(
     deckName: String,
     cards: List<Flashcard>,
     appearance: DeckAppearance,
+    flashcardTextScale: Float = 1f,
     initialSession: PracticeSession?,
     shuffleEnabled: Boolean,
     onToggleShuffle: () -> Unit,
@@ -150,7 +151,8 @@ fun PracticeScreen(
                 FlashcardView(
                     question = currentCard.question,
                     answer = currentCard.answer,
-                    appearance = appearance
+                    appearance = appearance,
+                    textScale = flashcardTextScale
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
