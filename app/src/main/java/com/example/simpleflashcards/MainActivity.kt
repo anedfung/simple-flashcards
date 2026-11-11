@@ -63,16 +63,47 @@ class MainActivity : ComponentActivity() {
                 initial = AppColorTheme.OCEAN
             )
 
+            val appFontScale by themePreferences.appFontScale.collectAsState(
+                initial = ThemePreferences.DEFAULT_APP_FONT_SCALE
+            )
+
+            val flashcardFontScale by themePreferences.flashcardFontScale.collectAsState(
+                initial = ThemePreferences.DEFAULT_FLASHCARD_FONT_SCALE
+            )
+
+            val customFlashcardFontSizeEnabled by
+                themePreferences.customFlashcardFontSizeEnabled.collectAsState(
+                    initial = false
+                )
+
             val scope = rememberCoroutineScope()
 
             SimpleFlashcardsTheme(
                 themeMode = themeMode,
-                colorTheme = colorTheme
+                colorTheme = colorTheme,
+                appFontScale = appFontScale
             ) {
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
                     colorTheme = colorTheme,
+                    appFontScale = appFontScale,
+                    flashcardFontScale = flashcardFontScale,
+                    customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
+
+                    onAppFontScaleChange = { scale ->
+                        scope.launch { themePreferences.setAppFontScale(scale) }
+                    },
+
+                    onFlashcardFontScaleChange = { scale ->
+                        scope.launch { themePreferences.setFlashcardFontScale(scale) }
+                    },
+
+                    onCustomFlashcardFontSizeEnabledChange = { enabled ->
+                        scope.launch {
+                            themePreferences.setCustomFlashcardFontSizeEnabled(enabled)
+                        }
+                    },
 
                     onThemeModeChange = { newMode ->
                         scope.launch {
