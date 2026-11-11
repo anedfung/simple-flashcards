@@ -13,8 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import kotlin.math.roundToInt
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
@@ -26,6 +28,8 @@ fun SettingsScreen(
     appFontScale: Float,
     flashcardFontScale: Float,
     customFlashcardFontSizeEnabled: Boolean,
+    appLanguage: String,
+    onAppLanguageChange: (String) -> Unit,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
     onAppFontScaleChange: (Float) -> Unit,
@@ -49,6 +53,52 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+
+            Text(
+                text = stringResource(R.string.app_language),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.app_language_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            listOf(
+                "en" to stringResource(R.string.language_english),
+                "es" to stringResource(R.string.language_spanish)
+            ).forEach { (languageCode, languageName) ->
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = appLanguage == languageCode,
+                        onClick = {
+                            onAppLanguageChange(languageCode)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = languageName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
 
             Text(
                 text = "Display mode",

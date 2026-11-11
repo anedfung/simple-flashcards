@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Simple FlashCards</string>
+
+    <string name="app_language">Idioma de la aplicación</string>
+    <string name="app_language_description">Elige el idioma utilizado en toda la aplicación.</string>
+    <string name="language_english">Inglés</string>
+    <string name="language_spanish">Español</string>
+    <string name="my_decks">Mis mazos</string>
+    <string name="create_new_deck">Crear nuevo mazo</string>
+    <string name="practice">Practicar</string>
+    <string name="open">Abrir</string>
+    <string name="rename">Renombrar</string>
+    <string name="delete">Eliminar</string>
+    <string name="create_deck">Crear mazo</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="settings">Configuración</string>
+    <string name="flashcards">tarjetas</string>
+    <string name="subdecks">submazos</string>
+</resources>

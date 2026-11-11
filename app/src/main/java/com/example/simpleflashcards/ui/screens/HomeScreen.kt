@@ -10,7 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.ui.components.AppButton
@@ -38,7 +40,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            AppToolbar("My Decks") {
+            AppToolbar(stringResource(R.string.my_decks)) {
                 IconButton(onClick = onSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
@@ -122,7 +124,7 @@ fun HomeScreen(
                                 Button(
                                     onClick = { onPractice(deck) }
                                 ) {
-                                    Text("Practice")
+                                    Text(stringResource(R.string.practice))
                                 }
 
                                 OutlinedButton(

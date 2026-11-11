@@ -62,6 +62,8 @@ fun AppNavigation(
     onAppFontScaleChange: (Float) -> Unit,
     onFlashcardFontScaleChange: (Float) -> Unit,
     onCustomFlashcardFontSizeEnabledChange: (Boolean) -> Unit,
+    appLanguage: String,
+    onAppLanguageChange: (String) -> Unit,
 ) {
 
     val decks by viewModel.decks.collectAsState()
@@ -482,6 +484,8 @@ fun AppNavigation(
                 appFontScale = appFontScale,
                 flashcardFontScale = flashcardFontScale,
                 customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
+                appLanguage = appLanguage,
+                onAppLanguageChange = onAppLanguageChange,
 
                 onThemeModeChange = onThemeModeChange,
                 onColorThemeChange = onColorThemeChange,
