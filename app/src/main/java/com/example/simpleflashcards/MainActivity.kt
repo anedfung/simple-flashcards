@@ -119,6 +119,8 @@ class MainActivity : ComponentActivity() {
                     onAppLanguageChange = { newLanguage ->
                         scope.launch {
                             themePreferences.setAppLanguage(newLanguage)
+
+                            finishAffinity()
                         }
                     },
 

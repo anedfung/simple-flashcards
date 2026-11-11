@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,52 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onBackupRestore: () -> Unit
 ) {
+    var pendingLanguage by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    pendingLanguage?.let { language ->
+
+        AlertDialog(
+            onDismissRequest = {
+                pendingLanguage = null
+            },
+
+            title = {
+                Text("Restart required")
+            },
+
+            text = {
+                Text(
+                    "Changing the application language requires " +
+                            "closing the app. Your new language will " +
+                            "take effect the next time you open it."
+                )
+            },
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingLanguage = null
+                        onAppLanguageChange(language)
+                    }
+                ) {
+                    Text("Close app")
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        pendingLanguage = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             AppToolbar(
@@ -83,7 +130,9 @@ fun SettingsScreen(
                     RadioButton(
                         selected = appLanguage == languageCode,
                         onClick = {
-                            onAppLanguageChange(languageCode)
+                            if (languageCode != appLanguage) {
+                                pendingLanguage = languageCode
+                            }
                         }
                     )
 
