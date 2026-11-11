@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.compositeOver
 fun SimpleFlashcardsTheme(
     themeMode: AppThemeMode = AppThemeMode.SYSTEM,
     colorTheme: AppColorTheme = AppColorTheme.OCEAN,
-    appFontScale: Float = 1.1f,
     content: @Composable () -> Unit
 ) {
     val systemDark = isSystemInDarkTheme()
@@ -63,7 +62,7 @@ fun SimpleFlashcardsTheme(
 
     MaterialTheme(
         colorScheme = colors,
-        typography = AppTypography.scaled(appFontScale),
+        typography = AppTypography.styles,
         content = content
     )
 }
