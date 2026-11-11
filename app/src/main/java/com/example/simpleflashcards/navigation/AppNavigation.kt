@@ -56,10 +56,12 @@ fun AppNavigation(
     appearancePreferences: DeckAppearancePreferences,
     backupManager: FlashcardBackupManager,
     practiceSessionPreferences: PracticeSessionPreferences,
-    appFontSize: FontSizeOption,
-    flashcardFontSize: FontSizeOption,
-    onAppFontSizeChange: (FontSizeOption) -> Unit,
-    onFlashcardFontSizeChange: (FontSizeOption) -> Unit,
+    appFontScale: Float,
+    flashcardFontScale: Float,
+    customFlashcardFontSizeEnabled: Boolean,
+    onAppFontScaleChange: (Float) -> Unit,
+    onFlashcardFontScaleChange: (Float) -> Unit,
+    onCustomFlashcardFontSizeEnabledChange: (Boolean) -> Unit,
 ) {
 
     val decks by viewModel.decks.collectAsState()
@@ -331,7 +333,11 @@ fun AppNavigation(
                     },
 
                     shuffleEnabled = shuffleEnabled,
-                    flashcardFontSize = flashcardFontSize,
+                    flashcardFontScale = if (customFlashcardFontSizeEnabled) {
+                        flashcardFontScale
+                    } else {
+                        appFontScale
+                    },
 
                     onToggleShuffle = {
                         viewModel.toggleShuffle()
@@ -473,14 +479,17 @@ fun AppNavigation(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
 
-                appFontSize = appFontSize,
-                flashcardFontSize = flashcardFontSize,
+                appFontScale = appFontScale,
+                flashcardFontScale = flashcardFontScale,
+                customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
 
                 onThemeModeChange = onThemeModeChange,
                 onColorThemeChange = onColorThemeChange,
 
-                onAppFontSizeChange = onAppFontSizeChange,
-                onFlashcardFontSizeChange = onFlashcardFontSizeChange,
+                onAppFontScaleChange = onAppFontScaleChange,
+                onFlashcardFontScaleChange = onFlashcardFontScaleChange,
+                onCustomFlashcardFontSizeEnabledChange =
+                    onCustomFlashcardFontSizeEnabledChange,
 
                 onBack = {
                     handleBack()

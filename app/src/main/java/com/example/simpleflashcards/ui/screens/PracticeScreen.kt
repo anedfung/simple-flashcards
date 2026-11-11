@@ -12,7 +12,6 @@ import com.example.simpleflashcards.data.PracticeSession
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.components.FlashcardView
 import com.example.simpleflashcards.ui.theme.DeckAppearance
-import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 @Composable
 fun PracticeScreen(
@@ -22,7 +21,7 @@ fun PracticeScreen(
     appearance: DeckAppearance,
     initialSession: PracticeSession?,
     shuffleEnabled: Boolean,
-    flashcardFontSize: FontSizeOption,
+    flashcardFontScale: Float,
     onToggleShuffle: () -> Unit,
     onSessionChange: (PracticeSession) -> Unit,
     onBack: () -> Unit
@@ -153,7 +152,7 @@ fun PracticeScreen(
                     question = currentCard.question,
                     answer = currentCard.answer,
                     appearance = appearance,
-                    fontSizeOption = flashcardFontSize
+                    fontScale = flashcardFontScale
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))

@@ -64,12 +64,17 @@ class MainActivity : ComponentActivity() {
                 initial = AppColorTheme.OCEAN
             )
 
-            val appFontSize by themePreferences.appFontSize.collectAsState(
-                initial = FontSizeOption.LARGE
+            val appFontScale by themePreferences.appFontScale.collectAsState(
+                initial = 1.10f
             )
 
-            val flashcardFontSize by themePreferences.flashcardFontSize.collectAsState(
-                initial = FontSizeOption.LARGE
+            val flashcardFontScale by themePreferences.flashcardFontScale.collectAsState(
+                initial = 1.10f
+            )
+
+            val customFlashcardFontSizeEnabled by
+            themePreferences.customFlashcardFontSizeEnabled.collectAsState(
+                initial = false
             )
 
             val scope = rememberCoroutineScope()
@@ -77,7 +82,7 @@ class MainActivity : ComponentActivity() {
             SimpleFlashcardsTheme(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
-                appFontSize = appFontSize
+                appFontScale = appFontScale
             ) {
                 AppNavigation(
                     viewModel = viewModel,
@@ -100,18 +105,25 @@ class MainActivity : ComponentActivity() {
                     backupManager = backupManager,
                     practiceSessionPreferences = practiceSessionPreferences,
 
-                    appFontSize = appFontSize,
-                    flashcardFontSize = flashcardFontSize,
+                    appFontScale = appFontScale,
+                    flashcardFontScale = flashcardFontScale,
+                    customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
 
-                    onAppFontSizeChange = { newSize ->
+                    onAppFontScaleChange = { newScale ->
                         scope.launch {
-                            themePreferences.setAppFontSize(newSize)
+                            themePreferences.setAppFontScale(newScale)
                         }
                     },
 
-                    onFlashcardFontSizeChange = { newSize ->
+                    onFlashcardFontScaleChange = { newScale ->
                         scope.launch {
-                            themePreferences.setFlashcardFontSize(newSize)
+                            themePreferences.setFlashcardFontScale(newScale)
+                        }
+                    },
+
+                    onCustomFlashcardFontSizeEnabledChange = { enabled ->
+                        scope.launch {
+                            themePreferences.setCustomFlashcardFontSizeEnabled(enabled)
                         }
                     },
                 )

@@ -3,12 +3,13 @@ package com.example.simpleflashcards.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
-import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,11 +25,14 @@ class ThemePreferences(context: Context) {
     private val themeKey = stringPreferencesKey("theme_mode")
     private val colorThemeKey = stringPreferencesKey("color_theme")
 
-    private val appFontSizeKey =
-        stringPreferencesKey("app_font_size")
+    private val appFontScaleKey =
+        floatPreferencesKey("app_font_scale")
 
-    private val flashcardFontSizeKey =
-        stringPreferencesKey("flashcard_font_size")
+    private val flashcardFontScaleKey =
+        floatPreferencesKey("flashcard_font_scale")
+
+    private val customFlashcardFontSizeEnabledKey =
+        booleanPreferencesKey("custom_flashcard_font_size_enabled")
 
     val themeMode: Flow<AppThemeMode> =
         appContext.appSettingsDataStore.data.map { preferences ->
@@ -40,18 +44,19 @@ class ThemePreferences(context: Context) {
             AppColorTheme.fromPreference(preferences[colorThemeKey])
         }
 
-    val appFontSize: Flow<FontSizeOption> =
+    val appFontScale: Flow<Float> =
         appContext.appSettingsDataStore.data.map { preferences ->
-            FontSizeOption.fromPreference(
-                preferences[appFontSizeKey]
-            )
+            preferences[appFontScaleKey] ?: 1.10f
         }
 
-    val flashcardFontSize: Flow<FontSizeOption> =
+    val flashcardFontScale: Flow<Float> =
         appContext.appSettingsDataStore.data.map { preferences ->
-            FontSizeOption.fromPreference(
-                preferences[flashcardFontSizeKey]
-            )
+            preferences[flashcardFontScaleKey] ?: 1.10f
+        }
+
+    val customFlashcardFontSizeEnabled: Flow<Boolean> =
+        appContext.appSettingsDataStore.data.map { preferences ->
+            preferences[customFlashcardFontSizeEnabledKey] ?: false
         }
 
     suspend fun setThemeMode(mode: AppThemeMode) {
@@ -66,15 +71,21 @@ class ThemePreferences(context: Context) {
         }
     }
 
-    suspend fun setAppFontSize(size: FontSizeOption) {
+    suspend fun setAppFontScale(scale: Float) {
         appContext.appSettingsDataStore.edit { preferences ->
-            preferences[appFontSizeKey] = size.name
+            preferences[appFontScaleKey] = scale
         }
     }
 
-    suspend fun setFlashcardFontSize(size: FontSizeOption) {
+    suspend fun setFlashcardFontScale(scale: Float) {
         appContext.appSettingsDataStore.edit { preferences ->
-            preferences[flashcardFontSizeKey] = size.name
+            preferences[flashcardFontScaleKey] = scale
+        }
+    }
+
+    suspend fun setCustomFlashcardFontSizeEnabled(enabled: Boolean) {
+        appContext.appSettingsDataStore.edit { preferences ->
+            preferences[customFlashcardFontSizeEnabledKey] = enabled
         }
     }
 }

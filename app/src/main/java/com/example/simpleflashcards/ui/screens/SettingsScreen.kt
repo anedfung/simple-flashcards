@@ -13,22 +13,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
-import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 @Composable
 fun SettingsScreen(
     themeMode: AppThemeMode,
     colorTheme: AppColorTheme,
-    appFontSize: FontSizeOption,
-    flashcardFontSize: FontSizeOption,
+    appFontScale: Float,
+    flashcardFontScale: Float,
+    customFlashcardFontSizeEnabled: Boolean,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
-    onAppFontSizeChange: (FontSizeOption) -> Unit,
-    onFlashcardFontSizeChange: (FontSizeOption) -> Unit,
+    onAppFontScaleChange: (Float) -> Unit,
+    onFlashcardFontScaleChange: (Float) -> Unit,
+    onCustomFlashcardFontSizeEnabledChange: (Boolean) -> Unit,
     onBack: () -> Unit,
     onBackupRestore: () -> Unit
 ) {
@@ -184,70 +186,124 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            FontSizeOption.values().forEach { size ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 48.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = appFontSize == size,
-                        onClick = {
-                            onAppFontSizeChange(size)
-                        }
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Font size",
+                    style = MaterialTheme.typography.bodyLarge
+                )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "${(appFontScale * 100).roundToInt()}%",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
-                    Text(
-                        text = size.displayName,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+            Slider(
+                value = appFontScale,
+                onValueChange = onAppFontScaleChange,
+                valueRange = 0.80f..1.60f,
+                steps = 15
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("80%", style = MaterialTheme.typography.bodySmall)
+                Text("160%", style = MaterialTheme.typography.bodySmall)
             }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
-            // Flashcard font size
+            // Custom flashcard font size
 
             Text(
-                text = "Flashcard font size",
+                text = "Custom flashcard font size",
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Adjust the text displayed on your flashcards independently.",
+                text = "Give flashcards their own font size, independent of the rest of the app.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            FontSizeOption.values().forEach { size ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 48.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    RadioButton(
-                        selected = flashcardFontSize == size,
-                        onClick = {
-                            onFlashcardFontSizeChange(size)
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
                     Text(
-                        text = size.displayName,
+                        text = "Enable custom size",
                         style = MaterialTheme.typography.bodyLarge
                     )
+
+                    Text(
+                        text = if (customFlashcardFontSizeEnabled) {
+                            "Flashcards use their own font size."
+                        } else {
+                            "Flashcards follow the app font size."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Switch(
+                    checked = customFlashcardFontSizeEnabled,
+                    onCheckedChange = onCustomFlashcardFontSizeEnabledChange
+                )
+            }
+
+            if (customFlashcardFontSizeEnabled) {
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Flashcard font size",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Text(
+                        text = "${(flashcardFontScale * 100).roundToInt()}%",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Slider(
+                    value = flashcardFontScale,
+                    onValueChange = onFlashcardFontScaleChange,
+                    valueRange = 0.80f..1.60f,
+                    steps = 15
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("80%", style = MaterialTheme.typography.bodySmall)
+                    Text("160%", style = MaterialTheme.typography.bodySmall)
                 }
             }
 
