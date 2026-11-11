@@ -50,6 +50,12 @@ fun AppNavigation(
     viewModel: FlashcardViewModel,
     themeMode: AppThemeMode,
     colorTheme: AppColorTheme,
+    appFontScale: Float,
+    flashcardFontScale: Float,
+    customFlashcardFontSizeEnabled: Boolean,
+    onAppFontScaleChange: (Float) -> Unit,
+    onFlashcardFontScaleChange: (Float) -> Unit,
+    onCustomFlashcardFontSizeEnabledChange: (Boolean) -> Unit,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
     appearancePreferences: DeckAppearancePreferences,
@@ -320,6 +326,11 @@ fun AppNavigation(
                     deckName = deck.name,
                     cards = selectedCards,
                     appearance = selectedAppearance,
+                    flashcardTextScale = if (customFlashcardFontSizeEnabled) {
+                        flashcardFontScale / appFontScale
+                    } else {
+                        1f
+                    },
 
                     initialSession = restoredSession?.takeIf {
                         it.deckId == deck.id
@@ -466,6 +477,13 @@ fun AppNavigation(
             SettingsScreen(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
+                appFontScale = appFontScale,
+                flashcardFontScale = flashcardFontScale,
+                customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
+
+                onAppFontScaleChange = onAppFontScaleChange,
+                onFlashcardFontScaleChange = onFlashcardFontScaleChange,
+                onCustomFlashcardFontSizeEnabledChange = onCustomFlashcardFontSizeEnabledChange,
 
                 onThemeModeChange = onThemeModeChange,
                 onColorThemeChange = onColorThemeChange,
