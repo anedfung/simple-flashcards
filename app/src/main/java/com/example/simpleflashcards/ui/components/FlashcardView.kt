@@ -21,8 +21,7 @@ import com.example.simpleflashcards.ui.theme.ComponentStyles
 fun FlashcardView(
     question: String,
     answer: String,
-    appearance: DeckAppearance = DeckAppearance(),
-    textScale: Float = 1f
+    appearance: DeckAppearance = DeckAppearance()
 ) {
     var revealed by remember(question, answer) {
         mutableStateOf(false)
@@ -66,9 +65,7 @@ fun FlashcardView(
                 text = activeText,
                 color = textColor,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = appearance.font.family,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale,
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * textScale
+                    fontFamily = appearance.font.family
                 )
             )
 
@@ -82,9 +79,7 @@ fun FlashcardView(
                 },
                 color = textColor.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = appearance.font.family,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize * textScale,
-                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight * textScale
+                    fontFamily = appearance.font.family
                 )
             )
         }
