@@ -67,7 +67,8 @@ fun FlashcardView(
                 color = textColor,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = appearance.font.family,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale,
+                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * textScale
                 )
             )
 
@@ -82,7 +83,8 @@ fun FlashcardView(
                 color = textColor.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = appearance.font.family,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize * textScale
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize * textScale,
+                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight * textScale
                 )
             )
         }
