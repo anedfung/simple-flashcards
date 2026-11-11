@@ -12,10 +12,14 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.CsvUtils
 import com.example.simpleflashcards.data.Flashcard
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +36,15 @@ fun CsvImportExportButtons(
 
     var expanded by remember { mutableStateOf(false) }
 
+    val openFailed = stringResource(R.string.csv_open_failed)
+    val exportSuccess = stringResource(R.string.csv_export_success)
+    val exportFailed = stringResource(R.string.csv_export_failed)
+    val importSuccess = stringResource(R.string.csv_import_success)
+    val importFailed = stringResource(R.string.csv_import_failed)
+    val readFailed = stringResource(R.string.csv_read_failed)
+    val fileName = stringResource(R.string.flashcards_filename)
+    val unknownError = stringResource(R.string.unknown_error)
+
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
@@ -45,19 +58,21 @@ fun CsvImportExportButtons(
                             .openOutputStream(uri)
                             ?.bufferedWriter(Charsets.UTF_8)
                             ?.use { it.write(csv) }
-                            ?: error("Could not open the selected file.")
+                            ?: error(openFailed)
                     }
 
                     Toast.makeText(
                         context,
-                        "CSV exported successfully.",
+                        exportSuccess,
                         Toast.LENGTH_SHORT
                     ).show()
 
                 } catch (e: Exception) {
+                    val message = exportFailed ?: unknownError
+
                     Toast.makeText(
                         context,
-                        "Export failed: ${e.message}",
+                        message,
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -76,7 +91,7 @@ fun CsvImportExportButtons(
                             .openInputStream(uri)
                             ?.bufferedReader(Charsets.UTF_8)
                             ?.use { it.readText() }
-                            ?: error("Could not read the selected file.")
+                            ?: error(readFailed)
                     }
 
                     val importedCards = CsvUtils.import(csv)
@@ -84,14 +99,16 @@ fun CsvImportExportButtons(
 
                     Toast.makeText(
                         context,
-                        "${importedCards.size} cards imported.",
+                        importSuccess,
                         Toast.LENGTH_SHORT
                     ).show()
 
                 } catch (e: Exception) {
+                    val message = importFailed ?: unknownError
+
                     Toast.makeText(
                         context,
-                        "Import failed: ${e.message}",
+                        message,
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -108,7 +125,7 @@ fun CsvImportExportButtons(
     fun exportCsv() {
         val filename = deckName
             .replace(Regex("[^a-zA-Z0-9_-]"), "_")
-            .ifBlank { "flashcards" }
+            .ifBlank { fileName }
 
         exportLauncher.launch("$filename.csv")
     }
@@ -118,7 +135,7 @@ fun CsvImportExportButtons(
             IconButton(onClick = { expanded = true }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More options"
+                    contentDescription = stringResource(R.string.more_options)
                 )
             }
 
@@ -127,7 +144,9 @@ fun CsvImportExportButtons(
                 onDismissRequest = { expanded = false }
             ) {
                 DropdownMenuItem(
-                    text = { Text("Import CSV") },
+                    text = {
+                        Text(stringResource(R.string.import_csv))
+                    },
                     onClick = {
                         expanded = false
                         importCsv()
@@ -135,7 +154,9 @@ fun CsvImportExportButtons(
                 )
 
                 DropdownMenuItem(
-                    text = { Text("Export CSV") },
+                    text = {
+                        Text(stringResource(R.string.export_csv))
+                    },
                     onClick = {
                         expanded = false
                         exportCsv()
@@ -148,11 +169,11 @@ fun CsvImportExportButtons(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedButton(onClick = { importCsv() }) {
-                Text("Import CSV")
+                Text(stringResource(R.string.import_csv))
             }
 
             Button(onClick = { exportCsv() }) {
-                Text("Export CSV")
+                Text(stringResource(R.string.export_csv))
             }
         }
     }

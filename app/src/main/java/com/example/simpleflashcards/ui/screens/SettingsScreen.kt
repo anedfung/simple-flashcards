@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -49,19 +48,12 @@ fun SettingsScreen(
             onDismissRequest = {
                 pendingLanguage = null
             },
-
             title = {
-                Text("Restart required")
+                Text(stringResource(R.string.restart_required))
             },
-
             text = {
-                Text(
-                    "Changing the application language requires " +
-                            "closing the app. Your new language will " +
-                            "take effect the next time you open it."
-                )
+                Text(stringResource(R.string.language_restart_message))
             },
-
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -69,17 +61,16 @@ fun SettingsScreen(
                         onAppLanguageChange(language)
                     }
                 ) {
-                    Text("Close app")
+                    Text(stringResource(R.string.close_app))
                 }
             },
-
             dismissButton = {
                 TextButton(
                     onClick = {
                         pendingLanguage = null
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -88,7 +79,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             AppToolbar(
-                title = "Appearance",
+                title = stringResource(R.string.appearance),
                 onBack = onBack
             )
         }
@@ -100,6 +91,8 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+
+            // Language
 
             Text(
                 text = stringResource(R.string.app_language),
@@ -149,15 +142,17 @@ fun SettingsScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
+            // Display mode
+
             Text(
-                text = "Display mode",
+                text = stringResource(R.string.display_mode),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Choose between light, dark, or your system setting.",
+                text = stringResource(R.string.display_mode_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -180,9 +175,14 @@ fun SettingsScreen(
 
                     Text(
                         text = when (mode) {
-                            AppThemeMode.SYSTEM -> "System default"
-                            AppThemeMode.LIGHT -> "Light"
-                            AppThemeMode.DARK -> "Dark"
+                            AppThemeMode.SYSTEM ->
+                                stringResource(R.string.system_default)
+
+                            AppThemeMode.LIGHT ->
+                                stringResource(R.string.light)
+
+                            AppThemeMode.DARK ->
+                                stringResource(R.string.dark)
                         },
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -193,15 +193,17 @@ fun SettingsScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
+            // Color theme
+
             Text(
-                text = "Color theme",
+                text = stringResource(R.string.color_theme),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Choose the colors used throughout the app.",
+                text = stringResource(R.string.color_theme_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -210,6 +212,46 @@ fun SettingsScreen(
 
             AppColorTheme.values().forEach { theme ->
                 val selected = colorTheme == theme
+
+                val themeName = when (theme) {
+                    AppColorTheme.OCEAN ->
+                        stringResource(R.string.theme_ocean)
+
+                    AppColorTheme.FOREST ->
+                        stringResource(R.string.theme_forest)
+
+                    AppColorTheme.LAVENDER ->
+                        stringResource(R.string.theme_lavender)
+
+                    AppColorTheme.SUNRISE ->
+                        stringResource(R.string.theme_sunrise)
+
+                    AppColorTheme.ROSE ->
+                        stringResource(R.string.theme_rose)
+
+                    AppColorTheme.SLATE ->
+                        stringResource(R.string.theme_slate)
+                }
+
+                val themeDescription = when (theme) {
+                    AppColorTheme.OCEAN ->
+                        stringResource(R.string.theme_ocean_description)
+
+                    AppColorTheme.FOREST ->
+                        stringResource(R.string.theme_forest_description)
+
+                    AppColorTheme.LAVENDER ->
+                        stringResource(R.string.theme_lavender_description)
+
+                    AppColorTheme.SUNRISE ->
+                        stringResource(R.string.theme_sunrise_description)
+
+                    AppColorTheme.ROSE ->
+                        stringResource(R.string.theme_rose_description)
+
+                    AppColorTheme.SLATE ->
+                        stringResource(R.string.theme_slate_description)
+                }
 
                 Row(
                     modifier = Modifier
@@ -228,12 +270,12 @@ fun SettingsScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = theme.displayName,
+                            text = themeName,
                             style = MaterialTheme.typography.bodyLarge
                         )
 
                         Text(
-                            text = theme.description,
+                            text = themeDescription,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -271,14 +313,14 @@ fun SettingsScreen(
             // App font size
 
             Text(
-                text = "App font size",
+                text = stringResource(R.string.app_font_size),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Adjust the text size throughout the application.",
+                text = stringResource(R.string.app_font_size_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -291,7 +333,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Font size",
+                    text = stringResource(R.string.font_size),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
@@ -324,14 +366,14 @@ fun SettingsScreen(
             // Custom flashcard font size
 
             Text(
-                text = "Custom flashcard font size",
+                text = stringResource(R.string.custom_flashcard_font_size),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Give flashcards their own font size, independent of the rest of the app.",
+                text = stringResource(R.string.custom_flashcard_font_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -348,15 +390,15 @@ fun SettingsScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Enable custom size",
+                        text = stringResource(R.string.enable_custom_size),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
                     Text(
                         text = if (customFlashcardFontSizeEnabled) {
-                            "Flashcards use their own font size."
+                            stringResource(R.string.flashcards_own_font_size)
                         } else {
-                            "Flashcards follow the app font size."
+                            stringResource(R.string.flashcards_follow_app_font_size)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -379,7 +421,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Flashcard font size",
+                        text = stringResource(R.string.flashcard_font_size),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -410,8 +452,10 @@ fun SettingsScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
+            // Data
+
             Text(
-                text = "Data",
+                text = stringResource(R.string.data),
                 style = MaterialTheme.typography.titleLarge
             )
 
@@ -421,7 +465,7 @@ fun SettingsScreen(
                 onClick = onBackupRestore,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Backup & Restore")
+                Text(stringResource(R.string.backup_restore))
             }
         }
     }

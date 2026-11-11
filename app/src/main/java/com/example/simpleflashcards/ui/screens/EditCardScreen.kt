@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -5,7 +6,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.ui.components.AppButton
 import com.example.simpleflashcards.ui.components.AppTextField
@@ -32,9 +35,9 @@ fun EditCardScreen(
         topBar = {
             AppToolbar(
                 if (card == null) {
-                    "New card - $deckName"
+                    stringResource(R.string.new_card_title, deckName)
                 } else {
-                    "Edit card - $deckName"
+                    stringResource(R.string.edit_card_title, deckName)
                 }
             )
         }
@@ -54,7 +57,7 @@ fun EditCardScreen(
                 onValueChange = {
                     question = it
                 },
-                label = "Question",
+                label = stringResource(R.string.question),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -63,16 +66,15 @@ fun EditCardScreen(
                 onValueChange = {
                     answer = it
                 },
-                label = "Answer",
+                label = stringResource(R.string.answer),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             AppButton(
-                text = "Save flashcard",
+                text = stringResource(R.string.save_flashcard),
                 onClick = {
-
                     if (
                         question.isNotBlank() &&
                         answer.isNotBlank()
@@ -87,7 +89,7 @@ fun EditCardScreen(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     }

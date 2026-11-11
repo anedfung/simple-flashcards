@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 
 import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.Deck
@@ -44,7 +45,7 @@ fun HomeScreen(
                 IconButton(onClick = onSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings"
+                        contentDescription = stringResource(R.string.settings)
                     )
                 }
             }
@@ -59,7 +60,7 @@ fun HomeScreen(
         ) {
 
             AppButton(
-                text = "Create new deck",
+                text = stringResource(R.string.create_new_deck),
                 onClick = { showAddDialog = true },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -67,7 +68,11 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "${rootDecks.size} decks",
+                text = pluralStringResource(
+                    R.plurals.deck_count,
+                    rootDecks.size,
+                    rootDecks.size
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -109,9 +114,21 @@ fun HomeScreen(
 
                             Text(
                                 text = buildString {
-                                    append("$cardCount flashcards")
+                                    append(
+                                        pluralStringResource(
+                                            R.plurals.flashcard_count,
+                                            cardCount,
+                                            cardCount
+                                        )
+                                    )
                                     append(" · ")
-                                    append("$subdeckCount subdecks")
+                                    append(
+                                        pluralStringResource(
+                                            R.plurals.subdeck_count,
+                                            subdeckCount,
+                                            subdeckCount
+                                        )
+                                    )
                                 },
                                 style = MaterialTheme.typography.bodyMedium
                             )
@@ -130,7 +147,7 @@ fun HomeScreen(
                                 OutlinedButton(
                                     onClick = { onManage(deck) }
                                 ) {
-                                    Text("Open")
+                                    Text(stringResource(R.string.open))
                                 }
                             }
 
@@ -140,7 +157,7 @@ fun HomeScreen(
                                 TextButton(
                                     onClick = { deckToRename = deck }
                                 ) {
-                                    Text("Rename")
+                                    Text(stringResource(R.string.rename))
                                 }
 
                                 TextButton(
@@ -151,7 +168,7 @@ fun HomeScreen(
                                     },
                                     enabled = rootDecks.size > 1
                                 ) {
-                                    Text("Delete")
+                                    Text(stringResource(R.string.delete))
                                 }
                             }
                         }
@@ -163,9 +180,9 @@ fun HomeScreen(
 
     if (showAddDialog) {
         DeckNameDialog(
-            title = "Create deck",
+            title = stringResource(R.string.create_deck_title),
             initialName = "",
-            confirmText = "Create",
+            confirmText = stringResource(R.string.create),
             onDismiss = { showAddDialog = false },
             onConfirm = {
                 onAddDeck(it)
@@ -176,9 +193,9 @@ fun HomeScreen(
 
     deckToRename?.let { deck ->
         DeckNameDialog(
-            title = "Rename deck",
+            title = stringResource(R.string.rename_deck_title),
             initialName = deck.name,
-            confirmText = "Save",
+            confirmText = stringResource(R.string.save),
             onDismiss = { deckToRename = null },
             onConfirm = {
                 onRenameDeck(deck, it)
@@ -189,9 +206,12 @@ fun HomeScreen(
 
     deckToDelete?.let { deck ->
         AppDialog(
-            title = "Delete deck?",
-            message = "Deleting \"${deck.name}\" will also delete all its subdecks and flashcards.",
-            confirmText = "Delete",
+            title = stringResource(R.string.delete_deck_title),
+            message = stringResource(
+                R.string.delete_deck_message,
+                deck.name
+            ),
+            confirmText = stringResource(R.string.delete),
             onConfirm = {
                 onDeleteDeck(deck)
                 deckToDelete = null
@@ -220,7 +240,7 @@ private fun DeckNameDialog(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Deck name") },
+                label = { Text(stringResource(R.string.deck_name)) },
                 singleLine = true
             )
         },
@@ -234,7 +254,7 @@ private fun DeckNameDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

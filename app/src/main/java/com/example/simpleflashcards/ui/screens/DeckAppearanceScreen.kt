@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.horizontalScroll
@@ -8,6 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.DeckCardColor
@@ -25,7 +29,7 @@ fun DeckAppearanceScreen(
     Scaffold(
         topBar = {
             AppToolbar(
-                title = "Customize deck",
+                title = stringResource(R.string.customize_deck),
                 onBack = onBack
             )
         }
@@ -46,7 +50,7 @@ fun DeckAppearanceScreen(
             )
 
             Text(
-                text = "Question card color",
+                text = stringResource(R.string.question_card_color),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -58,7 +62,7 @@ fun DeckAppearanceScreen(
             HorizontalDivider()
 
             Text(
-                text = "Answer card color",
+                text = stringResource(R.string.answer_card_color),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -70,7 +74,7 @@ fun DeckAppearanceScreen(
             HorizontalDivider()
 
             Text(
-                text = "Card font",
+                text = stringResource(R.string.card_font),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -92,7 +96,19 @@ fun DeckAppearanceScreen(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Text(
-                            text = font.displayName,
+                            text = when (font) {
+                                DeckFont.DEFAULT ->
+                                    stringResource(R.string.font_default)
+
+                                DeckFont.SANS_SERIF ->
+                                    stringResource(R.string.font_sans_serif)
+
+                                DeckFont.SERIF ->
+                                    stringResource(R.string.font_serif)
+
+                                DeckFont.MONOSPACE ->
+                                    stringResource(R.string.font_monospace)
+                            },
                             modifier = Modifier.padding(top = 12.dp),
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontFamily = font.family
@@ -103,7 +119,7 @@ fun DeckAppearanceScreen(
             }
 
             Text(
-                text = "Changes are saved automatically.",
+                text = stringResource(R.string.changes_saved_automatically),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -127,7 +143,27 @@ private fun ColorChoices(
                     onSelected(color)
                 },
                 label = {
-                    Text(color.displayName)
+                    Text(
+                        text = when (color) {
+                            DeckCardColor.DEFAULT ->
+                                stringResource(R.string.color_default)
+
+                            DeckCardColor.BLUE ->
+                                stringResource(R.string.color_blue)
+
+                            DeckCardColor.GREEN ->
+                                stringResource(R.string.color_green)
+
+                            DeckCardColor.PEACH ->
+                                stringResource(R.string.color_peach)
+
+                            DeckCardColor.LAVENDER ->
+                                stringResource(R.string.color_lavender)
+
+                            DeckCardColor.YELLOW ->
+                                stringResource(R.string.color_yellow)
+                        }
+                    )
                 }
             )
         }

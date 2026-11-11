@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.CsvFlashcard
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.DeckAppearancePreferences
@@ -109,7 +110,6 @@ fun AppNavigation(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Save navigation state across activity recreation.
     var currentScreen by rememberSaveable {
         mutableStateOf(AppScreen.HOME)
     }
@@ -148,7 +148,6 @@ fun AppNavigation(
         mutableLongStateOf(0L)
     }
 
-    // Reconstruct database objects from their saved IDs.
     val selectedDeck = decks.firstOrNull {
         it.id == selectedDeckId
     }
@@ -231,7 +230,6 @@ fun AppNavigation(
         }
     }
 
-    // Restore practice sessions without overriding saved navigation.
     LaunchedEffect(savedSessionSnapshot, decks) {
 
         if (
@@ -243,7 +241,6 @@ fun AppNavigation(
 
         val savedSession = savedSessionSnapshot.session
 
-        // First application launch: restore the last practice session.
         if (!restorationHandled) {
 
             restorationHandled = true
@@ -268,8 +265,6 @@ fun AppNavigation(
             return@LaunchedEffect
         }
 
-        // Activity recreation while already practicing:
-        // recover the saved session without changing screens.
         if (
             currentScreen == AppScreen.PRACTICE &&
             restoredSession == null
@@ -333,7 +328,7 @@ fun AppNavigation(
 
             Toast.makeText(
                 context,
-                "Press Back again to exit",
+                context.getString(R.string.press_back_again_to_exit),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -611,10 +606,16 @@ fun AppNavigation(
                                 uri
                             )
 
-                            "Backup exported successfully."
+                            context.getString(
+                                R.string.backup_export_success
+                            )
 
                         } catch (e: Exception) {
-                            "Export failed: ${e.message ?: "Unknown error"}"
+                            context.getString(
+                                R.string.backup_export_failed,
+                                e.message
+                                    ?: context.getString(R.string.unknown_error)
+                            )
                         }
                     }
                 },
@@ -627,10 +628,18 @@ fun AppNavigation(
                                 uri
                             )
 
-                            "Restored ${result.first} decks and ${result.second} flashcards."
+                            context.getString(
+                                R.string.backup_import_success,
+                                result.first,
+                                result.second
+                            )
 
                         } catch (e: Exception) {
-                            "Restore failed: ${e.message ?: "Unknown error"}"
+                            context.getString(
+                                R.string.backup_import_failed,
+                                e.message
+                                    ?: context.getString(R.string.unknown_error)
+                            )
                         }
                     }
                 },
