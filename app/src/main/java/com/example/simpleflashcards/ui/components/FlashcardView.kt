@@ -13,15 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.ComponentStyles
+import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 @Composable
 fun FlashcardView(
     question: String,
     answer: String,
-    appearance: DeckAppearance = DeckAppearance()
+    appearance: DeckAppearance = DeckAppearance(),
+    fontSizeOption: FontSizeOption = FontSizeOption.LARGE
 ) {
     var revealed by remember(question, answer) {
         mutableStateOf(false)
@@ -42,6 +45,8 @@ fun FlashcardView(
     val clipboardManager = LocalClipboardManager.current
 
     val activeText = if (revealed) answer else question
+
+    val scale = fontSizeOption.scaleFactor
 
     Box(
         modifier = Modifier
@@ -65,6 +70,8 @@ fun FlashcardView(
                 text = activeText,
                 color = textColor,
                 style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 18.sp * scale,
+                    lineHeight = 26.sp * scale,
                     fontFamily = appearance.font.family
                 )
             )
@@ -79,6 +86,8 @@ fun FlashcardView(
                 },
                 color = textColor.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 14.sp * scale,
+                    lineHeight = 20.sp * scale,
                     fontFamily = appearance.font.family
                 )
             )

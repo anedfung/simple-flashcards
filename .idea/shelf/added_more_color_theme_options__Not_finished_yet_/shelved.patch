@@ -1,0 +1,995 @@
+Index: app/src/main/java/com/example/simpleflashcards/ui/screens/SettingsScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards.ui.screens\r\n\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.border\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.rememberScrollState\r\nimport androidx.compose.foundation.shape.CircleShape\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.foundation.verticalScroll\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.unit.dp\r\n\r\nimport com.example.simpleflashcards.ui.components.AppToolbar\r\nimport com.example.simpleflashcards.ui.theme.AppThemeMode\r\nimport com.example.simpleflashcards.ui.theme.AppColorTheme\r\n\r\n@Composable\r\nfun SettingsScreen(\r\n    themeMode: AppThemeMode,\r\n    colorTheme: AppColorTheme,\r\n    onThemeModeChange: (AppThemeMode) -> Unit,\r\n    onColorThemeChange: (AppColorTheme) -> Unit,\r\n    onBack: () -> Unit,\r\n    onBackupRestore: () -> Unit\r\n) {\r\n    Scaffold(\r\n        topBar = {\r\n            AppToolbar(\r\n                title = \"Appearance\",\r\n                onBack = onBack\r\n            )\r\n        }\r\n    ) { padding ->\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxSize()\r\n                .padding(padding)\r\n                .verticalScroll(rememberScrollState())\r\n                .padding(20.dp)\r\n        ) {\r\n            Text(\r\n                text = \"Display mode\",\r\n                style = MaterialTheme.typography.titleLarge\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(8.dp))\r\n\r\n            Text(\r\n                text = \"Choose between light, dark, or your system setting.\",\r\n                style = MaterialTheme.typography.bodyMedium,\r\n                color = MaterialTheme.colorScheme.onSurfaceVariant\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(12.dp))\r\n\r\n            AppThemeMode.values().forEach { mode ->\r\n                Row(\r\n                    modifier = Modifier\r\n                        .fillMaxWidth()\r\n                        .heightIn(min = 48.dp),\r\n                    verticalAlignment = Alignment.CenterVertically\r\n                ) {\r\n                    RadioButton(\r\n                        selected = themeMode == mode,\r\n                        onClick = { onThemeModeChange(mode) }\r\n                    )\r\n\r\n                    Spacer(modifier = Modifier.width(12.dp))\r\n\r\n                    Text(\r\n                        text = when (mode) {\r\n                            AppThemeMode.SYSTEM -> \"System default\"\r\n                            AppThemeMode.LIGHT -> \"Light\"\r\n                            AppThemeMode.DARK -> \"Dark\"\r\n                        },\r\n                        style = MaterialTheme.typography.bodyLarge\r\n                    )\r\n                }\r\n            }\r\n\r\n            HorizontalDivider(\r\n                modifier = Modifier.padding(vertical = 16.dp)\r\n            )\r\n\r\n            Text(\r\n                text = \"Color theme\",\r\n                style = MaterialTheme.typography.titleLarge\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(8.dp))\r\n\r\n            Text(\r\n                text = \"Choose the colors used throughout the app.\",\r\n                style = MaterialTheme.typography.bodyMedium,\r\n                color = MaterialTheme.colorScheme.onSurfaceVariant\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(12.dp))\r\n\r\n            AppColorTheme.values().forEach { theme ->\r\n                val selected = colorTheme == theme\r\n\r\n                Row(\r\n                    modifier = Modifier\r\n                        .fillMaxWidth()\r\n                        .padding(vertical = 5.dp),\r\n                    verticalAlignment = Alignment.CenterVertically\r\n                ) {\r\n                    RadioButton(\r\n                        selected = selected,\r\n                        onClick = { onColorThemeChange(theme) }\r\n                    )\r\n\r\n                    Spacer(modifier = Modifier.width(8.dp))\r\n\r\n                    Column(\r\n                        modifier = Modifier.weight(1f)\r\n                    ) {\r\n                        Text(\r\n                            text = theme.displayName,\r\n                            style = MaterialTheme.typography.bodyLarge\r\n                        )\r\n\r\n                        Text(\r\n                            text = theme.description,\r\n                            style = MaterialTheme.typography.bodySmall,\r\n                            color = MaterialTheme.colorScheme.onSurfaceVariant\r\n                        )\r\n                    }\r\n\r\n                    Row(\r\n                        modifier = Modifier\r\n                            .border(\r\n                                width = 1.dp,\r\n                                color = MaterialTheme.colorScheme.outlineVariant,\r\n                                shape = RoundedCornerShape(20.dp)\r\n                            )\r\n                            .padding(5.dp),\r\n                        horizontalArrangement = Arrangement.spacedBy(4.dp)\r\n                    ) {\r\n                        listOf(\r\n                            theme.lightPrimary,\r\n                            theme.lightSecondary,\r\n                            theme.darkPrimary\r\n                        ).forEach { color ->\r\n                            Box(\r\n                                modifier = Modifier\r\n                                    .size(17.dp)\r\n                                    .background(color, CircleShape)\r\n                            )\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n\r\n            HorizontalDivider(\r\n                modifier = Modifier.padding(vertical = 16.dp)\r\n            )\r\n\r\n            Text(\r\n                text = \"Data\",\r\n                style = MaterialTheme.typography.titleLarge\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(8.dp))\r\n\r\n            OutlinedButton(\r\n                onClick = onBackupRestore,\r\n                modifier = Modifier.fillMaxWidth()\r\n            ) {\r\n                Text(\"Backup & Restore\")\r\n            }\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/ui/screens/SettingsScreen.kt b/app/src/main/java/com/example/simpleflashcards/ui/screens/SettingsScreen.kt
+--- a/app/src/main/java/com/example/simpleflashcards/ui/screens/SettingsScreen.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/ui/screens/SettingsScreen.kt	(date 1794290962867)
+@@ -1,3 +1,4 @@
++
+ package com.example.simpleflashcards.ui.screens
+ 
+ import androidx.compose.foundation.background
+@@ -16,13 +17,16 @@
+ import com.example.simpleflashcards.ui.components.AppToolbar
+ import com.example.simpleflashcards.ui.theme.AppThemeMode
+ import com.example.simpleflashcards.ui.theme.AppColorTheme
++import com.example.simpleflashcards.ui.theme.AppColorStyle
+ 
+ @Composable
+ fun SettingsScreen(
+     themeMode: AppThemeMode,
+     colorTheme: AppColorTheme,
++    colorStyle: AppColorStyle,
+     onThemeModeChange: (AppThemeMode) -> Unit,
+     onColorThemeChange: (AppColorTheme) -> Unit,
++    onColorStyleChange: (AppColorStyle) -> Unit,
+     onBack: () -> Unit,
+     onBackupRestore: () -> Unit
+ ) {
+@@ -131,6 +135,12 @@
+                         )
+                     }
+ 
++                    val preview = if (colorStyle == AppColorStyle.ZEN) {
++                        theme.zenLight
++                    } else {
++                        theme.vibrantLight
++                    }
++
+                     Row(
+                         modifier = Modifier
+                             .border(
+@@ -142,9 +152,9 @@
+                         horizontalArrangement = Arrangement.spacedBy(4.dp)
+                     ) {
+                         listOf(
+-                            theme.lightPrimary,
+-                            theme.lightSecondary,
+-                            theme.darkPrimary
++                            preview.primary,
++                            preview.cardStart,
++                            preview.cardEnd
+                         ).forEach { color ->
+                             Box(
+                                 modifier = Modifier
+@@ -156,6 +166,63 @@
+                 }
+             }
+ 
++            HorizontalDivider(
++                modifier = Modifier.padding(vertical = 16.dp)
++            )
++
++            Text(
++                text = "Color style",
++                style = MaterialTheme.typography.titleLarge
++            )
++
++            Spacer(modifier = Modifier.height(8.dp))
++
++            Text(
++                text = "Choose the overall character of your color palette.",
++                style = MaterialTheme.typography.bodyMedium,
++                color = MaterialTheme.colorScheme.onSurfaceVariant
++            )
++
++            Spacer(modifier = Modifier.height(12.dp))
++
++            AppColorStyle.values().forEach { style ->
++                Row(
++                    modifier = Modifier
++                        .fillMaxWidth()
++                        .heightIn(min = 64.dp),
++                    verticalAlignment = Alignment.CenterVertically
++                ) {
++                    RadioButton(
++                        selected = colorStyle == style,
++                        onClick = { onColorStyleChange(style) }
++                    )
++
++                    Spacer(modifier = Modifier.width(12.dp))
++
++                    Column {
++                        Text(
++                            text = when (style) {
++                                AppColorStyle.ZEN -> "Zen"
++                                AppColorStyle.VIBRANT -> "Vibrant"
++                            },
++                            style = MaterialTheme.typography.bodyLarge
++                        )
++
++                        Text(
++                            text = when (style) {
++                                AppColorStyle.ZEN ->
++                                    "Soft, airy and understated colors"
++
++                                AppColorStyle.VIBRANT ->
++                                    "Rich, saturated and lively colors"
++                            },
++                            style = MaterialTheme.typography.bodySmall,
++                            color = MaterialTheme.colorScheme.onSurfaceVariant
++                        )
++                    }
++                }
++            }
++
+             HorizontalDivider(
+                 modifier = Modifier.padding(vertical = 16.dp)
+             )
+@@ -175,4 +242,4 @@
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+Index: app/src/main/java/com/example/simpleflashcards/data/ThemePreferences.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards.data\r\n\r\nimport android.content.Context\r\nimport androidx.datastore.preferences.core.edit\r\nimport androidx.datastore.preferences.core.stringPreferencesKey\r\nimport androidx.datastore.preferences.preferencesDataStore\r\nimport com.example.simpleflashcards.ui.theme.AppThemeMode\r\nimport com.example.simpleflashcards.ui.theme.AppColorTheme\r\nimport kotlinx.coroutines.flow.Flow\r\nimport kotlinx.coroutines.flow.map\r\n\r\ninternal val Context.appSettingsDataStore by preferencesDataStore(\r\n    name = \"app_settings\"\r\n)\r\n\r\nclass ThemePreferences(context: Context) {\r\n\r\n    private val appContext = context.applicationContext\r\n\r\n    private val themeKey = stringPreferencesKey(\"theme_mode\")\r\n    private val colorThemeKey = stringPreferencesKey(\"color_theme\")\r\n\r\n    val themeMode: Flow<AppThemeMode> =\r\n        appContext.appSettingsDataStore.data.map { preferences ->\r\n            AppThemeMode.fromPreference(preferences[themeKey])\r\n        }\r\n\r\n    val colorTheme: Flow<AppColorTheme> =\r\n        appContext.appSettingsDataStore.data.map { preferences ->\r\n            AppColorTheme.fromPreference(preferences[colorThemeKey])\r\n        }\r\n\r\n    suspend fun setThemeMode(mode: AppThemeMode) {\r\n        appContext.appSettingsDataStore.edit { preferences ->\r\n            preferences[themeKey] = mode.name\r\n        }\r\n    }\r\n\r\n    suspend fun setColorTheme(theme: AppColorTheme) {\r\n        appContext.appSettingsDataStore.edit { preferences ->\r\n            preferences[colorThemeKey] = theme.name\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/data/ThemePreferences.kt b/app/src/main/java/com/example/simpleflashcards/data/ThemePreferences.kt
+--- a/app/src/main/java/com/example/simpleflashcards/data/ThemePreferences.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/data/ThemePreferences.kt	(date 1794290748668)
+@@ -1,11 +1,15 @@
++
+ package com.example.simpleflashcards.data
+ 
+ import android.content.Context
+ import androidx.datastore.preferences.core.edit
+ import androidx.datastore.preferences.core.stringPreferencesKey
+ import androidx.datastore.preferences.preferencesDataStore
++
+ import com.example.simpleflashcards.ui.theme.AppThemeMode
+ import com.example.simpleflashcards.ui.theme.AppColorTheme
++import com.example.simpleflashcards.ui.theme.AppColorStyle
++
+ import kotlinx.coroutines.flow.Flow
+ import kotlinx.coroutines.flow.map
+ 
+@@ -17,8 +21,14 @@
+ 
+     private val appContext = context.applicationContext
+ 
+-    private val themeKey = stringPreferencesKey("theme_mode")
+-    private val colorThemeKey = stringPreferencesKey("color_theme")
++    private val themeKey =
++        stringPreferencesKey("theme_mode")
++
++    private val colorThemeKey =
++        stringPreferencesKey("color_theme")
++
++    private val colorStyleKey =
++        stringPreferencesKey("color_style")
+ 
+     val themeMode: Flow<AppThemeMode> =
+         appContext.appSettingsDataStore.data.map { preferences ->
+@@ -30,6 +40,11 @@
+             AppColorTheme.fromPreference(preferences[colorThemeKey])
+         }
+ 
++    val colorStyle: Flow<AppColorStyle> =
++        appContext.appSettingsDataStore.data.map { preferences ->
++            AppColorStyle.fromPreference(preferences[colorStyleKey])
++        }
++
+     suspend fun setThemeMode(mode: AppThemeMode) {
+         appContext.appSettingsDataStore.edit { preferences ->
+             preferences[themeKey] = mode.name
+@@ -41,4 +56,10 @@
+             preferences[colorThemeKey] = theme.name
+         }
+     }
+-}
+\ No newline at end of file
++
++    suspend fun setColorStyle(style: AppColorStyle) {
++        appContext.appSettingsDataStore.edit { preferences ->
++            preferences[colorStyleKey] = style.name
++        }
++    }
++}
+Index: app/src/main/java/com/example/simpleflashcards/ui/theme/ComponentStyles.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards.ui.theme\r\n\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.unit.dp\r\n\r\nobject ComponentStyles {\r\n\r\n    object Flashcard {\r\n\r\n        val Background: Color\r\n            @Composable get() = MaterialTheme.colorScheme.surface\r\n\r\n        val TextColor: Color\r\n            @Composable get() = MaterialTheme.colorScheme.onSurface\r\n\r\n        val Padding = 24.dp\r\n        val MinHeight = 300.dp\r\n\r\n        val Shape = AppShapes.Card\r\n    }\r\n\r\n    object Button {\r\n\r\n        val Background: Color\r\n            @Composable get() = MaterialTheme.colorScheme.primary\r\n\r\n        val TextColor: Color\r\n            @Composable get() = MaterialTheme.colorScheme.onPrimary\r\n\r\n        val Height = AppDimensions.ButtonHeight\r\n        val Shape = AppShapes.Button\r\n    }\r\n\r\n    object TextField {\r\n\r\n        val Background: Color\r\n            @Composable get() = MaterialTheme.colorScheme.surface\r\n\r\n        val TextColor: Color\r\n            @Composable get() = MaterialTheme.colorScheme.onSurface\r\n\r\n        val BorderColor: Color\r\n            @Composable get() = MaterialTheme.colorScheme.outline\r\n\r\n        val Shape = AppShapes.Input\r\n    }\r\n\r\n    object Toolbar {\r\n\r\n        val Background: Color\r\n            @Composable get() = MaterialTheme.colorScheme.surface\r\n\r\n        val TextColor: Color\r\n            @Composable get() = MaterialTheme.colorScheme.onSurface\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/ui/theme/ComponentStyles.kt b/app/src/main/java/com/example/simpleflashcards/ui/theme/ComponentStyles.kt
+--- a/app/src/main/java/com/example/simpleflashcards/ui/theme/ComponentStyles.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/ui/theme/ComponentStyles.kt	(date 1794290774507)
+@@ -2,6 +2,7 @@
+ 
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.runtime.Composable
++import androidx.compose.ui.graphics.Brush
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.unit.dp
+ 
+@@ -10,14 +11,16 @@
+     object Flashcard {
+ 
+         val Background: Color
+-            @Composable get() = MaterialTheme.colorScheme.surface
++            @Composable get() = LocalFlashcardBackground.current
++
++        val Gradient: Brush
++            @Composable get() = LocalFlashcardBrush.current
+ 
+         val TextColor: Color
+-            @Composable get() = MaterialTheme.colorScheme.onSurface
++            @Composable get() = LocalFlashcardTextColor.current
+ 
+         val Padding = 24.dp
+         val MinHeight = 300.dp
+-
+         val Shape = AppShapes.Card
+     }
+ 
+Index: app/src/main/java/com/example/simpleflashcards/ui/components/FlashcardView.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\r\npackage com.example.simpleflashcards.ui.components\r\n\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.ContentCopy\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.platform.LocalClipboardManager\r\nimport androidx.compose.ui.text.AnnotatedString\r\nimport androidx.compose.ui.unit.dp\r\n\r\nimport com.example.simpleflashcards.ui.theme.DeckAppearance\r\nimport com.example.simpleflashcards.ui.theme.ComponentStyles\r\n\r\n@Composable\r\nfun FlashcardView(\r\n    question: String,\r\n    answer: String,\r\n    appearance: DeckAppearance = DeckAppearance()\r\n) {\r\n    var revealed by remember(question, answer) {\r\n        mutableStateOf(false)\r\n    }\r\n\r\n    val selectedColor = if (revealed) {\r\n        appearance.answerColor\r\n    } else {\r\n        appearance.questionColor\r\n    }\r\n\r\n    val backgroundColor =\r\n        selectedColor.background ?: MaterialTheme.colorScheme.surfaceVariant\r\n\r\n    val textColor =\r\n        selectedColor.foreground ?: MaterialTheme.colorScheme.onSurfaceVariant\r\n\r\n    val clipboardManager = LocalClipboardManager.current\r\n\r\n    val activeText = if (revealed) answer else question\r\n\r\n    Box(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .heightIn(min = ComponentStyles.Flashcard.MinHeight)\r\n            .background(\r\n                backgroundColor,\r\n                ComponentStyles.Flashcard.Shape\r\n            )\r\n            .clickable {\r\n                revealed = !revealed\r\n            }\r\n            .padding(ComponentStyles.Flashcard.Padding),\r\n        contentAlignment = Alignment.Center\r\n    ) {\r\n        Column(\r\n            modifier = Modifier.fillMaxWidth(),\r\n            horizontalAlignment = Alignment.CenterHorizontally\r\n        ) {\r\n            Text(\r\n                text = activeText,\r\n                color = textColor,\r\n                style = MaterialTheme.typography.bodyLarge.copy(\r\n                    fontFamily = appearance.font.family\r\n                )\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(24.dp))\r\n\r\n            Text(\r\n                text = if (revealed) {\r\n                    \"Tap to see question\"\r\n                } else {\r\n                    \"Tap to reveal answer\"\r\n                },\r\n                color = textColor.copy(alpha = 0.7f),\r\n                style = MaterialTheme.typography.bodySmall.copy(\r\n                    fontFamily = appearance.font.family\r\n                )\r\n            )\r\n        }\r\n\r\n        IconButton(\r\n            onClick = {\r\n                clipboardManager.setText(AnnotatedString(activeText))\r\n            },\r\n            modifier = Modifier.align(Alignment.BottomEnd)\r\n        ) {\r\n            Icon(\r\n                imageVector = Icons.Default.ContentCopy,\r\n                contentDescription = \"Copy current side\",\r\n                tint = textColor\r\n            )\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/ui/components/FlashcardView.kt b/app/src/main/java/com/example/simpleflashcards/ui/components/FlashcardView.kt
+--- a/app/src/main/java/com/example/simpleflashcards/ui/components/FlashcardView.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/ui/components/FlashcardView.kt	(date 1794290727673)
+@@ -33,11 +33,21 @@
+         appearance.questionColor
+     }
+ 
+-    val backgroundColor =
+-        selectedColor.background ?: MaterialTheme.colorScheme.surfaceVariant
++    // Preserve custom deck colors.
++    // Otherwise, use the global theme gradient.
++    val cardBackgroundModifier = selectedColor.background?.let {
++        Modifier.background(
++            color = it,
++            shape = ComponentStyles.Flashcard.Shape
++        )
++    } ?: Modifier.background(
++        brush = ComponentStyles.Flashcard.Gradient,
++        shape = ComponentStyles.Flashcard.Shape
++    )
+ 
+-    val textColor =
+-        selectedColor.foreground ?: MaterialTheme.colorScheme.onSurfaceVariant
++    // Preserve custom deck typography colors.
++    val textColor = selectedColor.foreground
++        ?: ComponentStyles.Flashcard.TextColor
+ 
+     val clipboardManager = LocalClipboardManager.current
+ 
+@@ -47,10 +57,7 @@
+         modifier = Modifier
+             .fillMaxWidth()
+             .heightIn(min = ComponentStyles.Flashcard.MinHeight)
+-            .background(
+-                backgroundColor,
+-                ComponentStyles.Flashcard.Shape
+-            )
++            .then(cardBackgroundModifier)
+             .clickable {
+                 revealed = !revealed
+             }
+Index: app/src/main/java/com/example/simpleflashcards/navigation/AppNavigation.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\r\npackage com.example.simpleflashcards.navigation\r\n\r\nimport android.net.Uri\r\n\r\nimport android.app.Activity\r\nimport android.widget.Toast\r\nimport androidx.activity.compose.BackHandler\r\n\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.runtime.collectAsState\r\nimport androidx.compose.ui.platform.LocalContext\r\n\r\nimport kotlinx.coroutines.flow.flowOf\r\nimport kotlinx.coroutines.launch\r\n\r\nimport com.example.simpleflashcards.data.CsvFlashcard\r\nimport com.example.simpleflashcards.data.Deck\r\nimport com.example.simpleflashcards.data.DeckAppearancePreferences\r\nimport com.example.simpleflashcards.data.Flashcard\r\nimport com.example.simpleflashcards.data.FlashcardBackupManager\r\nimport com.example.simpleflashcards.data.PracticeSession\r\nimport com.example.simpleflashcards.data.PracticeSessionPreferences\r\nimport com.example.simpleflashcards.data.PracticeSessionSnapshot\r\n\r\nimport com.example.simpleflashcards.ui.screens.*\r\nimport com.example.simpleflashcards.ui.theme.AppThemeMode\r\nimport com.example.simpleflashcards.ui.theme.DeckAppearance\r\nimport com.example.simpleflashcards.ui.theme.AppColorTheme\r\n\r\nimport com.example.simpleflashcards.viewmodel.FlashcardViewModel\r\n\r\nprivate enum class AppScreen {\r\n    HOME,\r\n    PRACTICE,\r\n    MANAGE,\r\n    EDIT,\r\n    SETTINGS,\r\n    DECK_APPEARANCE,\r\n    BACKUP_RESTORE\r\n}\r\n\r\nprivate data class NavigationEntry(\r\n    val screen: AppScreen,\r\n    val deck: Deck?\r\n)\r\n\r\n@Composable\r\nfun AppNavigation(\r\n    viewModel: FlashcardViewModel,\r\n    themeMode: AppThemeMode,\r\n    colorTheme: AppColorTheme,\r\n    onThemeModeChange: (AppThemeMode) -> Unit,\r\n    onColorThemeChange: (AppColorTheme) -> Unit,\r\n    appearancePreferences: DeckAppearancePreferences,\r\n    backupManager: FlashcardBackupManager,\r\n    practiceSessionPreferences: PracticeSessionPreferences\r\n) {\r\n\r\n    val decks by viewModel.decks.collectAsState()\r\n    val cards by viewModel.cards.collectAsState()\r\n\r\n    val shuffleEnabled by viewModel.shuffleEnabled.collectAsState()\r\n\r\n    val savedSessionSnapshot by\r\n    practiceSessionPreferences.session.collectAsState(\r\n        initial = PracticeSessionSnapshot(\r\n            loaded = false,\r\n            session = null\r\n        )\r\n    )\r\n\r\n    val scope = rememberCoroutineScope()\r\n    val context = LocalContext.current\r\n\r\n    var currentScreen by remember {\r\n        mutableStateOf(AppScreen.HOME)\r\n    }\r\n\r\n    var selectedDeck by remember {\r\n        mutableStateOf<Deck?>(null)\r\n    }\r\n\r\n    var navigationBackStack by remember {\r\n        mutableStateOf<List<NavigationEntry>>(emptyList())\r\n    }\r\n\r\n    var editingCard by remember {\r\n        mutableStateOf<Flashcard?>(null)\r\n    }\r\n\r\n    var restoredSession by remember {\r\n        mutableStateOf<PracticeSession?>(null)\r\n    }\r\n\r\n    var restorationHandled by remember {\r\n        mutableStateOf(false)\r\n    }\r\n\r\n    var backupStatus by remember {\r\n        mutableStateOf<String?>(null)\r\n    }\r\n\r\n    var newlyCreatedSubdeckId by remember {\r\n        mutableStateOf<Int?>(null)\r\n    }\r\n\r\n    val newlyCreatedSubdeck = decks.firstOrNull {\r\n        it.id == newlyCreatedSubdeckId\r\n    }\r\n\r\n    var lastBackPressedTime by remember {\r\n        mutableLongStateOf(0L)\r\n    }\r\n\r\n    fun navigateTo(\r\n        screen: AppScreen,\r\n        deck: Deck? = selectedDeck\r\n    ) {\r\n        navigationBackStack = navigationBackStack + NavigationEntry(\r\n            screen = currentScreen,\r\n            deck = selectedDeck\r\n        )\r\n\r\n        selectedDeck = deck\r\n        currentScreen = screen\r\n    }\r\n\r\n    fun handleBack() {\r\n\r\n        // Clear the restored practice session when leaving practice.\r\n        if (currentScreen == AppScreen.PRACTICE) {\r\n            restoredSession = null\r\n        }\r\n\r\n        // Restore the actual previous screen and deck.\r\n        if (navigationBackStack.isNotEmpty()) {\r\n\r\n            val previous = navigationBackStack.last()\r\n\r\n            navigationBackStack = navigationBackStack.dropLast(1)\r\n\r\n            selectedDeck = previous.deck\r\n            currentScreen = previous.screen\r\n\r\n            return\r\n        }\r\n\r\n        // Fallback for screens opened without navigation history.\r\n        when (currentScreen) {\r\n\r\n            AppScreen.HOME -> Unit\r\n\r\n            AppScreen.PRACTICE -> {\r\n                currentScreen = AppScreen.HOME\r\n            }\r\n\r\n            AppScreen.MANAGE -> {\r\n                val deck = selectedDeck\r\n\r\n                if (deck?.parentDeckId != null) {\r\n                    selectedDeck = decks.firstOrNull {\r\n                        it.id == deck.parentDeckId\r\n                    }\r\n                } else {\r\n                    selectedDeck = null\r\n                    currentScreen = AppScreen.HOME\r\n                }\r\n            }\r\n\r\n            AppScreen.EDIT -> {\r\n                currentScreen = AppScreen.MANAGE\r\n            }\r\n\r\n            AppScreen.SETTINGS -> {\r\n                currentScreen = AppScreen.HOME\r\n            }\r\n\r\n            AppScreen.DECK_APPEARANCE -> {\r\n                currentScreen = AppScreen.MANAGE\r\n            }\r\n\r\n            AppScreen.BACKUP_RESTORE -> {\r\n                currentScreen = AppScreen.SETTINGS\r\n            }\r\n        }\r\n    }\r\n\r\n    // Keep the selected deck synchronized with database updates.\r\n    LaunchedEffect(decks) {\r\n        selectedDeck?.let { selected ->\r\n            selectedDeck = decks.firstOrNull {\r\n                it.id == selected.id\r\n            } ?: selected\r\n        }\r\n    }\r\n\r\n    // Restore the last practice session.\r\n    LaunchedEffect(savedSessionSnapshot, decks) {\r\n\r\n        if (\r\n            savedSessionSnapshot.loaded &&\r\n            decks.isNotEmpty() &&\r\n            !restorationHandled\r\n        ) {\r\n\r\n            restorationHandled = true\r\n\r\n            val savedSession = savedSessionSnapshot.session\r\n\r\n            val matchingDeck = decks.firstOrNull {\r\n                it.id == savedSession?.deckId\r\n            }\r\n\r\n            if (savedSession != null && matchingDeck != null) {\r\n\r\n                selectedDeck = matchingDeck\r\n                restoredSession = savedSession\r\n\r\n                viewModel.setShuffleEnabled(\r\n                    savedSession.shuffleEnabled\r\n                )\r\n\r\n                navigationBackStack = emptyList()\r\n\r\n                currentScreen = AppScreen.PRACTICE\r\n            }\r\n        }\r\n    }\r\n\r\n    val selectedDeckIds = selectedDeck?.let { deck ->\r\n        getDescendantDeckIds(deck.id, decks)\r\n    } ?: emptySet()\r\n\r\n    val selectedCards = cards.filter {\r\n        it.deckId in selectedDeckIds\r\n    }\r\n\r\n    val selectedSubdecks = decks.filter {\r\n        it.parentDeckId == selectedDeck?.id\r\n    }\r\n\r\n    val appearanceFlow = remember(selectedDeck?.id) {\r\n        selectedDeck?.let {\r\n            appearancePreferences.getAppearance(it.id)\r\n        } ?: flowOf(DeckAppearance())\r\n    }\r\n\r\n    val selectedAppearance by appearanceFlow.collectAsState(\r\n        initial = DeckAppearance()\r\n    )\r\n\r\n    BackHandler(\r\n        enabled = currentScreen != AppScreen.HOME\r\n    ) {\r\n        handleBack()\r\n    }\r\n\r\n    BackHandler(enabled = currentScreen == AppScreen.HOME) {\r\n\r\n        val currentTime = System.currentTimeMillis()\r\n\r\n        if (currentTime - lastBackPressedTime < 2000L) {\r\n\r\n            (context as? Activity)?.finish()\r\n\r\n        } else {\r\n\r\n            lastBackPressedTime = currentTime\r\n\r\n            Toast.makeText(\r\n                context,\r\n                \"Press Back again to exit\",\r\n                Toast.LENGTH_SHORT\r\n            ).show()\r\n        }\r\n    }\r\n\r\n    when (currentScreen) {\r\n\r\n        AppScreen.HOME -> {\r\n\r\n            HomeScreen(\r\n                decks = decks,\r\n                cards = cards,\r\n\r\n                onPractice = { deck ->\r\n                    restoredSession = null\r\n                    navigateTo(AppScreen.PRACTICE, deck)\r\n                },\r\n\r\n                onManage = { deck ->\r\n                    navigateTo(AppScreen.MANAGE, deck)\r\n                },\r\n\r\n                onAddDeck = { name ->\r\n                    viewModel.addDeck(name)\r\n                },\r\n\r\n                onRenameDeck = { deck, newName ->\r\n                    viewModel.renameDeck(deck, newName)\r\n                },\r\n\r\n                onDeleteDeck = { deck ->\r\n                    viewModel.deleteDeck(deck)\r\n                },\r\n\r\n                onSettings = {\r\n                    navigateTo(AppScreen.SETTINGS, null)\r\n                }\r\n            )\r\n        }\r\n\r\n        AppScreen.PRACTICE -> {\r\n\r\n            selectedDeck?.let { deck ->\r\n\r\n                PracticeScreen(\r\n                    deckId = deck.id,\r\n                    deckName = deck.name,\r\n                    cards = selectedCards,\r\n                    appearance = selectedAppearance,\r\n\r\n                    initialSession = restoredSession?.takeIf {\r\n                        it.deckId == deck.id\r\n                    },\r\n\r\n                    shuffleEnabled = shuffleEnabled,\r\n\r\n                    onToggleShuffle = {\r\n                        viewModel.toggleShuffle()\r\n                    },\r\n\r\n                    onSessionChange = { session ->\r\n                        scope.launch {\r\n                            practiceSessionPreferences.saveSession(session)\r\n                        }\r\n                    },\r\n\r\n                    onBack = {\r\n                        handleBack()\r\n                    },\r\n                )\r\n            }\r\n        }\r\n\r\n        AppScreen.MANAGE -> {\r\n\r\n            selectedDeck?.let { deck ->\r\n\r\n                ManageScreen(\r\n                    deckName = deck.name,\r\n                    deckId = deck.id,\r\n                    cards = selectedCards,\r\n                    subdecks = selectedSubdecks,\r\n                    allDecks = decks,\r\n                    newSubdeckToRename = newlyCreatedSubdeck,\r\n\r\n                    onRenamePromptHandled = {\r\n                        newlyCreatedSubdeckId = null\r\n                    },\r\n\r\n                    onAdd = {\r\n                        editingCard = null\r\n                        navigateTo(AppScreen.EDIT)\r\n                    },\r\n\r\n                    onEdit = { card ->\r\n                        editingCard = card\r\n                        navigateTo(AppScreen.EDIT)\r\n                    },\r\n\r\n                    onDelete = { card ->\r\n                        viewModel.deleteCard(card)\r\n                    },\r\n\r\n                    onBack = {\r\n                        handleBack()\r\n                    },\r\n\r\n                    onOpenSubdeck = { subdeck ->\r\n                        navigateTo(AppScreen.MANAGE, subdeck)\r\n                    },\r\n\r\n                    onPracticeSubdeck = { subdeck ->\r\n                        restoredSession = null\r\n                        navigateTo(AppScreen.PRACTICE, subdeck)\r\n                    },\r\n\r\n                    onCreateSubdeck = { moveCards ->\r\n                        viewModel.createSubdeck(\r\n                            parentDeckId = deck.id,\r\n                            moveCards = moveCards\r\n                        ) { newDeckId ->\r\n\r\n                            // Keep the current parent selected.\r\n                            // The new ID triggers the rename dialog once\r\n                            // the updated deck list arrives from the database.\r\n                            newlyCreatedSubdeckId = newDeckId\r\n                        }\r\n                    },\r\n\r\n                    onRenameSubdeck = { subdeck, newName ->\r\n                        viewModel.renameDeck(subdeck, newName)\r\n                    },\r\n\r\n                    onDeleteSubdeck = { subdeck ->\r\n                        viewModel.deleteDeck(subdeck)\r\n                    },\r\n\r\n                    onImportCards = { importedCards ->\r\n                        viewModel.addImportedCards(\r\n                            deck.id,\r\n                            importedCards\r\n                        )\r\n                    },\r\n\r\n                    onCustomize = {\r\n                        navigateTo(AppScreen.DECK_APPEARANCE)\r\n                    }\r\n                )\r\n            }\r\n        }\r\n\r\n        AppScreen.EDIT -> {\r\n\r\n            selectedDeck?.let { deck ->\r\n\r\n                EditCardScreen(\r\n                    deckName = deck.name,\r\n                    deckId = deck.id,\r\n                    card = editingCard,\r\n\r\n                    onSave = { question, answer ->\r\n\r\n                        if (editingCard == null) {\r\n\r\n                            viewModel.addCard(\r\n                                question = question,\r\n                                answer = answer,\r\n                                deckId = deck.id\r\n                            )\r\n\r\n                        } else {\r\n\r\n                            viewModel.updateCard(\r\n                                editingCard!!.copy(\r\n                                    question = question,\r\n                                    answer = answer\r\n                                )\r\n                            )\r\n                        }\r\n\r\n                        handleBack()\r\n                    },\r\n\r\n                    onCancel = {\r\n                        handleBack()\r\n                    }\r\n                )\r\n            }\r\n        }\r\n\r\n        AppScreen.SETTINGS -> {\r\n\r\n            SettingsScreen(\r\n                themeMode = themeMode,\r\n                colorTheme = colorTheme,\r\n\r\n                onThemeModeChange = onThemeModeChange,\r\n                onColorThemeChange = onColorThemeChange,\r\n\r\n                onBack = {\r\n                    handleBack()\r\n                },\r\n\r\n                onBackupRestore = {\r\n                    backupStatus = null\r\n                    navigateTo(AppScreen.BACKUP_RESTORE)\r\n                }\r\n            )\r\n        }\r\n\r\n        AppScreen.DECK_APPEARANCE -> {\r\n\r\n            selectedDeck?.let { deck ->\r\n\r\n                DeckAppearanceScreen(\r\n                    deckName = deck.name,\r\n                    appearance = selectedAppearance,\r\n\r\n                    onQuestionColorChange = { color ->\r\n                        scope.launch {\r\n                            appearancePreferences.setQuestionColor(\r\n                                deck.id,\r\n                                color\r\n                            )\r\n                        }\r\n                    },\r\n\r\n                    onAnswerColorChange = { color ->\r\n                        scope.launch {\r\n                            appearancePreferences.setAnswerColor(\r\n                                deck.id,\r\n                                color\r\n                            )\r\n                        }\r\n                    },\r\n\r\n                    onFontChange = { font ->\r\n                        scope.launch {\r\n                            appearancePreferences.setFont(\r\n                                deck.id,\r\n                                font\r\n                            )\r\n                        }\r\n                    },\r\n\r\n                    onBack = {\r\n                        handleBack()\r\n                    }\r\n                )\r\n            }\r\n        }\r\n\r\n        AppScreen.BACKUP_RESTORE -> {\r\n\r\n            BackupRestoreScreen(\r\n                statusMessage = backupStatus,\r\n\r\n                onExport = { uri: Uri ->\r\n                    scope.launch {\r\n                        backupStatus = try {\r\n                            backupManager.exportBackup(\r\n                                context.contentResolver,\r\n                                uri\r\n                            )\r\n\r\n                            \"Backup exported successfully.\"\r\n\r\n                        } catch (e: Exception) {\r\n                            \"Export failed: ${e.message ?: \"Unknown error\"}\"\r\n                        }\r\n                    }\r\n                },\r\n\r\n                onImport = { uri ->\r\n                    scope.launch {\r\n                        backupStatus = try {\r\n                            val result = backupManager.importBackup(\r\n                                context.contentResolver,\r\n                                uri\r\n                            )\r\n\r\n                            \"Restored ${result.first} decks and ${result.second} flashcards.\"\r\n\r\n                        } catch (e: Exception) {\r\n                            \"Restore failed: ${e.message ?: \"Unknown error\"}\"\r\n                        }\r\n                    }\r\n                },\r\n\r\n                onBack = {\r\n                    handleBack()\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\nprivate fun getDescendantDeckIds(\r\n    rootDeckId: Int,\r\n    decks: List<Deck>\r\n): Set<Int> {\r\n\r\n    val result = mutableSetOf<Int>()\r\n    val pending = ArrayDeque<Int>()\r\n\r\n    pending.add(rootDeckId)\r\n\r\n    while (pending.isNotEmpty()) {\r\n\r\n        val currentId = pending.removeFirst()\r\n\r\n        if (!result.add(currentId)) {\r\n            continue\r\n        }\r\n\r\n        decks\r\n            .filter { it.parentDeckId == currentId }\r\n            .forEach { child ->\r\n                pending.add(child.id)\r\n            }\r\n    }\r\n\r\n    return result\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/navigation/AppNavigation.kt b/app/src/main/java/com/example/simpleflashcards/navigation/AppNavigation.kt
+--- a/app/src/main/java/com/example/simpleflashcards/navigation/AppNavigation.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/navigation/AppNavigation.kt	(date 1794291238509)
+@@ -24,6 +24,7 @@
+ import com.example.simpleflashcards.data.PracticeSessionSnapshot
+ 
+ import com.example.simpleflashcards.ui.screens.*
++import com.example.simpleflashcards.ui.theme.AppColorStyle
+ import com.example.simpleflashcards.ui.theme.AppThemeMode
+ import com.example.simpleflashcards.ui.theme.DeckAppearance
+ import com.example.simpleflashcards.ui.theme.AppColorTheme
+@@ -50,8 +51,10 @@
+     viewModel: FlashcardViewModel,
+     themeMode: AppThemeMode,
+     colorTheme: AppColorTheme,
++    colorStyle: AppColorStyle,
+     onThemeModeChange: (AppThemeMode) -> Unit,
+     onColorThemeChange: (AppColorTheme) -> Unit,
++    onColorStyleChange: (AppColorStyle) -> Unit,
+     appearancePreferences: DeckAppearancePreferences,
+     backupManager: FlashcardBackupManager,
+     practiceSessionPreferences: PracticeSessionPreferences
+@@ -466,9 +469,11 @@
+             SettingsScreen(
+                 themeMode = themeMode,
+                 colorTheme = colorTheme,
++                colorStyle = colorStyle,
+ 
+                 onThemeModeChange = onThemeModeChange,
+                 onColorThemeChange = onColorThemeChange,
++                onColorStyleChange = onColorStyleChange,
+ 
+                 onBack = {
+                     handleBack()
+Index: app/src/main/java/com/example/simpleflashcards/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards\r\n\r\nimport android.os.Bundle\r\n\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.lifecycle.ViewModelProvider\r\n\r\nimport androidx.compose.runtime.collectAsState\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.rememberCoroutineScope\r\n\r\nimport com.example.simpleflashcards.data.FlashcardBackupManager\r\nimport com.example.simpleflashcards.data.FlashcardDatabase\r\nimport com.example.simpleflashcards.data.FlashcardRepository\r\nimport com.example.simpleflashcards.data.ThemePreferences\r\nimport com.example.simpleflashcards.data.DeckAppearancePreferences\r\nimport com.example.simpleflashcards.data.PracticeSessionPreferences\r\n\r\nimport com.example.simpleflashcards.navigation.AppNavigation\r\nimport com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme\r\nimport com.example.simpleflashcards.ui.theme.AppThemeMode\r\nimport com.example.simpleflashcards.ui.theme.AppColorTheme\r\n\r\nimport com.example.simpleflashcards.viewmodel.FlashcardViewModel\r\nimport com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory\r\n\r\nimport kotlinx.coroutines.launch\r\n\r\nclass MainActivity : ComponentActivity() {\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n\r\n        val database = FlashcardDatabase.getDatabase(this)\r\n\r\n        val repository = FlashcardRepository(database)\r\n\r\n        val factory = FlashcardViewModelFactory(repository)\r\n\r\n        val viewModel = ViewModelProvider(\r\n            this,\r\n            factory\r\n        )[FlashcardViewModel::class.java]\r\n\r\n        val themePreferences = ThemePreferences(applicationContext)\r\n\r\n        val appearancePreferences =\r\n            DeckAppearancePreferences(applicationContext)\r\n\r\n        val backupManager = FlashcardBackupManager(database)\r\n\r\n        val practiceSessionPreferences =\r\n            PracticeSessionPreferences(applicationContext)\r\n\r\n        setContent {\r\n\r\n            val themeMode by themePreferences.themeMode.collectAsState(\r\n                initial = AppThemeMode.SYSTEM\r\n            )\r\n\r\n            val colorTheme by themePreferences.colorTheme.collectAsState(\r\n                initial = AppColorTheme.OCEAN\r\n            )\r\n\r\n            val scope = rememberCoroutineScope()\r\n\r\n            SimpleFlashcardsTheme(\r\n                themeMode = themeMode,\r\n                colorTheme = colorTheme\r\n            ) {\r\n                AppNavigation(\r\n                    viewModel = viewModel,\r\n                    themeMode = themeMode,\r\n                    colorTheme = colorTheme,\r\n\r\n                    onThemeModeChange = { newMode ->\r\n                        scope.launch {\r\n                            themePreferences.setThemeMode(newMode)\r\n                        }\r\n                    },\r\n\r\n                    onColorThemeChange = { newTheme ->\r\n                        scope.launch {\r\n                            themePreferences.setColorTheme(newTheme)\r\n                        }\r\n                    },\r\n\r\n                    appearancePreferences = appearancePreferences,\r\n                    backupManager = backupManager,\r\n                    practiceSessionPreferences = practiceSessionPreferences\r\n                )\r\n            }\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/MainActivity.kt b/app/src/main/java/com/example/simpleflashcards/MainActivity.kt
+--- a/app/src/main/java/com/example/simpleflashcards/MainActivity.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/MainActivity.kt	(date 1794290972690)
+@@ -1,3 +1,4 @@
++
+ package com.example.simpleflashcards
+ 
+ import android.os.Bundle
+@@ -21,6 +22,7 @@
+ import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
+ import com.example.simpleflashcards.ui.theme.AppThemeMode
+ import com.example.simpleflashcards.ui.theme.AppColorTheme
++import com.example.simpleflashcards.ui.theme.AppColorStyle
+ 
+ import com.example.simpleflashcards.viewmodel.FlashcardViewModel
+ import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
+@@ -33,7 +35,6 @@
+         super.onCreate(savedInstanceState)
+ 
+         val database = FlashcardDatabase.getDatabase(this)
+-
+         val repository = FlashcardRepository(database)
+ 
+         val factory = FlashcardViewModelFactory(repository)
+@@ -54,7 +55,6 @@
+             PracticeSessionPreferences(applicationContext)
+ 
+         setContent {
+-
+             val themeMode by themePreferences.themeMode.collectAsState(
+                 initial = AppThemeMode.SYSTEM
+             )
+@@ -63,16 +63,22 @@
+                 initial = AppColorTheme.OCEAN
+             )
+ 
++            val colorStyle by themePreferences.colorStyle.collectAsState(
++                initial = AppColorStyle.ZEN
++            )
++
+             val scope = rememberCoroutineScope()
+ 
+             SimpleFlashcardsTheme(
+                 themeMode = themeMode,
+-                colorTheme = colorTheme
++                colorTheme = colorTheme,
++                colorStyle = colorStyle
+             ) {
+                 AppNavigation(
+                     viewModel = viewModel,
+                     themeMode = themeMode,
+                     colorTheme = colorTheme,
++                    colorStyle = colorStyle,
+ 
+                     onThemeModeChange = { newMode ->
+                         scope.launch {
+@@ -86,6 +92,12 @@
+                         }
+                     },
+ 
++                    onColorStyleChange = { newStyle ->
++                        scope.launch {
++                            themePreferences.setColorStyle(newStyle)
++                        }
++                    },
++
+                     appearancePreferences = appearancePreferences,
+                     backupManager = backupManager,
+                     practiceSessionPreferences = practiceSessionPreferences
+@@ -93,4 +105,4 @@
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+Index: app/src/main/java/com/example/simpleflashcards/ui/theme/AppColorTheme.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards.ui.theme\r\n\r\nimport androidx.compose.ui.graphics.Color\r\n\r\nenum class AppColorTheme(\r\n    val displayName: String,\r\n    val description: String,\r\n    val lightPrimary: Color,\r\n    val lightSecondary: Color,\r\n    val lightBackground: Color,\r\n    val lightSurface: Color,\r\n    val lightText: Color,\r\n    val darkPrimary: Color,\r\n    val darkSecondary: Color,\r\n    val darkBackground: Color,\r\n    val darkSurface: Color,\r\n    val darkText: Color\r\n) {\r\n    OCEAN(\r\n        \"Ocean\", \"Calm blues and teal\",\r\n        Color(0xFF287A91), Color(0xFF65AEB5),\r\n        Color(0xFFF2F8FA), Color(0xFFFFFFFF), Color(0xFF18343D),\r\n        Color(0xFF80C5D2), Color(0xFF8BC5BE),\r\n        Color(0xFF101F25), Color(0xFF1B3038), Color(0xFFE1F0F2)\r\n    ),\r\n\r\n    FOREST(\r\n        \"Forest\", \"Natural greens\",\r\n        Color(0xFF477A54), Color(0xFF8BAF78),\r\n        Color(0xFFF3F7F0), Color(0xFFFFFFFF), Color(0xFF263B2A),\r\n        Color(0xFF9BCB91), Color(0xFFB4C99A),\r\n        Color(0xFF17231A), Color(0xFF243429), Color(0xFFE5F0E1)\r\n    ),\r\n\r\n    LAVENDER(\r\n        \"Lavender\", \"Soft purple tones\",\r\n        Color(0xFF7962A6), Color(0xFFA994CE),\r\n        Color(0xFFF7F4FB), Color(0xFFFFFFFF), Color(0xFF352B45),\r\n        Color(0xFFC0A8EA), Color(0xFFBBAAD8),\r\n        Color(0xFF211B2B), Color(0xFF30283D), Color(0xFFECE4F6)\r\n    ),\r\n\r\n    SUNRISE(\r\n        \"Sunrise\", \"Warm peach and amber\",\r\n        Color(0xFFB96D43), Color(0xFFE0A36E),\r\n        Color(0xFFFCF5EF), Color(0xFFFFFFFF), Color(0xFF493023),\r\n        Color(0xFFFFB887), Color(0xFFE8BD8C),\r\n        Color(0xFF281C17), Color(0xFF392820), Color(0xFFF6E6D9)\r\n    ),\r\n\r\n    ROSE(\r\n        \"Rose\", \"Gentle pink and burgundy\",\r\n        Color(0xFFAD5C78), Color(0xFFD99AAF),\r\n        Color(0xFFFBF3F6), Color(0xFFFFFFFF), Color(0xFF442A35),\r\n        Color(0xFFE9A5BD), Color(0xFFD8A9BA),\r\n        Color(0xFF281B21), Color(0xFF39272F), Color(0xFFF4E3E9)\r\n    ),\r\n\r\n    SLATE(\r\n        \"Slate\", \"Minimal blue-grey\",\r\n        Color(0xFF526B80), Color(0xFF8299AA),\r\n        Color(0xFFF3F5F7), Color(0xFFFFFFFF), Color(0xFF263541),\r\n        Color(0xFFA5BED0), Color(0xFF9BAFBE),\r\n        Color(0xFF192127), Color(0xFF27343D), Color(0xFFE5EBEF)\r\n    );\r\n\r\n    companion object {\r\n        fun fromPreference(value: String?): AppColorTheme {\r\n            return values().firstOrNull { it.name == value } ?: OCEAN\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/ui/theme/AppColorTheme.kt b/app/src/main/java/com/example/simpleflashcards/ui/theme/AppColorTheme.kt
+--- a/app/src/main/java/com/example/simpleflashcards/ui/theme/AppColorTheme.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/ui/theme/AppColorTheme.kt	(date 1794290439244)
+@@ -1,72 +1,387 @@
++
+ package com.example.simpleflashcards.ui.theme
+ 
+ import androidx.compose.ui.graphics.Color
+ 
++data class ThemePalette(
++    val primary: Color,
++    val secondary: Color,
++    val background: Color,
++    val surface: Color,
++    val text: Color,
++    val cardStart: Color,
++    val cardEnd: Color,
++    val cardText: Color
++)
++
+ enum class AppColorTheme(
+     val displayName: String,
+     val description: String,
+-    val lightPrimary: Color,
+-    val lightSecondary: Color,
+-    val lightBackground: Color,
+-    val lightSurface: Color,
+-    val lightText: Color,
+-    val darkPrimary: Color,
+-    val darkSecondary: Color,
+-    val darkBackground: Color,
+-    val darkSurface: Color,
+-    val darkText: Color
++    val zenLight: ThemePalette,
++    val vibrantLight: ThemePalette,
++    val zenDark: ThemePalette,
++    val vibrantDark: ThemePalette
+ ) {
+     OCEAN(
+-        "Ocean", "Calm blues and teal",
+-        Color(0xFF287A91), Color(0xFF65AEB5),
+-        Color(0xFFF2F8FA), Color(0xFFFFFFFF), Color(0xFF18343D),
+-        Color(0xFF80C5D2), Color(0xFF8BC5BE),
+-        Color(0xFF101F25), Color(0xFF1B3038), Color(0xFFE1F0F2)
++        "Ocean",
++        "Soft seafoam and deep ocean blue",
++
++        ThemePalette(
++            Color(0xFF12A9C0),
++            Color(0xFF07576F),
++            Color(0xFFEFF9FB),
++            Color(0xFFFFFFFF),
++            Color(0xFF07576F),
++            Color(0xFFFFFFFF),
++            Color(0xFFD5F1F5),
++            Color(0xFF07576F)
++        ),
++
++        ThemePalette(
++            Color(0xFF00CDE0),
++            Color(0xFF087DDD),
++            Color(0xFFF4F8F9),
++            Color(0xFFFFFFFF),
++            Color(0xFF203B40),
++            Color(0xFF00CDE0),
++            Color(0xFF087DDD),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFF68AAB4),
++            Color(0xFF567E87),
++            Color(0xFF101D23),
++            Color(0xFF1B3038),
++            Color(0xFFE1F0F0),
++            Color(0xFF1B3038),
++            Color(0xFF203C44),
++            Color(0xFFE1F0F0)
++        ),
++
++        ThemePalette(
++            Color(0xFF14B9CE),
++            Color(0xFF087F9C),
++            Color(0xFF091B24),
++            Color(0xFF123441),
++            Color(0xFFE2FAFC),
++            Color(0xFF123441),
++            Color(0xFF104353),
++            Color(0xFFE2FAFC)
++        )
+     ),
+ 
+     FOREST(
+-        "Forest", "Natural greens",
+-        Color(0xFF477A54), Color(0xFF8BAF78),
+-        Color(0xFFF3F7F0), Color(0xFFFFFFFF), Color(0xFF263B2A),
+-        Color(0xFF9BCB91), Color(0xFFB4C99A),
+-        Color(0xFF17231A), Color(0xFF243429), Color(0xFFE5F0E1)
++        "Forest",
++        "Fresh greenery and emerald",
++
++        ThemePalette(
++            Color(0xFF45AD50),
++            Color(0xFF205B2C),
++            Color(0xFFF0F8EF),
++            Color(0xFFFFFFFF),
++            Color(0xFF205B2C),
++            Color(0xFFFFFFFF),
++            Color(0xFFD8F0D5),
++            Color(0xFF205B2C)
++        ),
++
++        ThemePalette(
++            Color(0xFF49D92E),
++            Color(0xFF009B58),
++            Color(0xFFF5F8F1),
++            Color(0xFFFFFFFF),
++            Color(0xFF293B2B),
++            Color(0xFF49D92E),
++            Color(0xFF009B58),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFF8CB88A),
++            Color(0xFF647E63),
++            Color(0xFF141F19),
++            Color(0xFF24372A),
++            Color(0xFFE4F0E2),
++            Color(0xFF24372A),
++            Color(0xFF293F30),
++            Color(0xFFE4F0E2)
++        ),
++
++        ThemePalette(
++            Color(0xFF4BD65E),
++            Color(0xFF268C43),
++            Color(0xFF101D14),
++            Color(0xFF1D3C26),
++            Color(0xFFE7FBE7),
++            Color(0xFF1D3C26),
++            Color(0xFF24502D),
++            Color(0xFFE7FBE7)
++        )
+     ),
+ 
+     LAVENDER(
+-        "Lavender", "Soft purple tones",
+-        Color(0xFF7962A6), Color(0xFFA994CE),
+-        Color(0xFFF7F4FB), Color(0xFFFFFFFF), Color(0xFF352B45),
+-        Color(0xFFC0A8EA), Color(0xFFBBAAD8),
+-        Color(0xFF211B2B), Color(0xFF30283D), Color(0xFFECE4F6)
++        "Lavender",
++        "Soft lilac and vivid violet",
++
++        ThemePalette(
++            Color(0xFFA64BE0),
++            Color(0xFF55247F),
++            Color(0xFFF7F1FC),
++            Color(0xFFFFFFFF),
++            Color(0xFF55247F),
++            Color(0xFFFFFFFF),
++            Color(0xFFE9D9FA),
++            Color(0xFF55247F)
++        ),
++
++        ThemePalette(
++            Color(0xFFCF35F0),
++            Color(0xFF8125D8),
++            Color(0xFFF9F5FC),
++            Color(0xFFFFFFFF),
++            Color(0xFF392F49),
++            Color(0xFFCF35F0),
++            Color(0xFF8125D8),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFFAE8CCF),
++            Color(0xFF807294),
++            Color(0xFF1B1722),
++            Color(0xFF30263C),
++            Color(0xFFF0E8F7),
++            Color(0xFF30263C),
++            Color(0xFF392B47),
++            Color(0xFFF0E8F7)
++        ),
++
++        ThemePalette(
++            Color(0xFFBC59F0),
++            Color(0xFF8535BC),
++            Color(0xFF190F25),
++            Color(0xFF342044),
++            Color(0xFFF8ECFF),
++            Color(0xFF342044),
++            Color(0xFF46245E),
++            Color(0xFFF8ECFF)
++        )
+     ),
+ 
+     SUNRISE(
+-        "Sunrise", "Warm peach and amber",
+-        Color(0xFFB96D43), Color(0xFFE0A36E),
+-        Color(0xFFFCF5EF), Color(0xFFFFFFFF), Color(0xFF493023),
+-        Color(0xFFFFB887), Color(0xFFE8BD8C),
+-        Color(0xFF281C17), Color(0xFF392820), Color(0xFFF6E6D9)
++        "Sunrise",
++        "Golden sunshine and sunset orange",
++
++        ThemePalette(
++            Color(0xFFF39A36),
++            Color(0xFF81400C),
++            Color(0xFFFFF5E9),
++            Color(0xFFFFFFFF),
++            Color(0xFF81400C),
++            Color(0xFFFFFFFF),
++            Color(0xFFFFE4C5),
++            Color(0xFF81400C)
++        ),
++
++        ThemePalette(
++            Color(0xFFFFD23F),
++            Color(0xFFF04432),
++            Color(0xFFFCF7F0),
++            Color(0xFFFFFFFF),
++            Color(0xFF493629),
++            Color(0xFFFFD23F),
++            Color(0xFFF04432),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFFD6A66D),
++            Color(0xFF92745D),
++            Color(0xFF211B16),
++            Color(0xFF3B2D20),
++            Color(0xFFF7EBDD),
++            Color(0xFF3B2D20),
++            Color(0xFF473522),
++            Color(0xFFF7EBDD)
++        ),
++
++        ThemePalette(
++            Color(0xFFF49A38),
++            Color(0xFFC96A27),
++            Color(0xFF21160F),
++            Color(0xFF412817),
++            Color(0xFFFFF1E0),
++            Color(0xFF412817),
++            Color(0xFF593317),
++            Color(0xFFFFF1E0)
++        )
+     ),
+ 
+     ROSE(
+-        "Rose", "Gentle pink and burgundy",
+-        Color(0xFFAD5C78), Color(0xFFD99AAF),
+-        Color(0xFFFBF3F6), Color(0xFFFFFFFF), Color(0xFF442A35),
+-        Color(0xFFE9A5BD), Color(0xFFD8A9BA),
+-        Color(0xFF281B21), Color(0xFF39272F), Color(0xFFF4E3E9)
++        "Rose",
++        "Soft rose and vivid floral pink",
++
++        ThemePalette(
++            Color(0xFFE65C87),
++            Color(0xFF812441),
++            Color(0xFFFFF1F4),
++            Color(0xFFFFFFFF),
++            Color(0xFF812441),
++            Color(0xFFFFFFFF),
++            Color(0xFFFBD9E2),
++            Color(0xFF812441)
++        ),
++
++        ThemePalette(
++            Color(0xFFF04486),
++            Color(0xFFC51D68),
++            Color(0xFFFCF6F7),
++            Color(0xFFFFFFFF),
++            Color(0xFF452D38),
++            Color(0xFFF04486),
++            Color(0xFFC51D68),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFFD39BB0),
++            Color(0xFF8E6474),
++            Color(0xFF21171C),
++            Color(0xFF392630),
++            Color(0xFFF6E9EE),
++            Color(0xFF392630),
++            Color(0xFF452D39),
++            Color(0xFFF6E9EE)
++        ),
++
++        ThemePalette(
++            Color(0xFFED5B8A),
++            Color(0xFFC43B6A),
++            Color(0xFF210F18),
++            Color(0xFF411B2B),
++            Color(0xFFFFEAF0),
++            Color(0xFF411B2B),
++            Color(0xFF542035),
++            Color(0xFFFFEAF0)
++        )
+     ),
+ 
+     SLATE(
+-        "Slate", "Minimal blue-grey",
+-        Color(0xFF526B80), Color(0xFF8299AA),
+-        Color(0xFFF3F5F7), Color(0xFFFFFFFF), Color(0xFF263541),
+-        Color(0xFFA5BED0), Color(0xFF9BAFBE),
+-        Color(0xFF192127), Color(0xFF27343D), Color(0xFFE5EBEF)
++        "Slate",
++        "Cool silver and blue-grey",
++
++        ThemePalette(
++            Color(0xFF548FCB),
++            Color(0xFF244D76),
++            Color(0xFFF0F5FA),
++            Color(0xFFFFFFFF),
++            Color(0xFF244D76),
++            Color(0xFFFFFFFF),
++            Color(0xFFDCE9F7),
++            Color(0xFF244D76)
++        ),
++
++        ThemePalette(
++            Color(0xFF458BD0),
++            Color(0xFF24558D),
++            Color(0xFFF4F7FA),
++            Color(0xFFFFFFFF),
++            Color(0xFF2C3942),
++            Color(0xFF458BD0),
++            Color(0xFF24558D),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFF9EACC0),
++            Color(0xFF6F8290),
++            Color(0xFF171B22),
++            Color(0xFF292F3A),
++            Color(0xFFEDF1F7),
++            Color(0xFF292F3A),
++            Color(0xFF333B49),
++            Color(0xFFEDF1F7)
++        ),
++
++        ThemePalette(
++            Color(0xFF5A9EE0),
++            Color(0xFF326DAD),
++            Color(0xFF101923),
++            Color(0xFF1C3045),
++            Color(0xFFE8F3FF),
++            Color(0xFF1C3045),
++            Color(0xFF233C57),
++            Color(0xFFE8F3FF)
++        )
++    ),
++
++    GREYSCALE(
++        "Greyscale",
++        "Elegant silver, ivory and graphite",
++
++        ThemePalette(
++            Color(0xFF737985),
++            Color(0xFF444A55),
++            Color(0xFFF4F4F5),
++            Color(0xFFFFFFFF),
++            Color(0xFF343840),
++            Color(0xFFFFFFFF),
++            Color(0xFFE8E9EC),
++            Color(0xFF343840)
++        ),
++
++        ThemePalette(
++            Color(0xFF555B65),
++            Color(0xFF292D35),
++            Color(0xFFF3F3F3),
++            Color(0xFFFFFFFF),
++            Color(0xFF343840),
++            Color(0xFF777D87),
++            Color(0xFF424751),
++            Color(0xFFFFFFFF)
++        ),
++
++        ThemePalette(
++            Color(0xFFB6BBC3),
++            Color(0xFF858B95),
++            Color(0xFF191A1E),
++            Color(0xFF292B31),
++            Color(0xFFECEDEF),
++            Color(0xFF292B31),
++            Color(0xFF34363D),
++            Color(0xFFECEDEF)
++        ),
++
++        ThemePalette(
++            Color(0xFFC7CBD1),
++            Color(0xFF969CA5),
++            Color(0xFF17181C),
++            Color(0xFF292B30),
++            Color(0xFFF2F3F5),
++            Color(0xFF3C3E44),
++            Color(0xFF24262B),
++            Color(0xFFFFFFFF)
++        )
+     );
++
++    // Compatibility properties for existing code that uses the old palette fields.
++
++    val lightPrimary get() = zenLight.primary
++    val lightSecondary get() = zenLight.secondary
++    val lightBackground get() = zenLight.background
++    val lightSurface get() = zenLight.surface
++    val lightText get() = zenLight.text
++
++    val darkPrimary get() = zenDark.primary
++    val darkSecondary get() = zenDark.secondary
++    val darkBackground get() = zenDark.background
++    val darkSurface get() = zenDark.surface
++    val darkText get() = zenDark.text
+ 
+     companion object {
+         fun fromPreference(value: String?): AppColorTheme {
+             return values().firstOrNull { it.name == value } ?: OCEAN
+         }
+     }
+-}
+\ No newline at end of file
++}
+Index: app/src/main/java/com/example/simpleflashcards/ui/theme/Theme.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.simpleflashcards.ui.theme\r\n\r\nimport androidx.compose.foundation.isSystemInDarkTheme\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.darkColorScheme\r\nimport androidx.compose.material3.lightColorScheme\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.graphics.compositeOver\r\n\r\n@Composable\r\nfun SimpleFlashcardsTheme(\r\n    themeMode: AppThemeMode = AppThemeMode.SYSTEM,\r\n    colorTheme: AppColorTheme = AppColorTheme.OCEAN,\r\n    content: @Composable () -> Unit\r\n) {\r\n    val systemDark = isSystemInDarkTheme()\r\n\r\n    val darkTheme = when (themeMode) {\r\n        AppThemeMode.SYSTEM -> systemDark\r\n        AppThemeMode.LIGHT -> false\r\n        AppThemeMode.DARK -> true\r\n    }\r\n\r\n    val colors = if (darkTheme) {\r\n        val cardSurface = colorTheme.darkPrimary\r\n            .copy(alpha = 0.16f)\r\n            .compositeOver(colorTheme.darkSurface)\r\n\r\n        darkColorScheme(\r\n            primary = colorTheme.darkPrimary,\r\n            secondary = colorTheme.darkSecondary,\r\n            background = colorTheme.darkBackground,\r\n            surface = colorTheme.darkSurface,\r\n            surfaceVariant = cardSurface,\r\n            onPrimary = Color(0xFF172126),\r\n            onSecondary = Color(0xFF172126),\r\n            onBackground = colorTheme.darkText,\r\n            onSurface = colorTheme.darkText,\r\n            onSurfaceVariant = colorTheme.darkText,\r\n            error = Color(0xFFFF8A80)\r\n        )\r\n    } else {\r\n        val cardSurface = colorTheme.lightPrimary\r\n            .copy(alpha = 0.09f)\r\n            .compositeOver(colorTheme.lightSurface)\r\n\r\n        lightColorScheme(\r\n            primary = colorTheme.lightPrimary,\r\n            secondary = colorTheme.lightSecondary,\r\n            background = colorTheme.lightBackground,\r\n            surface = colorTheme.lightSurface,\r\n            surfaceVariant = cardSurface,\r\n            onPrimary = Color.White,\r\n            onSecondary = Color.White,\r\n            onBackground = colorTheme.lightText,\r\n            onSurface = colorTheme.lightText,\r\n            onSurfaceVariant = colorTheme.lightText,\r\n            error = Color(0xFFD32F2F)\r\n        )\r\n    }\r\n\r\n    MaterialTheme(\r\n        colorScheme = colors,\r\n        typography = AppTypography.styles,\r\n        content = content\r\n    )\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/simpleflashcards/ui/theme/Theme.kt b/app/src/main/java/com/example/simpleflashcards/ui/theme/Theme.kt
+--- a/app/src/main/java/com/example/simpleflashcards/ui/theme/Theme.kt	(revision 1531c72fe1721ffcaf6fc75643a52973e8e31849)
++++ b/app/src/main/java/com/example/simpleflashcards/ui/theme/Theme.kt	(date 1794290452942)
+@@ -1,3 +1,4 @@
++
+ package com.example.simpleflashcards.ui.theme
+ 
+ import androidx.compose.foundation.isSystemInDarkTheme
+@@ -5,13 +6,30 @@
+ import androidx.compose.material3.darkColorScheme
+ import androidx.compose.material3.lightColorScheme
+ import androidx.compose.runtime.Composable
++import androidx.compose.runtime.CompositionLocalProvider
++import androidx.compose.runtime.compositionLocalOf
++import androidx.compose.ui.graphics.Brush
+ import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.graphics.compositeOver
++
++val LocalFlashcardBrush = compositionLocalOf {
++    Brush.linearGradient(
++        listOf(Color.White, Color.LightGray)
++    )
++}
++
++val LocalFlashcardBackground = compositionLocalOf {
++    Color.White
++}
++
++val LocalFlashcardTextColor = compositionLocalOf {
++    Color.Black
++}
+ 
+ @Composable
+ fun SimpleFlashcardsTheme(
+     themeMode: AppThemeMode = AppThemeMode.SYSTEM,
+     colorTheme: AppColorTheme = AppColorTheme.OCEAN,
++    colorStyle: AppColorStyle = AppColorStyle.ZEN,
+     content: @Composable () -> Unit
+ ) {
+     val systemDark = isSystemInDarkTheme()
+@@ -22,47 +40,66 @@
+         AppThemeMode.DARK -> true
+     }
+ 
++    val palette = when {
++        darkTheme && colorStyle == AppColorStyle.ZEN ->
++            colorTheme.zenDark
++
++        darkTheme && colorStyle == AppColorStyle.VIBRANT ->
++            colorTheme.vibrantDark
++
++        !darkTheme && colorStyle == AppColorStyle.ZEN ->
++            colorTheme.zenLight
++
++        else ->
++            colorTheme.vibrantLight
++    }
++
+     val colors = if (darkTheme) {
+-        val cardSurface = colorTheme.darkPrimary
+-            .copy(alpha = 0.16f)
+-            .compositeOver(colorTheme.darkSurface)
+-
+         darkColorScheme(
+-            primary = colorTheme.darkPrimary,
+-            secondary = colorTheme.darkSecondary,
+-            background = colorTheme.darkBackground,
+-            surface = colorTheme.darkSurface,
+-            surfaceVariant = cardSurface,
+-            onPrimary = Color(0xFF172126),
+-            onSecondary = Color(0xFF172126),
+-            onBackground = colorTheme.darkText,
+-            onSurface = colorTheme.darkText,
+-            onSurfaceVariant = colorTheme.darkText,
++            primary = palette.primary,
++            secondary = palette.secondary,
++            background = palette.background,
++            surface = palette.surface,
++            surfaceVariant = palette.cardEnd,
++            onPrimary = Color.White,
++            onSecondary = Color.White,
++            onBackground = palette.text,
++            onSurface = palette.text,
++            onSurfaceVariant = palette.text,
+             error = Color(0xFFFF8A80)
+         )
+     } else {
+-        val cardSurface = colorTheme.lightPrimary
+-            .copy(alpha = 0.09f)
+-            .compositeOver(colorTheme.lightSurface)
+-
+         lightColorScheme(
+-            primary = colorTheme.lightPrimary,
+-            secondary = colorTheme.lightSecondary,
+-            background = colorTheme.lightBackground,
+-            surface = colorTheme.lightSurface,
+-            surfaceVariant = cardSurface,
++            primary = palette.primary,
++            secondary = palette.secondary,
++            background = palette.background,
++            surface = palette.surface,
++            surfaceVariant = palette.cardEnd,
+             onPrimary = Color.White,
+-            onSecondary = Color.White,
+-            onBackground = colorTheme.lightText,
+-            onSurface = colorTheme.lightText,
+-            onSurfaceVariant = colorTheme.lightText,
++            onSecondary = palette.text,
++            onBackground = palette.text,
++            onSurface = palette.text,
++            onSurfaceVariant = palette.text,
+             error = Color(0xFFD32F2F)
+         )
+     }
+ 
+-    MaterialTheme(
+-        colorScheme = colors,
+-        typography = AppTypography.styles,
+-        content = content
+-    )
+-}
+\ No newline at end of file
++    val flashcardBrush = Brush.linearGradient(
++        colors = listOf(
++            palette.cardStart,
++            palette.cardEnd
++        )
++    )
++
++    CompositionLocalProvider(
++        LocalFlashcardBrush provides flashcardBrush,
++        LocalFlashcardBackground provides palette.cardStart,
++        LocalFlashcardTextColor provides palette.cardText
++    ) {
++        MaterialTheme(
++            colorScheme = colors,
++            typography = AppTypography.styles,
++            content = content
++        )
++    }
++}

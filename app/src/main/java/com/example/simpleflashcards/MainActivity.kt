@@ -21,6 +21,7 @@ import com.example.simpleflashcards.navigation.AppNavigation
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
@@ -63,11 +64,20 @@ class MainActivity : ComponentActivity() {
                 initial = AppColorTheme.OCEAN
             )
 
+            val appFontSize by themePreferences.appFontSize.collectAsState(
+                initial = FontSizeOption.LARGE
+            )
+
+            val flashcardFontSize by themePreferences.flashcardFontSize.collectAsState(
+                initial = FontSizeOption.LARGE
+            )
+
             val scope = rememberCoroutineScope()
 
             SimpleFlashcardsTheme(
                 themeMode = themeMode,
-                colorTheme = colorTheme
+                colorTheme = colorTheme,
+                appFontSize = appFontSize
             ) {
                 AppNavigation(
                     viewModel = viewModel,
@@ -88,7 +98,22 @@ class MainActivity : ComponentActivity() {
 
                     appearancePreferences = appearancePreferences,
                     backupManager = backupManager,
-                    practiceSessionPreferences = practiceSessionPreferences
+                    practiceSessionPreferences = practiceSessionPreferences,
+
+                    appFontSize = appFontSize,
+                    flashcardFontSize = flashcardFontSize,
+
+                    onAppFontSizeChange = { newSize ->
+                        scope.launch {
+                            themePreferences.setAppFontSize(newSize)
+                        }
+                    },
+
+                    onFlashcardFontSizeChange = { newSize ->
+                        scope.launch {
+                            themePreferences.setFlashcardFontSize(newSize)
+                        }
+                    },
                 )
             }
         }

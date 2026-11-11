@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.background
@@ -16,13 +17,18 @@ import androidx.compose.ui.unit.dp
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 @Composable
 fun SettingsScreen(
     themeMode: AppThemeMode,
     colorTheme: AppColorTheme,
+    appFontSize: FontSizeOption,
+    flashcardFontSize: FontSizeOption,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
+    onAppFontSizeChange: (FontSizeOption) -> Unit,
+    onFlashcardFontSizeChange: (FontSizeOption) -> Unit,
     onBack: () -> Unit,
     onBackupRestore: () -> Unit
 ) {
@@ -41,6 +47,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+
             Text(
                 text = "Display mode",
                 style = MaterialTheme.typography.titleLarge
@@ -153,6 +160,94 @@ fun SettingsScreen(
                             )
                         }
                     }
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+            // App font size
+
+            Text(
+                text = "App font size",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Adjust the text size throughout the application.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            FontSizeOption.values().forEach { size ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = appFontSize == size,
+                        onClick = {
+                            onAppFontSizeChange(size)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = size.displayName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+            // Flashcard font size
+
+            Text(
+                text = "Flashcard font size",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Adjust the text displayed on your flashcards independently.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            FontSizeOption.values().forEach { size ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = flashcardFontSize == size,
+                        onClick = {
+                            onFlashcardFontSizeChange(size)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = size.displayName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
 

@@ -27,6 +27,7 @@ import com.example.simpleflashcards.ui.screens.*
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 
@@ -54,7 +55,11 @@ fun AppNavigation(
     onColorThemeChange: (AppColorTheme) -> Unit,
     appearancePreferences: DeckAppearancePreferences,
     backupManager: FlashcardBackupManager,
-    practiceSessionPreferences: PracticeSessionPreferences
+    practiceSessionPreferences: PracticeSessionPreferences,
+    appFontSize: FontSizeOption,
+    flashcardFontSize: FontSizeOption,
+    onAppFontSizeChange: (FontSizeOption) -> Unit,
+    onFlashcardFontSizeChange: (FontSizeOption) -> Unit,
 ) {
 
     val decks by viewModel.decks.collectAsState()
@@ -326,6 +331,7 @@ fun AppNavigation(
                     },
 
                     shuffleEnabled = shuffleEnabled,
+                    flashcardFontSize = flashcardFontSize,
 
                     onToggleShuffle = {
                         viewModel.toggleShuffle()
@@ -467,8 +473,14 @@ fun AppNavigation(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
 
+                appFontSize = appFontSize,
+                flashcardFontSize = flashcardFontSize,
+
                 onThemeModeChange = onThemeModeChange,
                 onColorThemeChange = onColorThemeChange,
+
+                onAppFontSizeChange = onAppFontSizeChange,
+                onFlashcardFontSizeChange = onFlashcardFontSizeChange,
 
                 onBack = {
                     handleBack()
