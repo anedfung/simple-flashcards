@@ -88,9 +88,15 @@ class MainActivity : ComponentActivity() {
             )
 
             LaunchedEffect(appLanguage) {
-                AppCompatDelegate.setApplicationLocales(
-                    LocaleListCompat.forLanguageTags(appLanguage)
-                )
+                if (android.os.Build.VERSION.SDK_INT >=
+                    android.os.Build.VERSION_CODES.TIRAMISU
+                ) {
+                    val localeManager =
+                        getSystemService(android.app.LocaleManager::class.java)
+
+                    localeManager.applicationLocales =
+                        android.os.LocaleList.forLanguageTags(appLanguage)
+                }
 
                 android.util.Log.d(
                     "AppLanguage",

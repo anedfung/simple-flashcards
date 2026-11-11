@@ -2,13 +2,14 @@
 package com.example.simpleflashcards.navigation
 
 import android.net.Uri
-
 import android.app.Activity
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 
 import kotlinx.coroutines.flow.flowOf
@@ -43,8 +44,34 @@ private enum class AppScreen {
 
 private data class NavigationEntry(
     val screen: AppScreen,
-    val deck: Deck?
+    val deckId: Int?
 )
+
+private val navigationStackSaver =
+    listSaver<List<NavigationEntry>, String>(
+        save = { stack ->
+            stack.flatMap { entry ->
+                listOf(
+                    entry.screen.name,
+                    entry.deckId?.toString() ?: ""
+                )
+            }
+        },
+        restore = { saved ->
+            saved.chunked(2).mapNotNull { entry ->
+                val screen = runCatching {
+                    AppScreen.valueOf(entry[0])
+                }.getOrNull()
+
+                screen?.let {
+                    NavigationEntry(
+                        screen = it,
+                        deckId = entry.getOrNull(1)?.toIntOrNull()
+                    )
+                }
+            }
+        }
+    )
 
 @Composable
 fun AppNavigation(
@@ -82,44 +109,56 @@ fun AppNavigation(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    var currentScreen by remember {
+    // Save navigation state across activity recreation.
+    var currentScreen by rememberSaveable {
         mutableStateOf(AppScreen.HOME)
     }
 
-    var selectedDeck by remember {
-        mutableStateOf<Deck?>(null)
+    var selectedDeckId by rememberSaveable {
+        mutableStateOf<Int?>(null)
     }
 
-    var navigationBackStack by remember {
-        mutableStateOf<List<NavigationEntry>>(emptyList())
+    var navigationBackStack by rememberSaveable(
+        stateSaver = navigationStackSaver
+    ) {
+        mutableStateOf(emptyList())
     }
 
-    var editingCard by remember {
-        mutableStateOf<Flashcard?>(null)
+    var editingCardId by rememberSaveable {
+        mutableStateOf<Int?>(null)
     }
 
     var restoredSession by remember {
         mutableStateOf<PracticeSession?>(null)
     }
 
-    var restorationHandled by remember {
+    var restorationHandled by rememberSaveable {
         mutableStateOf(false)
     }
 
-    var backupStatus by remember {
+    var backupStatus by rememberSaveable {
         mutableStateOf<String?>(null)
     }
 
-    var newlyCreatedSubdeckId by remember {
+    var newlyCreatedSubdeckId by rememberSaveable {
         mutableStateOf<Int?>(null)
+    }
+
+    var lastBackPressedTime by rememberSaveable {
+        mutableLongStateOf(0L)
+    }
+
+    // Reconstruct database objects from their saved IDs.
+    val selectedDeck = decks.firstOrNull {
+        it.id == selectedDeckId
+    }
+
+    val editingCard = cards.firstOrNull {
+        it.id == editingCardId
     }
 
     val newlyCreatedSubdeck = decks.firstOrNull {
         it.id == newlyCreatedSubdeckId
-    }
-
-    var lastBackPressedTime by remember {
-        mutableLongStateOf(0L)
     }
 
     fun navigateTo(
@@ -128,39 +167,37 @@ fun AppNavigation(
     ) {
         navigationBackStack = navigationBackStack + NavigationEntry(
             screen = currentScreen,
-            deck = selectedDeck
+            deckId = selectedDeck?.id
         )
 
-        selectedDeck = deck
+        selectedDeckId = deck?.id
         currentScreen = screen
     }
 
     fun handleBack() {
 
-        // Clear the restored practice session when leaving practice.
         if (currentScreen == AppScreen.PRACTICE) {
             restoredSession = null
         }
 
-        // Restore the actual previous screen and deck.
         if (navigationBackStack.isNotEmpty()) {
 
             val previous = navigationBackStack.last()
 
             navigationBackStack = navigationBackStack.dropLast(1)
 
-            selectedDeck = previous.deck
+            selectedDeckId = previous.deckId
             currentScreen = previous.screen
 
             return
         }
 
-        // Fallback for screens opened without navigation history.
         when (currentScreen) {
 
             AppScreen.HOME -> Unit
 
             AppScreen.PRACTICE -> {
+                selectedDeckId = null
                 currentScreen = AppScreen.HOME
             }
 
@@ -168,11 +205,9 @@ fun AppNavigation(
                 val deck = selectedDeck
 
                 if (deck?.parentDeckId != null) {
-                    selectedDeck = decks.firstOrNull {
-                        it.id == deck.parentDeckId
-                    }
+                    selectedDeckId = deck.parentDeckId
                 } else {
-                    selectedDeck = null
+                    selectedDeckId = null
                     currentScreen = AppScreen.HOME
                 }
             }
@@ -182,6 +217,7 @@ fun AppNavigation(
             }
 
             AppScreen.SETTINGS -> {
+                selectedDeckId = null
                 currentScreen = AppScreen.HOME
             }
 
@@ -195,27 +231,22 @@ fun AppNavigation(
         }
     }
 
-    // Keep the selected deck synchronized with database updates.
-    LaunchedEffect(decks) {
-        selectedDeck?.let { selected ->
-            selectedDeck = decks.firstOrNull {
-                it.id == selected.id
-            } ?: selected
-        }
-    }
-
-    // Restore the last practice session.
+    // Restore practice sessions without overriding saved navigation.
     LaunchedEffect(savedSessionSnapshot, decks) {
 
         if (
-            savedSessionSnapshot.loaded &&
-            decks.isNotEmpty() &&
-            !restorationHandled
+            !savedSessionSnapshot.loaded ||
+            decks.isEmpty()
         ) {
+            return@LaunchedEffect
+        }
+
+        val savedSession = savedSessionSnapshot.session
+
+        // First application launch: restore the last practice session.
+        if (!restorationHandled) {
 
             restorationHandled = true
-
-            val savedSession = savedSessionSnapshot.session
 
             val matchingDeck = decks.firstOrNull {
                 it.id == savedSession?.deckId
@@ -223,7 +254,7 @@ fun AppNavigation(
 
             if (savedSession != null && matchingDeck != null) {
 
-                selectedDeck = matchingDeck
+                selectedDeckId = matchingDeck.id
                 restoredSession = savedSession
 
                 viewModel.setShuffleEnabled(
@@ -231,8 +262,31 @@ fun AppNavigation(
                 )
 
                 navigationBackStack = emptyList()
-
                 currentScreen = AppScreen.PRACTICE
+            }
+
+            return@LaunchedEffect
+        }
+
+        // Activity recreation while already practicing:
+        // recover the saved session without changing screens.
+        if (
+            currentScreen == AppScreen.PRACTICE &&
+            restoredSession == null
+        ) {
+
+            val matchingSession = savedSession?.takeIf {
+                it.deckId == selectedDeckId &&
+                        decks.any { deck -> deck.id == it.deckId }
+            }
+
+            if (matchingSession != null) {
+
+                restoredSession = matchingSession
+
+                viewModel.setShuffleEnabled(
+                    matchingSession.shuffleEnabled
+                )
             }
         }
     }
@@ -375,12 +429,12 @@ fun AppNavigation(
                     },
 
                     onAdd = {
-                        editingCard = null
+                        editingCardId = null
                         navigateTo(AppScreen.EDIT)
                     },
 
                     onEdit = { card ->
-                        editingCard = card
+                        editingCardId = card.id
                         navigateTo(AppScreen.EDIT)
                     },
 
@@ -406,10 +460,6 @@ fun AppNavigation(
                             parentDeckId = deck.id,
                             moveCards = moveCards
                         ) { newDeckId ->
-
-                            // Keep the current parent selected.
-                            // The new ID triggers the rename dialog once
-                            // the updated deck list arrives from the database.
                             newlyCreatedSubdeckId = newDeckId
                         }
                     },
@@ -458,7 +508,7 @@ fun AppNavigation(
                         } else {
 
                             viewModel.updateCard(
-                                editingCard!!.copy(
+                                editingCard.copy(
                                     question = question,
                                     answer = answer
                                 )
