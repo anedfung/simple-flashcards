@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ import com.example.simpleflashcards.ui.screens.*
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.AppColorStyle
 import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
@@ -79,8 +81,10 @@ fun AppNavigation(
     viewModel: FlashcardViewModel,
     themeMode: AppThemeMode,
     colorTheme: AppColorTheme,
+    colorStyle: AppColorStyle,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
+    onColorStyleChange: (AppColorStyle) -> Unit,
     appearancePreferences: DeckAppearancePreferences,
     backupManager: FlashcardBackupManager,
     practiceSessionPreferences: PracticeSessionPreferences,
@@ -109,6 +113,24 @@ fun AppNavigation(
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    val pressBackAgainMessage =
+        stringResource(R.string.press_back_again_to_exit)
+
+    val backupExportSuccess =
+        stringResource(R.string.backup_export_success)
+
+    val backupExportFailedTemplate =
+        stringResource(R.string.backup_export_failed, "__ERROR__")
+
+    val backupImportSuccessTemplate =
+        stringResource(R.string.backup_import_success, 987654321, 987654322)
+
+    val backupImportFailedTemplate =
+        stringResource(R.string.backup_import_failed, "__ERROR__")
+
+    val unknownError =
+        stringResource(R.string.unknown_error)
 
     var currentScreen by rememberSaveable {
         mutableStateOf(AppScreen.HOME)
@@ -328,7 +350,7 @@ fun AppNavigation(
 
             Toast.makeText(
                 context,
-                context.getString(R.string.press_back_again_to_exit),
+                pressBackAgainMessage,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -525,6 +547,7 @@ fun AppNavigation(
             SettingsScreen(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
+                colorStyle = colorStyle,
 
                 appFontScale = appFontScale,
                 flashcardFontScale = flashcardFontScale,
@@ -534,6 +557,7 @@ fun AppNavigation(
 
                 onThemeModeChange = onThemeModeChange,
                 onColorThemeChange = onColorThemeChange,
+                onColorStyleChange = onColorStyleChange,
 
                 onAppFontScaleChange = onAppFontScaleChange,
                 onFlashcardFontScaleChange = onFlashcardFontScaleChange,
@@ -606,16 +630,11 @@ fun AppNavigation(
                                 uri
                             )
 
-                            context.getString(
-                                R.string.backup_export_success
-                            )
+                            backupExportSuccess
 
                         } catch (e: Exception) {
-                            context.getString(
-                                R.string.backup_export_failed,
-                                e.message
-                                    ?: context.getString(R.string.unknown_error)
-                            )
+                            backupExportFailedTemplate
+                                .replace("__ERROR__", e.message.toString())
                         }
                     }
                 },
@@ -628,18 +647,13 @@ fun AppNavigation(
                                 uri
                             )
 
-                            context.getString(
-                                R.string.backup_import_success,
-                                result.first,
-                                result.second
-                            )
+                            backupImportSuccessTemplate
+                                .replace("987654321", result.first.toString())
+                                .replace("987654322", result.second.toString())
 
                         } catch (e: Exception) {
-                            context.getString(
-                                R.string.backup_import_failed,
-                                e.message
-                                    ?: context.getString(R.string.unknown_error)
-                            )
+                            backupImportFailedTemplate
+                                .replace("__ERROR__", e.message.toString())
                         }
                     }
                 },

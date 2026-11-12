@@ -3,6 +3,7 @@ package com.example.simpleflashcards.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,11 +21,13 @@ import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.components.AppToolbar
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.AppColorStyle
 
 @Composable
 fun SettingsScreen(
     themeMode: AppThemeMode,
     colorTheme: AppColorTheme,
+    colorStyle: AppColorStyle,
     appFontScale: Float,
     flashcardFontScale: Float,
     customFlashcardFontSizeEnabled: Boolean,
@@ -32,6 +35,7 @@ fun SettingsScreen(
     onAppLanguageChange: (String) -> Unit,
     onThemeModeChange: (AppThemeMode) -> Unit,
     onColorThemeChange: (AppColorTheme) -> Unit,
+    onColorStyleChange: (AppColorStyle) -> Unit,
     onAppFontScaleChange: (Float) -> Unit,
     onFlashcardFontScaleChange: (Float) -> Unit,
     onCustomFlashcardFontSizeEnabledChange: (Boolean) -> Unit,
@@ -79,7 +83,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             AppToolbar(
-                title = stringResource(R.string.appearance),
+                title = stringResource(R.string.settings),
                 onBack = onBack
             )
         }
@@ -193,6 +197,59 @@ fun SettingsScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
+            // Color style
+
+            Text(
+                text = stringResource(R.string.color_style),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.color_style_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            AppColorStyle.values().forEach { style ->
+
+                val styleName = when (style) {
+                    AppColorStyle.ZEN ->
+                        stringResource(R.string.color_style_zen)
+
+                    AppColorStyle.VIBRANT ->
+                        stringResource(R.string.color_style_vibrant)
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 52.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = colorStyle == style,
+                        onClick = {
+                            onColorStyleChange(style)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = styleName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
             // Color theme
 
             Text(
@@ -212,6 +269,17 @@ fun SettingsScreen(
 
             AppColorTheme.values().forEach { theme ->
                 val selected = colorTheme == theme
+
+                val previewDark = when (themeMode) {
+                    AppThemeMode.SYSTEM -> isSystemInDarkTheme()
+                    AppThemeMode.LIGHT -> false
+                    AppThemeMode.DARK -> true
+                }
+
+                val previewPalette = theme.palette(
+                    style = colorStyle,
+                    darkTheme = previewDark
+                )
 
                 val themeName = when (theme) {
                     AppColorTheme.OCEAN ->
@@ -292,9 +360,10 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         listOf(
-                            theme.lightPrimary,
-                            theme.lightSecondary,
-                            theme.darkPrimary
+                            previewPalette.primary,
+                            previewPalette.secondary,
+                            previewPalette.cardStart,
+                            previewPalette.cardEnd
                         ).forEach { color ->
                             Box(
                                 modifier = Modifier

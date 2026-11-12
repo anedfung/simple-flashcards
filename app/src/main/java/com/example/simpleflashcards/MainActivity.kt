@@ -37,6 +37,7 @@ import com.example.simpleflashcards.ui.screens.LanguageSelectionScreen
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.AppColorStyle
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
@@ -80,6 +81,10 @@ class MainActivity : ComponentActivity() {
 
             val colorTheme by themePreferences.colorTheme.collectAsState(
                 initial = AppColorTheme.OCEAN
+            )
+
+            val colorStyle by themePreferences.colorStyle.collectAsState(
+                initial = AppColorStyle.ZEN
             )
 
             val appFontScale by themePreferences.appFontScale.collectAsState(
@@ -215,6 +220,7 @@ class MainActivity : ComponentActivity() {
             SimpleFlashcardsTheme(
                 themeMode = themeMode,
                 colorTheme = colorTheme,
+                colorStyle = colorStyle,
                 appFontScale = appFontScale
             ) {
 
@@ -274,6 +280,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel = viewModel,
                                 themeMode = themeMode,
                                 colorTheme = colorTheme,
+                                colorStyle = colorStyle,
 
                                 appLanguage = selectedLanguage,
 
@@ -297,6 +304,13 @@ class MainActivity : ComponentActivity() {
 
                                     scope.launch {
                                         themePreferences.setColorTheme(newTheme)
+                                    }
+                                },
+
+                                onColorStyleChange = { newStyle ->
+
+                                    scope.launch {
+                                        themePreferences.setColorStyle(newStyle)
                                     }
                                 },
 

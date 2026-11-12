@@ -117,6 +117,10 @@
     <string name="font_sans_serif">Sans serif</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monoespaciada</string>
+    <string name="color_style">Estilo de color</string>
+    <string name="color_style_description">Elige el carácter general de la paleta de colores.</string>
+    <string name="color_style_zen">Zen — tranquilo y ligero</string>
+    <string name="color_style_vibrant">Vibrante — intenso y lleno de vida</string>
 
     <!-- CSV -->
     <string name="import_csv">Importar CSV</string>

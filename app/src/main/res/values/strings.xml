@@ -87,6 +87,10 @@
     <string name="flashcards_follow_app_font_size">Flashcards follow the app font size.</string>
     <string name="flashcard_font_size">Flashcard font size</string>
     <string name="data">Data</string>
+    <string name="color_style">Color style</string>
+    <string name="color_style_description">Choose the overall feel of your color palette.</string>
+    <string name="color_style_zen">Zen — calm and airy</string>
+    <string name="color_style_vibrant">Vibrant — rich and lively</string>
 
     <!-- App color themes -->
     <string name="theme_ocean">Ocean</string>

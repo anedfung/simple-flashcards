@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
+import com.example.simpleflashcards.ui.theme.AppColorStyle
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,6 +25,7 @@ class ThemePreferences(context: Context) {
 
     private val themeKey = stringPreferencesKey("theme_mode")
     private val colorThemeKey = stringPreferencesKey("color_theme")
+    private val colorStyleKey = stringPreferencesKey("color_style")
 
     private val appFontScaleKey =
         floatPreferencesKey("app_font_scale")
@@ -45,6 +47,11 @@ class ThemePreferences(context: Context) {
     val colorTheme: Flow<AppColorTheme> =
         appContext.appSettingsDataStore.data.map { preferences ->
             AppColorTheme.fromPreference(preferences[colorThemeKey])
+        }
+
+    val colorStyle: Flow<AppColorStyle> =
+        appContext.appSettingsDataStore.data.map { preferences ->
+            AppColorStyle.fromPreference(preferences[colorStyleKey])
         }
 
     val appFontScale: Flow<Float> =
@@ -77,6 +84,12 @@ class ThemePreferences(context: Context) {
     suspend fun setColorTheme(theme: AppColorTheme) {
         appContext.appSettingsDataStore.edit { preferences ->
             preferences[colorThemeKey] = theme.name
+        }
+    }
+
+    suspend fun setColorStyle(style: AppColorStyle) {
+        appContext.appSettingsDataStore.edit { preferences ->
+            preferences[colorStyleKey] = style.name
         }
     }
 
