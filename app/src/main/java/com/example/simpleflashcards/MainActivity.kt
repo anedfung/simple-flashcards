@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards
 
 import android.os.Bundle
@@ -9,9 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.compose.runtime.LaunchedEffect
 
 import com.example.simpleflashcards.data.FlashcardBackupManager
@@ -25,7 +23,6 @@ import com.example.simpleflashcards.navigation.AppNavigation
 import com.example.simpleflashcards.ui.theme.SimpleFlashcardsTheme
 import com.example.simpleflashcards.ui.theme.AppThemeMode
 import com.example.simpleflashcards.ui.theme.AppColorTheme
-import com.example.simpleflashcards.ui.theme.FontSizeOption
 
 import com.example.simpleflashcards.viewmodel.FlashcardViewModel
 import com.example.simpleflashcards.viewmodel.FlashcardViewModelFactory
@@ -83,25 +80,48 @@ class MainActivity : ComponentActivity() {
 
             val scope = rememberCoroutineScope()
 
+            // Empty string means the saved language has not loaded yet.
             val appLanguage by themePreferences.appLanguage.collectAsState(
-                initial = "en"
+                initial = ""
             )
 
             LaunchedEffect(appLanguage) {
-                if (android.os.Build.VERSION.SDK_INT >=
+
+                // Do not apply a fallback language while DataStore loads.
+                if (appLanguage.isBlank()) {
+                    return@LaunchedEffect
+                }
+
+                if (
+                    android.os.Build.VERSION.SDK_INT >=
                     android.os.Build.VERSION_CODES.TIRAMISU
                 ) {
+
                     val localeManager =
                         getSystemService(android.app.LocaleManager::class.java)
 
-                    localeManager.applicationLocales =
-                        android.os.LocaleList.forLanguageTags(appLanguage)
-                }
+                    val currentLanguage =
+                        localeManager.applicationLocales.toLanguageTags()
 
-                android.util.Log.d(
-                    "AppLanguage",
-                    "Selected language: $appLanguage"
-                )
+                    // Only update Android's locale when it actually differs.
+                    if (currentLanguage != appLanguage) {
+
+                        android.util.Log.d(
+                            "AppLanguage",
+                            "Applying language: $appLanguage (current: $currentLanguage)"
+                        )
+
+                        localeManager.applicationLocales =
+                            android.os.LocaleList.forLanguageTags(appLanguage)
+
+                    } else {
+
+                        android.util.Log.d(
+                            "AppLanguage",
+                            "Language already applied: $appLanguage"
+                        )
+                    }
+                }
             }
 
             SimpleFlashcardsTheme(
@@ -109,6 +129,7 @@ class MainActivity : ComponentActivity() {
                 colorTheme = colorTheme,
                 appFontScale = appFontScale
             ) {
+
                 AppNavigation(
                     viewModel = viewModel,
                     themeMode = themeMode,
@@ -142,7 +163,8 @@ class MainActivity : ComponentActivity() {
 
                     appFontScale = appFontScale,
                     flashcardFontScale = flashcardFontScale,
-                    customFlashcardFontSizeEnabled = customFlashcardFontSizeEnabled,
+                    customFlashcardFontSizeEnabled =
+                        customFlashcardFontSizeEnabled,
 
                     onAppFontScaleChange = { newScale ->
                         scope.launch {
@@ -158,7 +180,9 @@ class MainActivity : ComponentActivity() {
 
                     onCustomFlashcardFontSizeEnabledChange = { enabled ->
                         scope.launch {
-                            themePreferences.setCustomFlashcardFontSizeEnabled(enabled)
+                            themePreferences.setCustomFlashcardFontSizeEnabled(
+                                enabled
+                            )
                         }
                     },
                 )
