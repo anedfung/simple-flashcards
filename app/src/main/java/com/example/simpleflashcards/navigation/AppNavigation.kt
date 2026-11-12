@@ -230,61 +230,61 @@ fun AppNavigation(
         }
     }
 
-    LaunchedEffect(savedSessionSnapshot, decks) {
-
-        if (
-            !savedSessionSnapshot.loaded ||
-            decks.isEmpty()
-        ) {
-            return@LaunchedEffect
-        }
-
-        val savedSession = savedSessionSnapshot.session
-
-        if (!restorationHandled) {
-
-            restorationHandled = true
-
-            val matchingDeck = decks.firstOrNull {
-                it.id == savedSession?.deckId
-            }
-
-            if (savedSession != null && matchingDeck != null) {
-
-                selectedDeckId = matchingDeck.id
-                restoredSession = savedSession
-
-                viewModel.setShuffleEnabled(
-                    savedSession.shuffleEnabled
-                )
-
-                navigationBackStack = emptyList()
-                currentScreen = AppScreen.PRACTICE
-            }
-
-            return@LaunchedEffect
-        }
-
-        if (
-            currentScreen == AppScreen.PRACTICE &&
-            restoredSession == null
-        ) {
-
-            val matchingSession = savedSession?.takeIf {
-                it.deckId == selectedDeckId &&
-                        decks.any { deck -> deck.id == it.deckId }
-            }
-
-            if (matchingSession != null) {
-
-                restoredSession = matchingSession
-
-                viewModel.setShuffleEnabled(
-                    matchingSession.shuffleEnabled
-                )
-            }
-        }
-    }
+//    LaunchedEffect(savedSessionSnapshot, decks) {
+//
+//        if (
+//            !savedSessionSnapshot.loaded ||
+//            decks.isEmpty()
+//        ) {
+//            return@LaunchedEffect
+//        }
+//
+//        val savedSession = savedSessionSnapshot.session
+//
+//        if (!restorationHandled) {
+//
+//            restorationHandled = true
+//
+//            val matchingDeck = decks.firstOrNull {
+//                it.id == savedSession?.deckId
+//            }
+//
+//            if (savedSession != null && matchingDeck != null) {
+//
+//                selectedDeckId = matchingDeck.id
+//                restoredSession = savedSession
+//
+//                viewModel.setShuffleEnabled(
+//                    savedSession.shuffleEnabled
+//                )
+//
+//                navigationBackStack = emptyList()
+//                currentScreen = AppScreen.PRACTICE
+//            }
+//
+//            return@LaunchedEffect
+//        }
+//
+//        if (
+//            currentScreen == AppScreen.PRACTICE &&
+//            restoredSession == null
+//        ) {
+//
+//            val matchingSession = savedSession?.takeIf {
+//                it.deckId == selectedDeckId &&
+//                        decks.any { deck -> deck.id == it.deckId }
+//            }
+//
+//            if (matchingSession != null) {
+//
+//                restoredSession = matchingSession
+//
+//                viewModel.setShuffleEnabled(
+//                    matchingSession.shuffleEnabled
+//                )
+//            }
+//        }
+//    }
 
     val selectedDeckIds = selectedDeck?.let { deck ->
         getDescendantDeckIds(deck.id, decks)
