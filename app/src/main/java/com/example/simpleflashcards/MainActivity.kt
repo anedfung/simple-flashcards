@@ -128,7 +128,9 @@ class MainActivity : ComponentActivity() {
             }
 
             // Loading overlay starts visible whenever a language is loaded.
-            var showLoadingOverlay by remember(selectedLanguage) {
+            // Keep the loading overlay visible across the entire transition.
+            // It resets to visible when Android recreates the Activity.
+            var showLoadingOverlay by remember {
                 mutableStateOf(true)
             }
 
@@ -182,15 +184,30 @@ class MainActivity : ComponentActivity() {
                 initialLoadingFinished
             ) {
 
-                if (
-                    selectedLanguage != null &&
-                    selectedLanguage != LANGUAGE_LOADING &&
-                    localeReady &&
-                    initialLoadingFinished
-                ) {
+                if (!initialLoadingFinished) {
+                    return@LaunchedEffect
+                }
 
-                    delay(400)
+                // First installation: show language selection.
+                if (selectedLanguage == null) {
+                    showLoadingOverlay = false
+                    return@LaunchedEffect
+                }
 
+                if (selectedLanguage == LANGUAGE_LOADING) {
+                    return@LaunchedEffect
+                }
+
+                // Wait until Android has applied the selected locale.
+                if (localeReady) {
+
+                    // Allow the home screen to compose and render first.
+                    androidx.compose.runtime.withFrameNanos { }
+
+                    // Give the home screen additional time to initialize.
+                    delay(900)
+
+                    // Finally, reveal the application.
                     showLoadingOverlay = false
                 }
             }
@@ -201,43 +218,57 @@ class MainActivity : ComponentActivity() {
                 appFontScale = appFontScale
             ) {
 
-                when {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
 
-                    // 1. Initial loading or saving a new language.
-                    !initialLoadingFinished ||
-                            selectedLanguage == LANGUAGE_LOADING ||
-                            isSavingLanguage -> {
+                    // -------------------------------------------------
+                    // MAIN APPLICATION CONTENT
+                    // -------------------------------------------------
 
-                        LoadingScreen()
-                    }
+                    when {
 
-                    // 2. First installation: no language selected.
-                    selectedLanguage == null -> {
+                        // Initial loading or language being saved.
+                        !initialLoadingFinished ||
+                                selectedLanguage == LANGUAGE_LOADING ||
+                                isSavingLanguage -> {
 
-                        LanguageSelectionScreen(
-                            onLanguageSelected = { language ->
+                            // Keep the background ready underneath.
+                        }
 
-                                isSavingLanguage = true
+                        // First installation: choose a language.
+                        selectedLanguage == null -> {
 
-                                scope.launch {
-                                    themePreferences.setAppLanguage(language)
+                            LanguageSelectionScreen(
+                                onLanguageSelected = { language ->
+
+                                    // Immediately activate the loading overlay.
+                                    showLoadingOverlay = true
+
+                                    isSavingLanguage = true
+
+                                    scope.launch {
+
+                                        // Give Compose time to display the overlay.
+                                        delay(250)
+
+                                        // Save the selected language.
+                                        themePreferences.setAppLanguage(language)
+                                    }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
 
-                    // 3. Wait for Android to apply the locale.
-                    !localeReady -> {
+                        // Wait for Android to apply the locale.
+                        !localeReady -> {
 
-                        LoadingScreen()
-                    }
+                            // Loading screen remains above everything.
+                        }
 
-                    // 4. Compose the application under the loading overlay.
-                    else -> {
-
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
+                        // Locale is ready: compose the actual application.
+                        else -> {
 
                             AppNavigation(
                                 viewModel = viewModel,
@@ -275,6 +306,7 @@ class MainActivity : ComponentActivity() {
 
                                 appFontScale = appFontScale,
                                 flashcardFontScale = flashcardFontScale,
+
                                 customFlashcardFontSizeEnabled =
                                     customFlashcardFontSizeEnabled,
 
@@ -301,21 +333,31 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
-
-                            // Loading overlay fades away after the app
-                            // has had time to initialize.
-                            AnimatedVisibility(
-                                visible = showLoadingOverlay,
-                                modifier = Modifier.fillMaxSize(),
-                                exit = fadeOut(
-                                    animationSpec = tween(
-                                        durationMillis = 500
-                                    )
-                                )
-                            ) {
-                                LoadingScreen()
-                            }
                         }
+                    }
+
+                    // -------------------------------------------------
+                    // GLOBAL LOADING OVERLAY
+                    // -------------------------------------------------
+
+                    AnimatedVisibility(
+                        visible =
+                            showLoadingOverlay ||
+                                    !initialLoadingFinished ||
+                                    selectedLanguage == LANGUAGE_LOADING ||
+                                    isSavingLanguage ||
+                                    (selectedLanguage != null && !localeReady),
+
+                        modifier = Modifier.fillMaxSize(),
+
+                        exit = fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 500
+                            )
+                        )
+                    ) {
+
+                        LoadingScreen()
                     }
                 }
             }
