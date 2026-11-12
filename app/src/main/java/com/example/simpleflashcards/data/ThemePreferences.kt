@@ -62,9 +62,10 @@ class ThemePreferences(context: Context) {
             preferences[customFlashcardFontSizeEnabledKey] ?: false
         }
 
-    val appLanguage: Flow<String> =
+    // Null means the user has not selected a language yet.
+    val appLanguage: Flow<String?> =
         appContext.appSettingsDataStore.data.map { preferences ->
-            preferences[appLanguageKey] ?: "en"
+            preferences[appLanguageKey]
         }
 
     suspend fun setThemeMode(mode: AppThemeMode) {
