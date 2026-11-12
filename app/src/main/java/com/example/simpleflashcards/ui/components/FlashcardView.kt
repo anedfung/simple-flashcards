@@ -4,12 +4,17 @@ package com.example.simpleflashcards.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -19,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.simpleflashcards.R
 import com.example.simpleflashcards.ui.theme.DeckAppearance
 import com.example.simpleflashcards.ui.theme.ComponentStyles
+import com.example.simpleflashcards.ui.theme.LocalFlashcardGradientColors
 
 @Composable
 fun FlashcardView(
@@ -37,6 +43,10 @@ fun FlashcardView(
         appearance.questionColor
     }
 
+    val gradientColors = LocalFlashcardGradientColors.current
+
+    val usesDefaultColor = selectedColor.background == null
+
     val backgroundColor =
         selectedColor.background ?: MaterialTheme.colorScheme.surfaceVariant
 
@@ -47,14 +57,27 @@ fun FlashcardView(
 
     val activeText = if (revealed) answer else question
 
+    val cardShape = ComponentStyles.Flashcard.Shape
+
+    val cardBackgroundModifier = if (usesDefaultColor) {
+        Modifier.background(
+            brush = Brush.verticalGradient(
+                colors = gradientColors
+            ),
+            shape = cardShape
+        )
+    } else {
+        Modifier.background(
+            color = backgroundColor,
+            shape = cardShape
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = ComponentStyles.Flashcard.MinHeight)
-            .background(
-                backgroundColor,
-                ComponentStyles.Flashcard.Shape
-            )
+            .then(cardBackgroundModifier)
             .clickable {
                 revealed = !revealed
             }
