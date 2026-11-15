@@ -15,6 +15,96 @@ import com.example.simpleflashcards.R
 import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 
+/**
+ * Represents a deck and its indentation level in the hierarchy.
+ */
+private data class DeckTreeItem(
+    val deck: Deck,
+    val depth: Int
+)
+
+/**
+ * Converts the flat deck list into a hierarchical list.
+ *
+ * The original deck objects and IDs are preserved.
+ */
+private fun buildDeckTree(decks: List<Deck>): List<DeckTreeItem> {
+    val result = mutableListOf<DeckTreeItem>()
+    val visited = mutableSetOf<Int>()
+
+    fun addChildren(parentId: Int?, depth: Int) {
+        decks
+            .filter { it.parentDeckId == parentId }
+            .forEach { deck ->
+
+                // Prevent infinite recursion if invalid cyclic data exists.
+                if (visited.add(deck.id)) {
+                    result.add(
+                        DeckTreeItem(
+                            deck = deck,
+                            depth = depth
+                        )
+                    )
+
+                    addChildren(deck.id, depth + 1)
+                }
+            }
+    }
+
+    // Start with root decks.
+    addChildren(null, 0)
+
+    // Include any orphaned or cyclic entries instead of hiding them.
+    decks.forEach { deck ->
+        if (visited.add(deck.id)) {
+            result.add(
+                DeckTreeItem(
+                    deck = deck,
+                    depth = 0
+                )
+            )
+
+            addChildren(deck.id, 1)
+        }
+    }
+
+    return result
+}
+
+/**
+ * A single selectable deck in the hierarchy.
+ */
+@Composable
+private fun DeckTreeOption(
+    item: DeckTreeItem,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding((item.depth * 20).dp, 4.dp, 0.dp, 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            enabled = enabled,
+            onClick = onClick
+        )
+
+        Text(
+            text = item.deck.name,
+            modifier = Modifier.padding(start = 8.dp),
+            color = if (enabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
+    }
+}
+
 @Composable
 fun MoveCardsDialog(
     currentDeck: Deck,
@@ -24,8 +114,12 @@ fun MoveCardsDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
-    var destinationId by remember(currentDeck.id, selectedCardIds) {
+    var destinationId by remember(currentDeck.id) {
         mutableStateOf<Int?>(null)
+    }
+
+    val deckTree = remember(allDecks) {
+        buildDeckTree(allDecks)
     }
 
     val parent = allDecks.firstOrNull {
@@ -38,25 +132,40 @@ fun MoveCardsDialog(
 
     val allSourceCardsSelected =
         sourceCards.isNotEmpty() &&
-                selectedCardIds.size == sourceCards.size
+                selectedCardIds.size == sourceCards.size &&
+                sourceCards.all { it.id in selectedCardIds }
 
-    val eligibleDecks = allDecks.filter { destination ->
+    val eligibleDeckIds = remember(
+        currentDeck.id,
+        allDecks,
+        allSourceCardsSelected
+    ) {
+        allDecks.filter { destination ->
 
-        if (destination.id == currentDeck.id) {
-            return@filter false
+            if (destination.id == currentDeck.id) {
+                return@filter false
+            }
+
+            val children = allDecks.filter {
+                it.parentDeckId == destination.id
+            }
+
+            val isSpecialParentDestination =
+                destination.id == parent?.id &&
+                        parentChildren.size == 1 &&
+                        parentChildren.firstOrNull()?.id == currentDeck.id &&
+                        allSourceCardsSelected
+
+            children.isEmpty() || isSpecialParentDestination
+
+        }.map { it.id }.toSet()
+    }
+
+    // Clear the destination if it becomes invalid after selection changes.
+    LaunchedEffect(eligibleDeckIds) {
+        if (destinationId !in eligibleDeckIds) {
+            destinationId = null
         }
-
-        val children = allDecks.filter {
-            it.parentDeckId == destination.id
-        }
-
-        val isSpecialParentDestination =
-            destination.id == parent?.id &&
-                    parentChildren.size == 1 &&
-                    parentChildren.firstOrNull()?.id == currentDeck.id &&
-                    allSourceCardsSelected
-
-        children.isEmpty() || isSpecialParentDestination
     }
 
     AlertDialog(
@@ -80,31 +189,25 @@ fun MoveCardsDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                if (eligibleDecks.isEmpty()) {
+                if (eligibleDeckIds.isEmpty()) {
                     Text(
                         stringResource(
                             R.string.no_valid_flashcard_destinations
                         )
                     )
-                }
+                } else {
+                    deckTree.forEach { item ->
 
-                eligibleDecks.forEach { deck ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = destinationId == deck.id,
+                        val eligible =
+                            item.deck.id in eligibleDeckIds
+
+                        DeckTreeOption(
+                            item = item,
+                            selected = destinationId == item.deck.id,
+                            enabled = eligible,
                             onClick = {
-                                destinationId = deck.id
+                                destinationId = item.deck.id
                             }
-                        )
-
-                        Text(
-                            text = deck.name,
-                            modifier = Modifier.padding(start = 8.dp)
                         )
                     }
                 }
@@ -115,7 +218,8 @@ fun MoveCardsDialog(
                 onClick = {
                     destinationId?.let(onConfirm)
                 },
-                enabled = destinationId != null
+                enabled = destinationId != null &&
+                        destinationId in eligibleDeckIds
             ) {
                 Text(stringResource(R.string.move))
             }
@@ -152,6 +256,10 @@ fun MoveDeckDialog(
         it.deckId == movingDeck.id
     }
 
+    val deckTree = remember(allDecks) {
+        buildDeckTree(allDecks)
+    }
+
     val descendantIds = remember(movingDeck.id, allDecks) {
         val result = mutableSetOf<Int>()
         val pending = ArrayDeque<Int>()
@@ -173,33 +281,52 @@ fun MoveDeckDialog(
         result
     }
 
-    val eligibleDestinations = allDecks.filter { destination ->
+    val eligibleDestinationIds = remember(
+        movingDeck.id,
+        movingDeck.parentDeckId,
+        movingDeckHasCards,
+        allDecks,
+        descendantIds
+    ) {
+        allDecks.filter { destination ->
 
-        if (destination.id == movingDeck.id) {
-            return@filter false
-        }
+            if (destination.id == movingDeck.id) {
+                return@filter false
+            }
 
-        if (destination.id in descendantIds) {
-            return@filter false
-        }
+            if (destination.id in descendantIds) {
+                return@filter false
+            }
 
-        if (destination.id == movingDeck.parentDeckId) {
-            return@filter false
-        }
+            if (destination.id == movingDeck.parentDeckId) {
+                return@filter false
+            }
 
-        val destinationHasChildren = allDecks.any {
-            it.parentDeckId == destination.id
-        }
+            val destinationHasChildren = allDecks.any {
+                it.parentDeckId == destination.id
+            }
 
-        // A deck with direct flashcards cannot be moved into
-        // a destination that already contains subdecks.
-        !(movingDeckHasCards && destinationHasChildren)
+            // A deck with direct flashcards cannot be moved into
+            // a destination that already contains subdecks.
+            !(movingDeckHasCards && destinationHasChildren)
+
+        }.map { it.id }.toSet()
     }
 
     val selectedDestination = destinationKey
         ?.takeIf { it != "root" }
         ?.removePrefix("deck:")
         ?.toIntOrNull()
+
+    // Clear an invalid selection if the available destinations change.
+    LaunchedEffect(eligibleDestinationIds) {
+        if (
+            selectedDestination != null &&
+            selectedDestination !in eligibleDestinationIds
+        ) {
+            destinationKey = null
+        }
+    }
 
     if (showWarning) {
         val destination = allDecks.firstOrNull {
@@ -274,27 +401,25 @@ fun MoveDeckDialog(
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
-                    eligibleDestinations.forEach { deck ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = destinationKey == "deck:${deck.id}",
-                                onClick = {
-                                    destinationKey = "deck:${deck.id}"
-                                }
-                            )
+                    deckTree.forEach { item ->
 
-                            Text(
-                                text = deck.name,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
+                        val eligible =
+                            item.deck.id in eligibleDestinationIds
+
+                        DeckTreeOption(
+                            item = item,
+                            selected = destinationKey == "deck:${item.deck.id}",
+                            enabled = eligible,
+                            onClick = {
+                                destinationKey = "deck:${item.deck.id}"
+                            }
+                        )
                     }
                 }
             },
@@ -306,7 +431,10 @@ fun MoveDeckDialog(
                         } else {
                             val targetId = selectedDestination
 
-                            if (targetId != null) {
+                            if (
+                                targetId != null &&
+                                targetId in eligibleDestinationIds
+                            ) {
                                 val targetHasCards = cards.any {
                                     it.deckId == targetId
                                 }
@@ -320,7 +448,8 @@ fun MoveDeckDialog(
                             }
                         }
                     },
-                    enabled = destinationKey != null
+                    enabled = destinationKey == "root" ||
+                            selectedDestination in eligibleDestinationIds
                 ) {
                     Text(stringResource(R.string.continue_label))
                 }
