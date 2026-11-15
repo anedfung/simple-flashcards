@@ -53,10 +53,27 @@
     <string name="delete_flashcard_title">Delete flashcard?</string>
     <string name="delete_flashcard_message">Are you sure you want to delete this flashcard?</string>
 
-    <!-- Moving flashcards into a subdeck -->
+    <!-- Moving flashcards and decks -->
+    <string name="move">Move</string>
+    <string name="select_flashcards">Select flashcards</string>
+    <string name="select_all">Select all</string>
+    <string name="deselect_all">Deselect all</string>
+    <string name="move_selected_count">Move (%1$d)</string>
     <string name="move_flashcards_title">Move flashcards?</string>
-    <string name="move_flashcards_message">This deck currently contains %1$d flashcards. To create subdecks, these cards must be moved into a new subdeck named "%2$s". You can rename it afterward.</string>
-    <string name="move_cards_create_subdeck">Move cards and create subdeck</string>
+    <string name="move_flashcards_message">Move selected flashcards to another deck.</string>
+    <string name="move_flashcards_selection_count">%1$d flashcards selected.</string>
+    <string name="no_valid_flashcard_destinations">There are no eligible destination decks</string>
+    <string name="move_cards_create_subdeck">Move flashcards into a new subdeck</string>
+
+    <string name="move_deck">Move deck</string>
+    <string name="move_deck_title">Move deck</string>
+    <string name="move_to_root">Move to root</string>
+    <string name="continue_label">Continue</string>
+
+    <string name="move_deck_warning_title">Move deck?</string>
+    <string name="move_deck_cards_warning">Moving "%1$s" into "%2$s" will move the flashcards currently in "%2$s" into a new subdeck named "%3$s".</string>
+
+    <string name="move_success">Moved successfully.</string>
 
     <!-- Practice -->
     <string name="practice">Practice</string>

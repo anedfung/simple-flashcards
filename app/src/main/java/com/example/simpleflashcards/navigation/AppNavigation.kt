@@ -132,6 +132,9 @@ fun AppNavigation(
     val unknownError =
         stringResource(R.string.unknown_error)
 
+    val moveSuccessMessage =
+        stringResource(R.string.move_success)
+
     var currentScreen by rememberSaveable {
         mutableStateOf(AppScreen.HOME)
     }
@@ -385,6 +388,32 @@ fun AppNavigation(
                     viewModel.deleteDeck(deck)
                 },
 
+                onMoveDeck = { movingDeck, destinationId, confirmed ->
+
+                    viewModel.moveDeck(
+                        deckId = movingDeck.id,
+                        destinationDeckId = destinationId,
+                        moveExistingCardsToSubdeck = confirmed
+                    ) { result ->
+
+                        result.onSuccess {
+                            Toast.makeText(
+                                context,
+                                moveSuccessMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        result.onFailure { error ->
+                            Toast.makeText(
+                                context,
+                                error.message ?: unknownError,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                },
+
                 onSettings = {
                     navigateTo(AppScreen.SETTINGS, null)
                 }
@@ -498,7 +527,77 @@ fun AppNavigation(
 
                     onCustomize = {
                         navigateTo(AppScreen.DECK_APPEARANCE)
-                    }
+                    },
+
+                    onMoveCards = { cardIds, destinationId ->
+
+                        viewModel.moveCards(
+                            cardIds = cardIds,
+                            destinationDeckId = destinationId
+                        ) { result ->
+
+                            result.onSuccess {
+
+                                Toast.makeText(
+                                    context,
+                                    moveSuccessMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                // Moving all cards into the current deck's parent
+                                // causes the database to delete the source deck.
+                                if (destinationId == deck.parentDeckId) {
+
+                                    val previous = navigationBackStack.lastOrNull()
+
+                                    if (
+                                        previous?.screen == AppScreen.MANAGE &&
+                                        previous.deckId == destinationId
+                                    ) {
+                                        navigationBackStack =
+                                            navigationBackStack.dropLast(1)
+                                    }
+
+                                    selectedDeckId = destinationId
+                                    currentScreen = AppScreen.MANAGE
+                                }
+                            }
+
+                            result.onFailure { error ->
+                                Toast.makeText(
+                                    context,
+                                    error.message ?: unknownError,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    },
+
+                    onMoveDeck = { movingDeck, destinationId, confirmed ->
+
+                        viewModel.moveDeck(
+                            deckId = movingDeck.id,
+                            destinationDeckId = destinationId,
+                            moveExistingCardsToSubdeck = confirmed
+                        ) { result ->
+
+                            result.onSuccess {
+                                Toast.makeText(
+                                    context,
+                                    moveSuccessMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            result.onFailure { error ->
+                                Toast.makeText(
+                                    context,
+                                    error.message ?: unknownError,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    },
                 )
             }
         }

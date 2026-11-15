@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.data
 
 import androidx.room.*
@@ -11,6 +12,9 @@ interface DeckDao {
 
     @Query("SELECT * FROM decks ORDER BY createdAt ASC")
     suspend fun getAllNow(): List<Deck>
+
+    @Query("SELECT * FROM decks WHERE id = :deckId LIMIT 1")
+    suspend fun getById(deckId: Int): Deck?
 
     @Query(
         """
