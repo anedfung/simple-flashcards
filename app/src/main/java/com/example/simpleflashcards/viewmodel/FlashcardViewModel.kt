@@ -9,6 +9,7 @@ import com.example.simpleflashcards.data.Deck
 import com.example.simpleflashcards.data.Flashcard
 import com.example.simpleflashcards.data.FlashcardRepository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -32,7 +33,9 @@ class FlashcardViewModel(
 
     val shuffleEnabled = _shuffleEnabled.asStateFlow()
 
-    // Deck operations
+    // ---------------------------------------------------------
+    // DECK OPERATIONS
+    // ---------------------------------------------------------
 
     fun addDeck(name: String) {
         if (name.isBlank()) return
@@ -84,7 +87,40 @@ class FlashcardViewModel(
         }
     }
 
-    // Flashcard operations
+    /**
+     * Moves a deck into another deck.
+     *
+     * Set moveExistingCardsToSubdeck to true only after
+     * the user has confirmed the conversion.
+     */
+    fun moveDeck(
+        deckId: Int,
+        destinationDeckId: Int?,
+        moveExistingCardsToSubdeck: Boolean = false,
+        onResult: (Result<Unit>) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.moveDeck(
+                    deckId = deckId,
+                    destinationDeckId = destinationDeckId,
+                    moveExistingCardsToSubdeck = moveExistingCardsToSubdeck
+                )
+
+                onResult(Result.success(Unit))
+
+            } catch (exception: CancellationException) {
+                throw exception
+
+            } catch (exception: Exception) {
+                onResult(Result.failure(exception))
+            }
+        }
+    }
+
+    // ---------------------------------------------------------
+    // FLASHCARD OPERATIONS
+    // ---------------------------------------------------------
 
     fun addCard(
         question: String,
@@ -129,13 +165,44 @@ class FlashcardViewModel(
         }
     }
 
+    /**
+     * Moves selected flashcards into another deck.
+     *
+     * The database handles the special parent-deck case,
+     * including deleting the source deck when appropriate.
+     */
+    fun moveCards(
+        cardIds: List<Int>,
+        destinationDeckId: Int,
+        onResult: (Result<Unit>) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.moveCards(
+                    cardIds = cardIds,
+                    destinationDeckId = destinationDeckId
+                )
+
+                onResult(Result.success(Unit))
+
+            } catch (exception: CancellationException) {
+                throw exception
+
+            } catch (exception: Exception) {
+                onResult(Result.failure(exception))
+            }
+        }
+    }
+
     fun deleteCard(card: Flashcard) {
         viewModelScope.launch {
             repository.deleteCard(card)
         }
     }
 
-    // Practice settings
+    // ---------------------------------------------------------
+    // PRACTICE SETTINGS
+    // ---------------------------------------------------------
 
     fun toggleShuffle() {
         _shuffleEnabled.value = !_shuffleEnabled.value

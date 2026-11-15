@@ -29,10 +29,12 @@ fun HomeScreen(
     onAddDeck: (String) -> Unit,
     onRenameDeck: (Deck, String) -> Unit,
     onDeleteDeck: (Deck) -> Unit,
+    onMoveDeck: (Deck, Int?, Boolean) -> Unit,
     onSettings: () -> Unit
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var deckToRename by remember { mutableStateOf<Deck?>(null) }
+    var deckToMove by remember { mutableStateOf<Deck?>(null) }
     var deckToDelete by remember { mutableStateOf<Deck?>(null) }
 
     val rootDecks = decks.filter {
@@ -162,6 +164,14 @@ fun HomeScreen(
 
                                 TextButton(
                                     onClick = {
+                                        deckToMove = deck
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.move))
+                                }
+
+                                TextButton(
+                                    onClick = {
                                         if (rootDecks.size > 1) {
                                             deckToDelete = deck
                                         }
@@ -200,6 +210,26 @@ fun HomeScreen(
             onConfirm = {
                 onRenameDeck(deck, it)
                 deckToRename = null
+            }
+        )
+    }
+
+    deckToMove?.let { movingDeck ->
+        MoveDeckDialog(
+            movingDeck = movingDeck,
+            allDecks = decks,
+            cards = cards,
+            onDismiss = {
+                deckToMove = null
+            },
+            onConfirm = { destinationId, confirmed ->
+                onMoveDeck(
+                    movingDeck,
+                    destinationId,
+                    confirmed
+                )
+
+                deckToMove = null
             }
         )
     }

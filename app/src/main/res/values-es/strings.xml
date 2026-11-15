@@ -53,10 +53,27 @@
     <string name="delete_flashcard_title">¿Eliminar ficha?</string>
     <string name="delete_flashcard_message">¿Seguro que quieres eliminar esta ficha?</string>
 
-    <!-- Movimiento de fichas a un subfichero -->
-    <string name="move_flashcards_title">¿Mover fichas?</string>
-    <string name="move_flashcards_message">Este fichero contiene actualmente %1$d fichas. Para crear subficheros, estas fichas deben trasladarse a un nuevo subfichero llamado "%2$s". Después podrás cambiarle el nombre.</string>
-    <string name="move_cards_create_subdeck">Mover fichas y crear subfichero</string>
+    <!-- Movimiento de fichas y ficheros -->
+    <string name="move">Mover</string>
+    <string name="select_flashcards">Seleccionar fichas</string>
+    <string name="select_all">Seleccionar todas</string>
+    <string name="deselect_all">Deseleccionar todas</string>
+    <string name="move_selected_count">Mover (%1$d)</string>
+    <string name="move_flashcards_title">Mover fichas?</string>
+    <string name="move_flashcards_message">Mover las fichas seleccionadas a otro fichero.</string>
+    <string name="move_flashcards_selection_count">Se han seleccionado %1$d fichas.</string>
+    <string name="no_valid_flashcard_destinations">No hay ficheros disponibles como destino.</string>
+    <string name="move_cards_create_subdeck">Mover fichas a un nuevo fichero.</string>
+
+    <string name="move_deck">Mover fichero</string>
+    <string name="move_deck_title">Mover fichero</string>
+    <string name="move_to_root">Mover a la raíz</string>
+    <string name="continue_label">Continuar</string>
+
+    <string name="move_deck_warning_title">¿Mover fichero?</string>
+    <string name="move_deck_cards_warning">Al mover "%1$s" dentro de "%2$s", las fichas que actualmente contiene "%2$s" se trasladarán a un nuevo subfichero llamado "%3$s".</string>
+
+    <string name="move_success">Se ha movido correctamente.</string>
 
     <!-- Práctica -->
     <string name="practice">Practicar</string>

@@ -1,3 +1,4 @@
+
 package com.example.simpleflashcards.data
 
 import androidx.room.*
@@ -13,8 +14,11 @@ interface FlashcardDao {
     suspend fun getAllNow(): List<Flashcard>
 
     @Query(
-        "SELECT * FROM flashcards " +
-                "WHERE deckId = :deckId ORDER BY id ASC"
+        """
+        SELECT * FROM flashcards
+        WHERE deckId = :deckId
+        ORDER BY id ASC
+        """
     )
     fun getByDeck(deckId: Int): Flow<List<Flashcard>>
 
@@ -34,10 +38,26 @@ interface FlashcardDao {
     suspend fun deleteAll()
 
     @Query(
-        "UPDATE flashcards SET deckId = :newDeckId WHERE deckId = :oldDeckId"
+        """
+        UPDATE flashcards
+        SET deckId = :newDeckId
+        WHERE deckId = :oldDeckId
+        """
     )
     suspend fun moveCardsToDeck(
         oldDeckId: Int,
         newDeckId: Int
+    )
+
+    @Query(
+        """
+        UPDATE flashcards
+        SET deckId = :destinationDeckId
+        WHERE id IN (:cardIds)
+        """
+    )
+    suspend fun moveSelectedCards(
+        cardIds: List<Int>,
+        destinationDeckId: Int
     )
 }

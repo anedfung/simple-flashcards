@@ -1,6 +1,7 @@
 
 package com.example.simpleflashcards.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,7 +45,9 @@ fun ManageScreen(
     onRenameSubdeck: (Deck, String) -> Unit,
     onDeleteSubdeck: (Deck) -> Unit,
     onImportCards: (List<CsvFlashcard>) -> Unit,
-    onCustomize: () -> Unit
+    onCustomize: () -> Unit,
+    onMoveCards: (List<Int>, Int) -> Unit,
+    onMoveDeck: (Deck, Int?, Boolean) -> Unit,
 ) {
     var cardToDelete by remember {
         mutableStateOf<Flashcard?>(null)
@@ -62,6 +65,22 @@ fun ManageScreen(
         mutableStateOf<Deck?>(null)
     }
 
+    var selectionMode by remember(deckId) {
+        mutableStateOf(false)
+    }
+
+    var selectedCardIds by remember(deckId) {
+        mutableStateOf(setOf<Int>())
+    }
+
+    var showMoveCardsDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var deckToMove by remember {
+        mutableStateOf<Deck?>(null)
+    }
+
     val directCards = cards.filter {
         it.deckId == deckId
     }
@@ -71,6 +90,19 @@ fun ManageScreen(
     LaunchedEffect(newSubdeckToRename?.id) {
         newSubdeckToRename?.let {
             deckToRename = it
+        }
+    }
+
+    LaunchedEffect(directCards) {
+        val availableIds = directCards.map { it.id }.toSet()
+        selectedCardIds = selectedCardIds.intersect(availableIds)
+    }
+
+    fun toggleCardSelection(cardId: Int) {
+        selectedCardIds = if (cardId in selectedCardIds) {
+            selectedCardIds - cardId
+        } else {
+            selectedCardIds + cardId
         }
     }
 
@@ -234,6 +266,14 @@ fun ManageScreen(
 
                                     TextButton(
                                         onClick = {
+                                            deckToMove = subdeck
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.move))
+                                    }
+
+                                    TextButton(
+                                        onClick = {
                                             subdeckToDelete = subdeck
                                         }
                                     ) {
@@ -262,6 +302,69 @@ fun ManageScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = {
+                            selectionMode = !selectionMode
+                            selectedCardIds = emptySet()
+                        }
+                    ) {
+                        Text(
+                            stringResource(
+                                if (selectionMode) R.string.cancel
+                                else R.string.select_flashcards
+                            )
+                        )
+                    }
+
+                    if (selectionMode) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    selectedCardIds =
+                                        if (selectedCardIds.size == directCards.size) {
+                                            emptySet()
+                                        } else {
+                                            directCards.map { it.id }.toSet()
+                                        }
+                                }
+                            ) {
+                                Text(
+                                    stringResource(
+                                        if (selectedCardIds.size == directCards.size) {
+                                            R.string.deselect_all
+                                        } else {
+                                            R.string.select_all
+                                        }
+                                    )
+                                )
+                            }
+
+                            Button(
+                                onClick = {
+                                    showMoveCardsDialog = true
+                                },
+                                enabled = selectedCardIds.isNotEmpty()
+                            ) {
+                                Text(
+                                    stringResource(
+                                        R.string.move_selected_count,
+                                        selectedCardIds.size
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -272,10 +375,26 @@ fun ManageScreen(
                     ) { card ->
 
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (selectionMode) {
+                                        Modifier.clickable {
+                                            toggleCardSelection(card.id)
+                                        }
+                                    } else {
+                                        Modifier
+                                    }
+                                ),
                             colors = CardDefaults.cardColors(
-                                containerColor =
-                                    MaterialTheme.colorScheme.surfaceVariant
+//                                containerColor = if (
+//                                    selectionMode && card.id in selectedCardIds
+//                                ) {
+//                                    MaterialTheme.colorScheme.primaryContainer
+//                                } else {
+//                                    MaterialTheme.colorScheme.surfaceVariant
+//                                }
+                                MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Row(
@@ -295,30 +414,39 @@ fun ManageScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                IconButton(
-                                    onClick = {
-                                        onEdit(card)
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = stringResource(
-                                            R.string.edit_flashcard
-                                        )
+                                if (selectionMode) {
+                                    Checkbox(
+                                        checked = card.id in selectedCardIds,
+                                        onCheckedChange = {
+                                            toggleCardSelection(card.id)
+                                        }
                                     )
-                                }
+                                } else {
+                                    IconButton(
+                                        onClick = {
+                                            onEdit(card)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = stringResource(
+                                                R.string.edit_flashcard
+                                            )
+                                        )
+                                    }
 
-                                IconButton(
-                                    onClick = {
-                                        cardToDelete = card
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = stringResource(
-                                            R.string.delete_flashcard
+                                    IconButton(
+                                        onClick = {
+                                            cardToDelete = card
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = stringResource(
+                                                R.string.delete_flashcard
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -352,7 +480,7 @@ fun ManageScreen(
                         onCreateSubdeck(true)
                     }
                 ) {
-                    Text(stringResource(R.string.move_cards_create_subdeck))
+                    Text(stringResource(R.string.move))
                 }
             },
             dismissButton = {
@@ -411,6 +539,48 @@ fun ManageScreen(
             },
             onDismiss = {
                 subdeckToDelete = null
+            }
+        )
+    }
+
+    if (showMoveCardsDialog) {
+        MoveCardsDialog(
+            currentDeck = allDecks.first { it.id == deckId },
+            sourceCards = directCards,
+            selectedCardIds = selectedCardIds,
+            allDecks = allDecks,
+            onDismiss = {
+                showMoveCardsDialog = false
+            },
+            onConfirm = { destinationId ->
+                onMoveCards(
+                    selectedCardIds.toList(),
+                    destinationId
+                )
+
+                selectedCardIds = emptySet()
+                selectionMode = false
+                showMoveCardsDialog = false
+            }
+        )
+    }
+
+    deckToMove?.let { movingDeck ->
+        MoveDeckDialog(
+            movingDeck = movingDeck,
+            allDecks = allDecks,
+            cards = cards,
+            onDismiss = {
+                deckToMove = null
+            },
+            onConfirm = { destinationId, confirmed ->
+                onMoveDeck(
+                    movingDeck,
+                    destinationId,
+                    confirmed
+                )
+
+                deckToMove = null
             }
         )
     }

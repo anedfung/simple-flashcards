@@ -8,7 +8,9 @@ class FlashcardRepository(
     private val flashcardDao = database.flashcardDao()
     private val deckDao = database.deckDao()
 
-    // Deck operations
+    // ---------------------------------------------------------
+    // DECK OPERATIONS
+    // ---------------------------------------------------------
 
     val decks = deckDao.getAll()
 
@@ -41,7 +43,21 @@ class FlashcardRepository(
         deckDao.delete(deck)
     }
 
-    // Flashcard operations
+    suspend fun moveDeck(
+        deckId: Int,
+        destinationDeckId: Int?,
+        moveExistingCardsToSubdeck: Boolean
+    ) {
+        database.moveDeck(
+            deckId = deckId,
+            destinationDeckId = destinationDeckId,
+            moveExistingCardsToSubdeck = moveExistingCardsToSubdeck
+        )
+    }
+
+    // ---------------------------------------------------------
+    // FLASHCARD OPERATIONS
+    // ---------------------------------------------------------
 
     val cards = flashcardDao.getAll()
 
@@ -68,7 +84,17 @@ class FlashcardRepository(
     }
 
     suspend fun updateCard(card: Flashcard) {
-        flashcardDao.update(card)
+        database.updateCard(card)
+    }
+
+    suspend fun moveCards(
+        cardIds: List<Int>,
+        destinationDeckId: Int
+    ) {
+        database.moveCards(
+            cardIds = cardIds,
+            destinationDeckId = destinationDeckId
+        )
     }
 
     suspend fun deleteCard(card: Flashcard) {
