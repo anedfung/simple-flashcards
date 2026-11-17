@@ -100,4 +100,9 @@ class FlashcardRepository(
     suspend fun deleteCard(card: Flashcard) {
         flashcardDao.delete(card)
     }
+
+    suspend fun setCardsEnabled(cardIds: List<Int>, enabled: Boolean) {
+        if (cardIds.isEmpty()) return
+        flashcardDao.setSelectedCardsEnabled(cardIds, enabled)
+    }
 }
