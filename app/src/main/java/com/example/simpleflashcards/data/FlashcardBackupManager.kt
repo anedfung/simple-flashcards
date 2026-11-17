@@ -18,7 +18,7 @@ class FlashcardBackupManager(
 
         val root = JSONObject().apply {
             put("format", "simple_flashcards_backup")
-            put("version", 2)
+            put("version", 3)
         }
 
         val deckArray = JSONArray()
@@ -47,6 +47,7 @@ class FlashcardBackupManager(
                     put("question", card.question)
                     put("answer", card.answer)
                     put("deckId", card.deckId)
+                    put("isEnabled", card.isEnabled)
                 }
             )
         }
@@ -82,7 +83,7 @@ class FlashcardBackupManager(
 
         val version = root.optInt("version")
 
-        require(version == 1 || version == 2) {
+        require(version in 1..3) {
             "This backup version is not supported."
         }
 
@@ -122,7 +123,8 @@ class FlashcardBackupManager(
                     id = item.getInt("id"),
                     question = item.getString("question"),
                     answer = item.getString("answer"),
-                    deckId = item.getInt("deckId")
+                    deckId = item.getInt("deckId"),
+                    isEnabled = if (version >= 3) item.optBoolean("isEnabled", true) else true
                 )
             )
         }
