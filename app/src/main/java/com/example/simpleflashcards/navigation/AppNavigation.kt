@@ -427,7 +427,7 @@ fun AppNavigation(
                 PracticeScreen(
                     deckId = deck.id,
                     deckName = deck.name,
-                    cards = selectedCards,
+                    cards = selectedCards.filter { it.isEnabled },
                     appearance = selectedAppearance,
 
                     initialSession = restoredSession?.takeIf {
@@ -527,6 +527,10 @@ fun AppNavigation(
 
                     onCustomize = {
                         navigateTo(AppScreen.DECK_APPEARANCE)
+                    },
+
+                    onSetCardsEnabled = { cardIds, enabled ->
+                        viewModel.setCardsEnabled(cardIds, enabled)
                     },
 
                     onMoveCards = { cardIds, destinationId ->
