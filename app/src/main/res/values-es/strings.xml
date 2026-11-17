@@ -59,6 +59,9 @@
     <string name="select_all">Seleccionar todas</string>
     <string name="deselect_all">Deseleccionar todas</string>
     <string name="move_selected_count">Mover (%1$d)</string>
+    <string name="enable_selected_count">Activar (%1$d)</string>
+    <string name="disable_selected_count">Desactivar (%1$d)</string>
+    <string name="excluded_from_practice">Desactivada</string>
     <string name="move_flashcards_title">Mover fichas?</string>
     <string name="move_flashcards_message">Mover las fichas seleccionadas a otro fichero.</string>
     <string name="move_flashcards_selection_count">Se han seleccionado %1$d fichas.</string>
