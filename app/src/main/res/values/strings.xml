@@ -59,6 +59,9 @@
     <string name="select_all">Select all</string>
     <string name="deselect_all">Deselect all</string>
     <string name="move_selected_count">Move (%1$d)</string>
+    <string name="enable_selected_count">Enable (%1$d)</string>
+    <string name="disable_selected_count">Disable (%1$d)</string>
+    <string name="excluded_from_practice">Disabled</string>
     <string name="move_flashcards_title">Move flashcards?</string>
     <string name="move_flashcards_message">Move selected flashcards to another deck.</string>
     <string name="move_flashcards_selection_count">%1$d flashcards selected.</string>
