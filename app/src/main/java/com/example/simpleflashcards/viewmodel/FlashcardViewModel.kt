@@ -200,6 +200,14 @@ class FlashcardViewModel(
         }
     }
 
+    fun setCardsEnabled(cardIds: List<Int>, enabled: Boolean) {
+        if (cardIds.isEmpty()) return
+
+        viewModelScope.launch {
+            repository.setCardsEnabled(cardIds, enabled)
+        }
+    }
+
     // ---------------------------------------------------------
     // PRACTICE SETTINGS
     // ---------------------------------------------------------
