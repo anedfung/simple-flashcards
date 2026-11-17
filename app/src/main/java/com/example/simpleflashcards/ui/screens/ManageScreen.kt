@@ -47,6 +47,7 @@ fun ManageScreen(
     onImportCards: (List<CsvFlashcard>) -> Unit,
     onCustomize: () -> Unit,
     onMoveCards: (List<Int>, Int) -> Unit,
+    onSetCardsEnabled: (List<Int>, Boolean) -> Unit,
     onMoveDeck: (Deck, Int?, Boolean) -> Unit,
 ) {
     var cardToDelete by remember {
@@ -348,6 +349,29 @@ fun ManageScreen(
 
                             Button(
                                 onClick = {
+                                    val selectedCards = directCards.filter {
+                                        it.id in selectedCardIds
+                                    }
+                                    val enableCards = !selectedCards.all { it.isEnabled }
+                                    onSetCardsEnabled(selectedCardIds.toList(), enableCards)
+                                },
+                                enabled = selectedCardIds.isNotEmpty()
+                            ) {
+                                val selectedCards = directCards.filter {
+                                    it.id in selectedCardIds
+                                }
+                                val allEnabled = selectedCards.all { it.isEnabled }
+                                Text(
+                                    stringResource(
+                                        if (allEnabled) R.string.disable_selected_count
+                                        else R.string.enable_selected_count,
+                                        selectedCardIds.size
+                                    )
+                                )
+                            }
+
+                            Button(
+                                onClick = {
                                     showMoveCardsDialog = true
                                 },
                                 enabled = selectedCardIds.isNotEmpty()
@@ -411,8 +435,21 @@ fun ManageScreen(
                                 Text(
                                     text = card.question,
                                     modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = if (card.isEnabled) {
+                                        MaterialTheme.colorScheme.onSurface
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
                                 )
+
+                                if (!card.isEnabled) {
+                                    Text(
+                                        text = stringResource(R.string.excluded_from_practice),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
 
                                 if (selectionMode) {
                                     Checkbox(
