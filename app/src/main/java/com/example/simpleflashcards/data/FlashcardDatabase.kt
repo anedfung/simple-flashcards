@@ -14,7 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         Flashcard::class,
         Deck::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class FlashcardDatabase : RoomDatabase() {
@@ -550,6 +550,19 @@ abstract class FlashcardDatabase : RoomDatabase() {
             }
         }
 
+        // Version 3 -> Version 4: add flashcard activation state.
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    ALTER TABLE flashcards
+                    ADD COLUMN isEnabled INTEGER NOT NULL DEFAULT 1
+                    """.trimIndent()
+                )
+            }
+        }
+
         private val DATABASE_CALLBACK = object : RoomDatabase.Callback() {
 
             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -575,7 +588,8 @@ abstract class FlashcardDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_1_2,
-                        MIGRATION_2_3
+                        MIGRATION_2_3,
+                        MIGRATION_3_4
                     )
                     .addCallback(DATABASE_CALLBACK)
                     .build()
