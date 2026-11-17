@@ -30,6 +30,8 @@ data class Flashcard(
 
     val answer: String,
 
-    val deckId: Int
+    val deckId: Int,
+
+    val isEnabled: Boolean = true
 
 )
