@@ -41,6 +41,12 @@ fun PracticeScreen(
     // Initialize or reconcile the card order.
     LaunchedEffect(cards) {
 
+        if (cards.isEmpty()) {
+            orderedCards = emptyList()
+            currentCardId = null
+            return@LaunchedEffect
+        }
+
         if (cards.isNotEmpty()) {
 
             val availableIds = cards.map { it.id }.toSet()
