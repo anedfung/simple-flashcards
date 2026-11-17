@@ -40,6 +40,18 @@ interface FlashcardDao {
     @Query(
         """
         UPDATE flashcards
+        SET isEnabled = :enabled
+        WHERE id IN (:cardIds)
+        """
+    )
+    suspend fun setSelectedCardsEnabled(
+        cardIds: List<Int>,
+        enabled: Boolean
+    )
+
+    @Query(
+        """
+        UPDATE flashcards
         SET deckId = :newDeckId
         WHERE deckId = :oldDeckId
         """
