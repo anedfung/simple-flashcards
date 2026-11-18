@@ -57,4 +57,16 @@ interface DeckDao {
 
     @Query("DELETE FROM decks")
     suspend fun deleteAll()
+
+    @Query(
+        """
+    UPDATE decks
+    SET isEnabled = :enabled
+    WHERE id = :deckId
+    """
+    )
+    suspend fun setEnabled(
+        deckId: Int,
+        enabled: Boolean
+    )
 }

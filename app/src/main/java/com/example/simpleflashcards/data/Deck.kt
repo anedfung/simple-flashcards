@@ -1,5 +1,6 @@
 package com.example.simpleflashcards.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -28,5 +29,8 @@ data class Deck(
 
     val createdAt: Long = System.currentTimeMillis(),
 
-    val parentDeckId: Int? = null
+    val parentDeckId: Int? = null,
+
+    @ColumnInfo(defaultValue = "1")
+    val isEnabled: Boolean = true
 )

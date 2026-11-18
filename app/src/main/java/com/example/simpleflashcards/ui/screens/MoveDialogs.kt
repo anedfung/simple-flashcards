@@ -252,10 +252,6 @@ fun MoveDeckDialog(
         mutableStateOf<Int?>(null)
     }
 
-    val movingDeckHasCards = cards.any {
-        it.deckId == movingDeck.id
-    }
-
     val deckTree = remember(allDecks) {
         buildDeckTree(allDecks)
     }
@@ -284,31 +280,39 @@ fun MoveDeckDialog(
     val eligibleDestinationIds = remember(
         movingDeck.id,
         movingDeck.parentDeckId,
-        movingDeckHasCards,
         allDecks,
+        cards,
         descendantIds
     ) {
         allDecks.filter { destination ->
 
+            // A deck cannot be moved into itself.
             if (destination.id == movingDeck.id) {
                 return@filter false
             }
 
+            // A deck cannot be moved into one of its descendants.
             if (destination.id in descendantIds) {
                 return@filter false
             }
 
+            // Keep the existing restriction on moving directly
+            // back into its current parent.
             if (destination.id == movingDeck.parentDeckId) {
                 return@filter false
+            }
+
+            val destinationHasCards = cards.any {
+                it.deckId == destination.id
             }
 
             val destinationHasChildren = allDecks.any {
                 it.parentDeckId == destination.id
             }
 
-            // A deck with direct flashcards cannot be moved into
-            // a destination that already contains subdecks.
-            !(movingDeckHasCards && destinationHasChildren)
+            // A destination containing both direct cards and
+            // subdecks is structurally invalid.
+            !(destinationHasCards && destinationHasChildren)
 
         }.map { it.id }.toSet()
     }
@@ -437,6 +441,15 @@ fun MoveDeckDialog(
                             ) {
                                 val targetHasCards = cards.any {
                                     it.deckId == targetId
+                                }
+
+                                val targetHasChildren = allDecks.any {
+                                    it.parentDeckId == targetId
+                                }
+
+                                if (targetHasCards && targetHasChildren) {
+                                    // This should not happen with a valid deck hierarchy.
+                                    return@TextButton
                                 }
 
                                 if (targetHasCards) {

@@ -100,4 +100,24 @@ class FlashcardRepository(
     suspend fun deleteCard(card: Flashcard) {
         flashcardDao.delete(card)
     }
+
+    suspend fun setCardEnabled(
+        cardId: Int,
+        enabled: Boolean
+    ) {
+        flashcardDao.setEnabled(
+            cardId = cardId,
+            enabled = enabled
+        )
+    }
+
+    suspend fun setDeckEnabled(
+        deckId: Int,
+        enabled: Boolean
+    ) {
+        deckDao.setEnabled(
+            deckId = deckId,
+            enabled = enabled
+        )
+    }
 }

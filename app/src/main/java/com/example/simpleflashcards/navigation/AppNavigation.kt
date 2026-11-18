@@ -315,9 +315,23 @@ fun AppNavigation(
         getDescendantDeckIds(deck.id, decks)
     } ?: emptySet()
 
+// Keep all cards available for the management screen.
     val selectedCards = cards.filter {
         it.deckId in selectedDeckIds
     }
+
+// Only include enabled cards from eligible decks during practice.
+    val practiceCards = selectedDeck?.let { rootDeck ->
+        cards.filter { card ->
+            card.isEnabled &&
+                    card.deckId in selectedDeckIds &&
+                    isDeckIncludedInPractice(
+                        deckId = card.deckId,
+                        rootDeckId = rootDeck.id,
+                        decks = decks
+                    )
+        }
+    } ?: emptyList()
 
     val selectedSubdecks = decks.filter {
         it.parentDeckId == selectedDeck?.id
@@ -427,7 +441,7 @@ fun AppNavigation(
                 PracticeScreen(
                     deckId = deck.id,
                     deckName = deck.name,
-                    cards = selectedCards,
+                    cards = practiceCards,
                     appearance = selectedAppearance,
 
                     initialSession = restoredSession?.takeIf {
@@ -466,6 +480,7 @@ fun AppNavigation(
                     deckName = deck.name,
                     deckId = deck.id,
                     cards = selectedCards,
+                    allCards = cards,
                     subdecks = selectedSubdecks,
                     allDecks = decks,
                     newSubdeckToRename = newlyCreatedSubdeck,
@@ -597,6 +612,14 @@ fun AppNavigation(
                                 ).show()
                             }
                         }
+                    },
+
+                    onToggleCardEnabled = { card ->
+                        viewModel.toggleCardEnabled(card)
+                    },
+
+                    onToggleDeckEnabled = { subdeck ->
+                        viewModel.toggleDeckEnabled(subdeck)
                     },
                 )
             }
@@ -791,4 +814,35 @@ private fun getDescendantDeckIds(
     }
 
     return result
+}
+
+private fun isDeckIncludedInPractice(
+    deckId: Int,
+    rootDeckId: Int,
+    decks: List<Deck>
+): Boolean {
+
+    // The selected deck is always eligible for direct practice,
+    // even if it is itself disabled.
+    if (deckId == rootDeckId) {
+        return true
+    }
+
+    val decksById = decks.associateBy { it.id }
+
+    var current = decksById[deckId] ?: return false
+
+    while (current.id != rootDeckId) {
+
+        // A disabled descendant excludes its entire subtree.
+        if (!current.isEnabled) {
+            return false
+        }
+
+        val parentId = current.parentDeckId ?: return false
+
+        current = decksById[parentId] ?: return false
+    }
+
+    return true
 }

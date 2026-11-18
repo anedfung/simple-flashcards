@@ -52,6 +52,10 @@
     <string name="delete_flashcard">Eliminar ficha</string>
     <string name="delete_flashcard_title">¿Eliminar ficha?</string>
     <string name="delete_flashcard_message">¿Seguro que quieres eliminar esta ficha?</string>
+    <string name="enable_flashcard">Activar ficha</string>
+    <string name="disable_flashcard">Desactivar ficha</string>
+    <string name="enable_deck">Activar fichero</string>
+    <string name="disable_deck">Desactivar fichero</string>
 
     <!-- Movimiento de fichas y ficheros -->
     <string name="move">Mover</string>

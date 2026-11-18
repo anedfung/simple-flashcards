@@ -118,6 +118,15 @@ class FlashcardViewModel(
         }
     }
 
+    fun toggleDeckEnabled(deck: Deck) {
+        viewModelScope.launch {
+            repository.setDeckEnabled(
+                deckId = deck.id,
+                enabled = !deck.isEnabled
+            )
+        }
+    }
+
     // ---------------------------------------------------------
     // FLASHCARD OPERATIONS
     // ---------------------------------------------------------
@@ -197,6 +206,15 @@ class FlashcardViewModel(
     fun deleteCard(card: Flashcard) {
         viewModelScope.launch {
             repository.deleteCard(card)
+        }
+    }
+
+    fun toggleCardEnabled(card: Flashcard) {
+        viewModelScope.launch {
+            repository.setCardEnabled(
+                cardId = card.id,
+                enabled = !card.isEnabled
+            )
         }
     }
 

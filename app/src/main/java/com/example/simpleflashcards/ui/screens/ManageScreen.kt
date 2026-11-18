@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ fun ManageScreen(
     deckName: String,
     deckId: Int,
     cards: List<Flashcard>,
+    allCards: List<Flashcard>,
     subdecks: List<Deck>,
     allDecks: List<Deck>,
     newSubdeckToRename: Deck?,
@@ -48,6 +51,8 @@ fun ManageScreen(
     onCustomize: () -> Unit,
     onMoveCards: (List<Int>, Int) -> Unit,
     onMoveDeck: (Deck, Int?, Boolean) -> Unit,
+    onToggleCardEnabled: (Flashcard) -> Unit,
+    onToggleDeckEnabled: (Deck) -> Unit,
 ) {
     var cardToDelete by remember {
         mutableStateOf<Flashcard?>(null)
@@ -205,10 +210,40 @@ fun ManageScreen(
                                 modifier = Modifier.padding(16.dp)
                             ) {
 
-                                Text(
-                                    text = subdeck.name,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = subdeck.name,
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                            alpha = if (subdeck.isEnabled) 1f else 0.45f
+                                        )
+                                    )
+
+                                    IconButton(
+                                        onClick = {
+                                            onToggleDeckEnabled(subdeck)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = if (subdeck.isEnabled) {
+                                                Icons.Default.Visibility
+                                            } else {
+                                                Icons.Default.VisibilityOff
+                                            },
+                                            contentDescription = stringResource(
+                                                if (subdeck.isEnabled) {
+                                                    R.string.disable_deck
+                                                } else {
+                                                    R.string.enable_deck
+                                                }
+                                            )
+                                        )
+                                    }
+                                }
 
                                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -411,7 +446,10 @@ fun ManageScreen(
                                 Text(
                                     text = card.question,
                                     modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                        alpha = if (card.isEnabled) 1f else 0.45f
+                                    )
                                 )
 
                                 if (selectionMode) {
@@ -422,6 +460,28 @@ fun ManageScreen(
                                         }
                                     )
                                 } else {
+
+                                    IconButton(
+                                        onClick = {
+                                            onToggleCardEnabled(card)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = if (card.isEnabled) {
+                                                Icons.Default.Visibility
+                                            } else {
+                                                Icons.Default.VisibilityOff
+                                            },
+                                            contentDescription = stringResource(
+                                                if (card.isEnabled) {
+                                                    R.string.disable_flashcard
+                                                } else {
+                                                    R.string.enable_flashcard
+                                                }
+                                            )
+                                        )
+                                    }
+
                                     IconButton(
                                         onClick = {
                                             onEdit(card)
@@ -569,7 +629,7 @@ fun ManageScreen(
         MoveDeckDialog(
             movingDeck = movingDeck,
             allDecks = allDecks,
-            cards = cards,
+            cards = allCards,
             onDismiss = {
                 deckToMove = null
             },

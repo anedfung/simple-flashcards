@@ -14,7 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         Flashcard::class,
         Deck::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class FlashcardDatabase : RoomDatabase() {
@@ -385,9 +385,9 @@ abstract class FlashcardDatabase : RoomDatabase() {
 
             val allCards = flashcardDao().getAllNow()
 
-            val movingDeckCards = allCards.filter {
-                it.deckId == movingDeck.id
-            }
+//            val movingDeckCards = allCards.filter {
+//                it.deckId == movingDeck.id
+//            }
 
             val destinationCards = allCards.filter {
                 it.deckId == destinationDeckId
@@ -400,13 +400,13 @@ abstract class FlashcardDatabase : RoomDatabase() {
                 "The destination deck has an invalid content structure."
             }
 
-            // A destination containing subdecks cannot accept a deck
-            // that directly contains flashcards.
-            if (destinationChildren.isNotEmpty()) {
-                check(movingDeckCards.isEmpty()) {
-                    "A deck containing flashcards cannot be moved into a deck containing subdecks."
-                }
-            }
+//            // A destination containing subdecks cannot accept a deck
+//            // that directly contains flashcards.
+//            if (destinationChildren.isNotEmpty()) {
+//                check(movingDeckCards.isEmpty()) {
+//                    "A deck containing flashcards cannot be moved into a deck containing subdecks."
+//                }
+//            }
 
             if (destinationCards.isNotEmpty()) {
 
@@ -550,6 +550,27 @@ abstract class FlashcardDatabase : RoomDatabase() {
             }
         }
 
+        // Version 3 -> Version 4: add flashcard activation.
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    """
+                    ALTER TABLE flashcards
+                    ADD COLUMN isEnabled INTEGER NOT NULL DEFAULT 1
+                    """.trimIndent()
+                )
+
+                db.execSQL(
+                    """
+                    ALTER TABLE decks
+                    ADD COLUMN isEnabled INTEGER NOT NULL DEFAULT 1
+                    """.trimIndent()
+                )
+            }
+        }
+
         private val DATABASE_CALLBACK = object : RoomDatabase.Callback() {
 
             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -575,7 +596,8 @@ abstract class FlashcardDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_1_2,
-                        MIGRATION_2_3
+                        MIGRATION_2_3,
+                        MIGRATION_3_4
                     )
                     .addCallback(DATABASE_CALLBACK)
                     .build()
